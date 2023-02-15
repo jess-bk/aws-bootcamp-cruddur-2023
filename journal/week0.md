@@ -1,12 +1,41 @@
 # Week 0 — Billing and Architecture
 
 # Folowing is the link to my System Architecture Conceptual Diagram, i have also updated the journal with a png file that has the diagram
-https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_loc=84%2C-220%2C1993%2C821%2C0_0&invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+
+# Appliction Software used
+1. Amazon Cognito: It's a service that provides user authentication and authorization for your application. It allows users to sign up, sign in, and manage their account credentials securely.
+
+2. Nginx: It's a high-performance web server that can also act as a reverse proxy, load balancer, and HTTP cache. In your system, it acts as a load balancer that distributes incoming requests to the Flask API and React.js front-end.
+
+3. React.js front-end: It's a JavaScript library for building user interfaces. It's used for building the client-side of your application, which includes the user interface, logic, and data handling.
+
+4. Flask API back-end: Flask is a lightweight Python web framework for building web applications. In your system, it provides the application programming interface (API) for handling the business logic and data handling on the server-side.
+
+5. Amazon API Gateway: It's a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale. It acts as a gateway between the front-end and the Flask API.
+
+6. Amazon S3 Bucket and DynamoDB: Amazon S3 is a scalable object storage service, and DynamoDB is a fully managed NoSQL database service. They both act as the data storage for your application.
+
+7. Redis and Apache Zookeeper: Redis is an in-memory data structure store that can be used as a database, cache, and message broker. In your system, it's used as a cache for the user timeline. Apache Zookeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and group services. It's used in your system to manage the Redis cluster.
+
+8. Amazon Elastic Search: It's a managed search and analytics engine that provides real-time insights into your data. In your system, it's used for full-text search functionality.
+
+9. AWS Glue: It's a fully managed extract, transform, and load (ETL) service that makes it easy to move data between data stores. In your system, it's used for ETL jobs to transform data from DynamoDB and write it to Amazon Elastic Search.
+
+10. DynamoDB: It's a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability.
+
+11. Amazon Kinesis: It's a platform for streaming data on AWS. In your system, it's used for real-time data ingestion and processing.
+
+# Link to Diagram
+1. https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_loc=84%2C-220%2C1993%2C821%2C0_0&invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+
+# Updated Diagram 
+https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+
 
 # Billing AWS Console
 1. created a budget and billing alarm with AWS Console.
 2. created a Group and allocated a user to the group with Admin Access.
-3. generated AWS Credentials
+3. generated AWS Credentials for user
 
 # AWS CLI
 1. configured and installed AWS in vs code
@@ -17,6 +46,42 @@ https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_
 
 # GITHUB
 1. connnected to gitpod, created repo
+
+# AWS CONSOLE
+1. AWS console created budget, limits on spend and notification(ASHISH and Andrew youtube videos)
+2. Created IAM user and deleted
+3. created IAM user again
+4. AWS CloudShell alternative from using vs code cli
+
+# AWS CLI PROMPTS
+1. aws --cli-auto-prompts --> auto complete
+2. aws sts get-caller-identity --> current user identity (ARN: amazon resource name, unique way of showing aws resource identity, username, type of user)
+3. aws account get-contact-information --> users Contact Information
+4. curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" --> enter in cli to install aws zip file in workspace.
+5. unzip awscliv2.zip --> cli to unzip file
+6. sudo ./aws/install --> install the unzip file
+7. ls -la --> list files in row
+8. env | grep AWS_ACCESS_KEY_ID ---> access key (same for AWS_SECRET_KEY, AWS_DEFAULT_REGION)
+9. env | grep AWS_ --> GET ALL THE AWS CREDENTIALS (AS ABOVE)
+10. AWS_ACCESS_KEY_ID="", AWS_SECRET_ACCESS_KEY,"" AWS_DEFAULT_REGION="", --> paste in the values and enter into cli, this will set the credentials
+11. env | grep AWS_ --> confirm credentials are set.
+12. gitpod yaml.file--> saving the environment and install on launching vs code via gitpod: 
+  tasks:
+  - name: aws-cli
+    env:
+      AWS_CLI_AUTO_PROMPT: on-partial
+    init: |
+      cd /workspace
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
+      cd $THEIA_WORKSPACE_ROOT 
+13. gp | env AWS_ACCESS_KEY_ID="" --> this will save the environment variables into gitpod so on everyload credentails are loaded for current user
+14. copy and paste the json files created inside the aws folder to create the alarms, budget and notifications.
+15. SNS notifications need confirming to activate depending how you set them. (email, text)
+16. EventBridge hookup to the dashboard for SNS notifications 
+
+
 
 # VS CODE
 created 3 json files
