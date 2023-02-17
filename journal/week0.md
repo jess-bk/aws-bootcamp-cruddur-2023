@@ -26,10 +26,13 @@
 11. Amazon Kinesis: It's a platform for streaming data on AWS. In your system, it's used for real-time data ingestion and processing.
 
 # Link to Diagram
-1. https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_loc=84%2C-220%2C1993%2C821%2C0_0&invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+1. https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_loc=84%2C-220%2C1993%2C821%2C0_0&invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904 --> this link is updated to the new one below but the first architectural diageam is in the journal.
 
 # Updated Diagram 
 https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+
+# Created third Architectural Diagram like Andrews
+https://lucid.app/lucidchart/deb47ba2-2d64-4389-b355-7a1411ec62a3/edit?viewport_loc=-293%2C49%2C1993%2C821%2C0_0&invitationId=inv_74d19ea9-70a9-416d-8a59-713547c556b8
 
 
 # Billing AWS Console
