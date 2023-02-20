@@ -27,4 +27,5 @@ EXPOSE ${PORT}
 
 # CDM -> COMMAND
 # The array is the command to run the flask
+# python3 -m flask run --host=0.0.0.0  --port=4567
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
