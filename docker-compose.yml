@@ -9,6 +9,11 @@ services:
       - "4567:4567"
     volumes:
       - ./backend-flask:/backend-flask
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:4567/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
@@ -29,6 +34,15 @@ services:
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "aws dynamodb list-tables --endpoint-url http://localhost:8000",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   db:
     image: postgres:13-alpine
     restart: always
@@ -36,13 +50,13 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     ports:
-      - '5432:5432'
-    volumes: 
+      - "5432:5432"
+    volumes:
       - db:/var/lib/postgresql/data
 
 # the name flag is a hack to change the default prepend folder
 # name when outputting the image names
-networks: 
+networks:
   internal-network:
     driver: bridge
     name: cruddur
