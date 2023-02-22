@@ -1,0 +1,40 @@
+{
+    "$schema": "https://release-1256208672.cos.ap-guangzhou.myqcloud.com/dbclient/schema.json",
+    "database": {
+        "1677059400228": {
+            "host": "127.0.0.1",
+            "port": 5432,
+            "user": "postgres",
+            "password": "password",
+            "dbType": "PostgreSQL",
+            "database": "postgres",
+            "name": "cloudcampus aws",
+            "includeDatabases": "postgres",
+            "useConnectionString": false,
+            "usingSSH": false,
+            "ssh": {
+                "host": "",
+                "privateKeyPath": null,
+                "port": 22,
+                "serverType": "linux",
+                "username": "root",
+                "type": "password",
+                "connectTimeout": 5000
+            },
+            "global": false,
+            "savePassword": "Forever",
+            "hideSystemSchema": true,
+            "readonly": false,
+            "sort": 11,
+            "useSSL": false,
+            "encrypt": false,
+            "authType": "default",
+            "esAuth": "none",
+            "dockerConnType": "ssh",
+            "showHidden": true,
+            "srv": false,
+            "key": "1677059400228",
+            "connectionKey": "database.connections"
+        }
+    }
+}
