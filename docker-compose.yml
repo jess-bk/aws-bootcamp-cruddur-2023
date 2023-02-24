@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   backend-flask:
     environment:
@@ -17,12 +18,17 @@ services:
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
-    build: ./frontend-react-js
+    build:
+      context: ./frontend-react-js
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
       - ./frontend-react-js:/frontend-react-js
-    command: sh -c "npm i && npm start"
+    depends_on:
+      - backend-flask
+    networks:
+      - internal-network
   dynamodb-local:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
     # We needed to add user:root to get this working.

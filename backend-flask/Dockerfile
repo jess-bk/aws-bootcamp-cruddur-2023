@@ -1,4 +1,5 @@
-FROM python:3.10-slim-buster
+# Backend Development Stage
+FROM python:3.10-slim-buster as development
 
 # Container path directory
 # make a new folder inside conatiner
@@ -28,4 +29,22 @@ EXPOSE ${PORT}
 # CDM -> COMMAND
 # The array is the command to run the flask
 # python3 -m flask run --host=0.0.0.0  --port=4567
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
+
+# Backend Production Stage
+FROM python:3.10-slim-buster as production
+
+WORKDIR /backend-flask
+
+COPY requirements.txt requirements.txt
+
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV FLASK_ENV=production
+
+EXPOSE ${PORT}
+
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
