@@ -123,3 +123,11 @@ networks:
 ```
 
 14. run the docker-compose file in the vs code by using docker-compose up, this will do a docker run and docker build on both of the containers, now you can open the ports and goto the apploication, docker compose on the frontend added file docker-compose that allows containers fron and backend to work together instead of doing them separately, you can update the app and it will take effect as the containers are running and will update the changes.
+
+# Watched the video for adding notifications 
+created a new api endpoint and then created a new component for notification api endpoint and addded to the routing page.
+
+# Issue with cors
+the issue was the notifications were not getting access from the backend because blocking the acccess generally cors will not alllow acccess to the web if the origin are not set and have installed cors that can allow access, in the back end we could have set the origins explicitly by addding acccess option to cors  by creating a file in the backend and then allowing cors to have access to certain address, but i just added them at all the endpoints and that just worked fine
+
+![image to update i made on the backend](assets/week%20one%20aws/week-cors-issue.png)
