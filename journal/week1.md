@@ -485,3 +485,140 @@ REVOKE: This SQL statement is used to revoke privileges that were previously gra
 \s: Display current psql settings
 \!: Execute a shell command
 
+# Added command to the docker-compose file to install and run npm on starting docker-compose.
+```
+ command: sh -c "npm i && npm start"
+```
+
+# Configured GitPod.yml file to install vs code extensions on start up
+![image GitPod.yml vs code extensions](assets/week%20one%20aws/gitpod%20yml%20file.png)
+
+# Health check implemented in the V3 Docker compose file
+![image GitPod.yml vs code extensions](assets/week%20one%20aws/health%20check%20docker-compose%20.png)
+The healthcheck command is used to define a test that checks whether the container is working properly. If the test fails, the container will be considered unhealthy and will be restarted.
+
+health check sends a curl request to the frontend app running on localhost:3000 and backend running on localhost:3000 . If the request fails, it exits with status code 1 indicating a failure. The health check runs every 10 seconds (interval), and waits for a response for up to 5 seconds (timeout) before considering the check a failure. The health check is retried up to 3 times (retries) before it is considered a failure.
+
+this health check ensures that the frontend and backend is running and responding to requests. If the health check fails, the Docker container for the frontend and backend will be restarted automatically
+ 
+# Multi-Stage building for a Dockerfile build
+backend added a new stage at the end of the file. This new stage will be used to build the production image.
+in this new stage, we're copying our requirements.txt file and installing the dependencies. Then we're copying the rest of the code and setting the FLASK_ENV environment variable to production. Finally, we're exposing the same port as before and running the Flask app with the same command
+1.
+```
+ # Backend Production Stage
+FROM python:3.10-slim-buster as production
+
+WORKDIR /backend-flask
+
+COPY requirements.txt requirements.txt
+
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV FLASK_ENV=production
+
+EXPOSE ${PORT}
+
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
+```
+2. frontend app and added a new stage at the end of the file. This new stage will be used to build the production image, In this new stage, we're copying the entire directory as before, installing the production-only dependencies with npm install --only=production, and running the same command to start the app
+
+```
+# Frontend Production Stage
+FROM node:16.18 as production
+
+ENV PORT=3000
+
+COPY . /frontend-react-js
+WORKDIR /frontend-react-js
+RUN npm install --only=production
+EXPOSE ${PORT}
+CMD ["npm", "start"]
+```
+3. updated docker-compose.yml file with the new multi-stage build for the frontend, In this updated version of the file, we have added a build section to the frontend-react-js service. The context is set to the directory where the Dockerfile is located, and the dockerfile is set to the filename of the Dockerfile. This tells Docker Compose to build the frontend image using the Dockerfile in the specified directory.
+also added a depends_on section to the frontend-react-js service. This tells Docker Compose that the backend-flask service must be started before the frontend-react-js service. This is because the frontend needs to know the URL of the backend in order to make API requests.
+
+Finally, added the frontend-react-js service to the internal-network, which is the network that the other services are also connected to
+```
+ version: "3.8"
+
+services:
+  backend-flask:
+    environment:
+      FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+      BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+    build: ./backend-flask
+    ports:
+      - "4567:4567"
+    volumes:
+      - ./backend-flask:/backend-flask
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:4567/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  frontend-react-js:
+    environment:
+      REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+    build:
+      context: ./frontend-react-js
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend-react-js:/frontend-react-js
+    command: sh -c "npm i && npm start"
+    depends_on:
+      - backend-flask
+    networks:
+      - internal-network
+  dynamodb-local:
+    # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
+    # We needed to add user:root to get this working.
+    user: root
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "aws dynamodb list-tables --endpoint-url http://localhost:8000",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+# the name flag is a hack to change the default prepend folder
+# name when outputting the image names
+networks:
+  internal-network:
+    driver: bridge
+    name: cruddur
+
+volumes:
+  db:
+    driver: local
+```
+4. check the size of the final image by running the following command in your terminal
+```
+docker images
+```
