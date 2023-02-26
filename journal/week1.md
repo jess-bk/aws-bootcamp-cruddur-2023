@@ -695,7 +695,7 @@ docker-compose up --build
 ![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-console-week1.png)
 ![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-running-week1.png)
 ![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-week1.png)
-![image EC2 instance and docker running](assets/week%20one%20aws/sudo netstat -tulpn.png)
+![image EC2 instance and docker running](assets/week%20one%20aws/sudo%20netstat%20-tulpn.png)
 
 11. i installed apache and checked if i can make http request and check if it was active and everything was working and running no error, i checked for any firewalls blocking the connection in my chrome extension and in ec2 instance
 ```
