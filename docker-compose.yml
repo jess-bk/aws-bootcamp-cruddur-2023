@@ -25,6 +25,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend-react-js:/frontend-react-js
+    command: sh -c "npm i && npm start"
     depends_on:
       - backend-flask
     networks:
