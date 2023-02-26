@@ -418,3 +418,70 @@ aws dynamodb list-tables --endpoint-url http://localhost:8000
 aws dynamodb scan --table-name Music --query "Items" --endpoint-url http://localhost:8000
 ```
 ![image DynamoBD get records](assets/week%20one%20aws/DynamoDB_get_records_week1.png)
+
+# POSTGRESQL
+1. added script to gitpod.yml file to start up postgresql on starting gitpod
+```
+  - name: postgres
+    init: |
+      curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc|sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+      echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+      sudo apt update
+      sudo apt install -y postgresql-client-13 libp
+```
+
+first command downloads the PostgreSQL GPG key for package verification.
+second command adds the PostgreSQL repository to the system's package manager.
+third command updates the package lists.
+fourth command installs the PostgreSQL client and libpq library.
+installing the PostgreSQL client, the developer can connect to a remote PostgreSQL database instance from within the Gitpod workspace and perform various database-related tasks.
+
+2. Now you need to copy and paste the first 3 commands turn by turn into the cli and finally the last command to execute.
+
+3. run the follwoing command to start PostgreSQL
+```
+psql --host localhost, psql -Upostgres --host localhost
+```
+![image PostgreSQL](assets/week%20one%20aws/postgresSQL%20database.png)
+
+# Commands for PostgeSql 
+
+psql: This command is used to start the PostgreSQL interactive terminal, allowing you to interact with a running PostgreSQL server. You can run SQL queries, view tables, and perform other tasks through this terminal.
+
+createdb: This command is used to create a new database in PostgreSQL. You can specify the name of the database as an argument to the command.
+
+dropdb: This command is used to delete a database in PostgreSQL. You can specify the name of the database as an argument to the command.
+
+CREATE TABLE: This SQL statement is used to create a new table in a database. You can specify the name of the table, along with the columns and their data types, in the statement.
+
+ALTER TABLE: This SQL statement is used to modify an existing table in a database. You can add or remove columns, change column data types, and perform other modifications using this statement.
+
+INSERT INTO: This SQL statement is used to insert new rows into a table in a database. You can specify the values for each column in the row being inserted.
+
+UPDATE: This SQL statement is used to update existing rows in a table in a database. You can specify which rows to update and what values to set for each column.
+
+DELETE FROM: This SQL statement is used to delete rows from a table in a database. You can specify which rows to delete based on certain conditions.
+
+SELECT: This SQL statement is used to retrieve data from one or more tables in a database. You can specify which columns to retrieve and filter the results based on certain conditions.
+
+GRANT: This SQL statement is used to grant privileges to specific users or roles in a database. You can grant privileges such as SELECT, INSERT, UPDATE, DELETE, and others.
+
+REVOKE: This SQL statement is used to revoke privileges that were previously granted to users or roles in a database.
+
+# PostgreSQL meta-commands
+
+\q: Quit the psql command-line interface
+\l: List all databases
+\c <database>: Connect to a specific database
+\d: List all tables in the current database
+\d <table>: Describe the specified table
+\dn: List all schemas in the current database
+\df: List all functions in the current database
+\df+ <function>: Describe the specified function
+\du: List all roles (users) in the current database
+\du+ <role>: Describe the specified role
+\timing: Toggle timing of SQL statements
+\e: Open an external editor to edit the current query buffer before execution
+\s: Display current psql settings
+\!: Execute a shell command
+
