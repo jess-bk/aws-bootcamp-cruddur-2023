@@ -630,3 +630,135 @@ docker images
 ![image multi stage build](assets/week%20one%20aws/multi-build%20out%20log%20in%20terminal%20image%20sizes.png)
 ![image multi stage build](assets/week%20one%20aws/constiners%20up%20and%20running%20in%20the%20multi-stage%20build.png)
 
+# Run the dockerfile CMD as an external script
+1. created run.sh file
+```
+ #!/bin/bash
+export PORT=4567
+python3 -m flask run --host=0.0.0.0 --port=$PORT
+```
+2. Build Docker image
+```
+ docker build -t myproject .
+```
+3. Run Docker container
+```
+ docker run -p 4567:4567 myproject
+```
+4. open up port on 4567 in web browser and goto the api endpoint http://localhost:4567/api/activities/home
+![image dockerfile CMD as an external script ](assets/week%20one%20aws/external%20script%20localhost%20snap.png)
+![image dockerfile CMD as an external script ](assets/week%20one%20aws/external%20script%20ports.png)
+ 
+# Launch an EC2 instance that has docker installed, and pull a container to demonstrate you can run your own docker processes
+ 
+so this one really gave me the go around i just could not manage to get the public ip address to load up the app, so first i created an ec2 instance then set the Security groups and Network ACL to allow traffic on ports that were supposed to let me connect but i never got it to work, i must have tried for half a day just changing the Security Groups and Network ACL's, then i added an ELastic IP Address but that didnt work.
+ 
+1. first created an ec2 instance
+2. installed Putty on machine
+3. connected to ec2 instance by using the SSH key and configuring putty
+4. installed docker into ec2 instance by doing the below steps one at a time
+```
+sudo yum install docker -y
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+```
+5. logout and logged in again from the ec2 instance and stoped and started the ec2 instance
+6. installed docker-compose running the steps one by one, in this step i not sure if needed to sudo pip3 install and sudo curl to run both.
+```
+sudo apt-get update
+sudo apt-get install -y python3-pip
+sudo pip3 install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+7. installed apt
+```
+sudo yum install -y amazon-linux-extras
+sudo yum install -y amazon-linux-extras
+sudo yum install -y epel-release
+sudo yum install -y apt
+sudo apt update
+```
+8. installed git and run in steps
+```
+sudo yum install git
+git clone https://github.com/jess-bk/aws-bootcamp-cruddur-2023.git
+docker-compose up
+```
+9 run docker compose
+```
+docker-compose up --build
+```
+10. i will update the journal again with details once i have managed to get this up and running
+![image EC2 instance and docker running](assets/week%20one%20aws/ec2%20docker-compose.png)
+![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-console-week1.png)
+![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-running-week1.png)
+![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-week1.png)
+![image EC2 instance and docker running](assets/week%20one%20aws/sudo netstat -tulpn.png)
+
+11. i installed apache and checked if i can make http request and check if it was active and everything was working and running no error, i checked for any firewalls blocking the connection in my chrome extension and in ec2 instance
+```
+sudo systemctl start ufw
+```
+```
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+DOCKER-USER  all  --  anywhere             anywhere
+DOCKER-ISOLATION-STAGE-1  all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+DOCKER     all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+DOCKER     all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere
+ACCEPT     all  --  anywhere             anywhere
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain DOCKER (2 references)
+target     prot opt source               destination
+ACCEPT     tcp  --  anywhere             ip-172-18-0-2.ec2.internal  tcp dpt:postgres
+ACCEPT     tcp  --  anywhere             ip-172-18-0-3.ec2.internal  tcp dpt:tram
+ACCEPT     tcp  --  anywhere             ip-172-18-0-4.ec2.internal  tcp dpt:irdmi
+ACCEPT     tcp  --  anywhere             ip-172-18-0-5.ec2.internal  tcp dpt:hbci
+
+Chain DOCKER-ISOLATION-STAGE-1 (1 references)
+target     prot opt source               destination
+DOCKER-ISOLATION-STAGE-2  all  --  anywhere             anywhere
+DOCKER-ISOLATION-STAGE-2  all  --  anywhere             anywhere
+RETURN     all  --  anywhere             anywhere
+
+Chain DOCKER-ISOLATION-STAGE-2 (2 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere
+DROP       all  --  anywhere             anywhere
+RETURN     all  --  anywhere             anywhere
+
+Chain DOCKER-USER (1 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere
+[ec2-user@ip-i have done this my self ~
+```
+12. checked if ports were open and listening
+```
+sudo netstat -nlp | grep LISTEN | grep -E ':(80|443)'
+```
+```
+ [ec2-user@ip---i have left this my self]$ sudo netstat -nlp | grep LISTEN | grep -E ':(80|443)'
+tcp        0      0 0.0.0.0:8000            0.0.0.0:*               LISTEN      13329/docker-proxy
+tcp6       0      0 :::80                   :::*                    LISTEN      3050/httpd
+tcp6       0      0 :::8000                 :::*                    LISTEN      13333/docker-proxy
+[ec2-user@ip-i have done this my self]$ sudo netstat -nlp | grep LISTEN | grep -E ':(3000|4567)'
+tcp        0      0 0.0.0.0:4567            0.0.0.0:*               LISTEN      13271/docker-proxy
+tcp        0      0 0.0.0.0:3000            0.0.0.0:*               LISTEN      13553/docker-proxy
+tcp6       0      0 :::4567                 :::*                    LISTEN      13276/docker-proxy
+tcp6       0      0 :::3000                 :::*                    LISTEN      13557/docker-proxy
+```
+
+There is to much to list what i have done but will try again to resolve this im sure its SG rules
