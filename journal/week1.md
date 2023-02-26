@@ -417,4 +417,4 @@ aws dynamodb list-tables --endpoint-url http://localhost:8000
 ```
 aws dynamodb scan --table-name Music --query "Items" --endpoint-url http://localhost:8000
 ```
-![image DynamoBD get records](assets/week%20one%20aws/week-cors-issue.png)
+![image DynamoBD get records](assets/week%20one%20aws/DynamoDB_get_records_week1.png)
