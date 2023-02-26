@@ -440,7 +440,7 @@ installing the PostgreSQL client, the developer can connect to a remote PostgreS
 
 3. run the follwoing command to start PostgreSQL
 ```
-psql --host localhost, psql -Upostgres --host localhost
+psql --host localhost psql -Upostgres --host localhost
 ```
 ![image PostgreSQL](assets/week%20one%20aws/postgresSQL%20database.png)
 
@@ -762,3 +762,95 @@ tcp6       0      0 :::3000                 :::*                    LISTEN      
 ```
 
 There is to much to list what i have done but will try again to resolve this im sure its SG rules
+ 
+# Docker Container Security Best Practices
+Conatiner securiry practices of protecting your applications hosted on compute services like containers exmaples could be SPA's, MICRO SERVICES, etc.
+ 
+1. Use Official Images: Always use official images provided by the Docker Hub or trusted sources like your organization’s image repository. These images have gone through thorough security checks and are less likely to contain vulnerabilities.
+
+2. Update Regularly: Keep your Docker images and containers up to date with the latest security patches and software updates to ensure the security of your application.
+
+3. Limit Access to Containers: Limit the access to Docker containers to only authorized personnel. You can achieve this by using proper authentication and access control mechanisms.
+
+4 .Use Minimal Base Images: Use minimal base images, which are stripped-down versions of the OS, that only contain the essential components required to run your application. This helps reduce the attack surface and the risk of vulnerabilities.
+
+5. Scan Container Images: Scan the container images for vulnerabilities before deploying them. Tools like Docker Security Scanning and Clair can help you detect vulnerabilities and malware in your images.
+
+6. Use a Firewall: Use a firewall to control the network traffic to and from the containers. Configure the firewall to only allow necessary ports and services.
+
+7. Run Containers with Non-Root Users: Running containers with non-root users can help mitigate the risks associated with running containers as root.
+
+8. Use Secrets Management: Store secrets like passwords, keys, and tokens in a secure and centralized location like a secrets management system. This helps prevent accidental exposure of sensitive information.
+
+9. Remove Unnecessary Packages: Remove unnecessary packages and files from your container images. This helps reduce the size of the images and the attack surface.
+
+10. Use Monitoring and Logging: Use monitoring and logging tools to detect and respond to security incidents in real-time. This helps you identify security breaches and take corrective actions quickly.
+
+# Managed containers and unmanaged containers
+An unmanaged container refers to a container that is running directly on a host system, without the use of a container orchestration platform or any management tools. The user is responsible for managing and monitoring the container and ensuring that it is properly secured.
+
+On the other hand, a managed container service is a platform or service provided by a cloud provider that manages the underlying infrastructure, such as server hardware, networking, storage, and operating systems, as well as the container orchestration layer. Examples of managed container services include Amazon ECS, Google Kubernetes Engine, and Microsoft Azure Container Service. In a managed container service, the cloud provider takes care of the infrastructure management tasks, allowing users to focus on developing and deploying their applications. These services often include built-in security features and tools to help users secure their containers
+ 
+ # SNYK
+Snyk is a security tool that helps developers find and fix vulnerabilities in their open source dependencies and container images. It provides automated scanning of container images to detect vulnerabilities and misconfigurations, and also integrates with the development workflow to provide real-time feedback and guidance on how to remediate security issues. Some best practices for using Snyk with Docker containers include:
+
+Scan container images early and often: Use Snyk to scan container images as part of the build and deployment process, and ensure that scans are performed regularly to catch new vulnerabilities as they are discovered.
+
+Monitor for new vulnerabilities: Snyk can provide notifications when new vulnerabilities are discovered that affect your container images, so it's important to monitor these alerts and take action to remediate any issues as soon as possible.
+
+Harden container configurations: Snyk can also scan container configurations to identify potential security weaknesses, so it's important to review and adjust container configurations to minimize risk.
+
+Keep dependencies up-to-date: Snyk can help identify outdated dependencies and suggest updates to improve the security of your container images.
+
+Integrate with DevOps workflows: Snyk integrates with popular DevOps tools like Jenkins, GitHub, and Kubernetes, making it easy to incorporate security scanning into your existing workflows.
+
+# DOCKER COMPONENTS
+
+1. Docker is a platform that allows users to create, deploy, and run applications in containers. The main components of Docker include:
+
+2. Docker daemon: The Docker daemon is the background process that manages and controls the Docker containers, images, and networks.
+
+3. Docker client: The Docker client is the command-line tool that allows users to interact with the Docker daemon. It provides an interface to create, manage, and run Docker containers, images, and networks.
+
+4. Docker images: Docker images are read-only templates that are used to create Docker containers. They include everything needed to run an application, including the code, libraries, dependencies, and other files.
+
+5. Docker containers: Docker containers are lightweight, standalone executable packages that contain everything needed to run an application, including the code, libraries, dependencies, and other files. They run in isolation from the host system and other containers.
+
+6. Docker registry: The Docker registry is a service that stores Docker images. It allows users to share and distribute their Docker images with others.
+
+7. Dockerfile: A Dockerfile is a text file that contains instructions for building a Docker image. It specifies the base image, the application code, and other dependencies needed to build the image.
+
+8. Docker network: A Docker network is a virtual network that allows Docker containers to communicate with each other. It provides a way to isolate containers and control the traffic between them.
+
+9. Docker volumes: Docker volumes are used to store data that needs to persist between container runs or be shared between containers. They provide a way to manage data in Docker containers separately from the container itself.
+ 
+# Docker security components
+Docker provides several security components that help to secure the Docker environment and the containers running within it:
+
+1. Docker Daemon: The Docker daemon is responsible for running, creating, and managing Docker containers. It communicates with the Docker client to receive instructions on how to build, run, and manage containers. The Docker daemon can be configured to only allow connections from authorized users or networks.
+
+2. Docker Content Trust: Docker Content Trust is a feature that provides cryptographic verification of image integrity and provenance. This ensures that the images running on a Docker host are authentic and have not been tampered with. Content Trust uses digital signatures to verify the image and the registry where the image was stored.
+
+3. Docker Security Scanning: Docker Security Scanning is a tool that scans Docker images for vulnerabilities and provides detailed reports on any security issues that are found. This helps to identify and fix security vulnerabilities before they can be exploited by attackers.
+
+4. Docker AppArmor and SELinux: AppArmor and SELinux are Linux security modules that provide an additional layer of security for Docker containers. These modules limit the access that containers have to system resources and can prevent malicious actions by attackers or compromised containers.
+
+5. Docker Secrets: Docker Secrets is a tool for securely managing sensitive data such as passwords, API keys, and other secrets. Secrets can be stored securely in Docker Swarm and accessed only by authorized services.
+
+6. Docker Network Security: Docker provides several network security features such as network isolation, encrypted communication between containers, and network segmentation to prevent unauthorized access to containers and their data.
+
+By using these security components, Docker provides a secure and reliable platform for running containerized applications.
+
+# AWS security manager
+ 
+AWS Secrets Manager is a fully managed service that enables you to easily and securely store and retrieve secrets such as database credentials, API keys, and other secrets, throughout their lifecycle. You can also use Secrets Manager to rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. AWS Secrets Manager eliminates the need to hard-code credentials in your code or environment variables, making it easier for you to follow security best practices.
+
+With AWS Secrets Manager, you can also control access to secrets using fine-grained access policies, audit secret rotation centrally, and apply multi-factor authentication (MFA) to your secrets. Secrets Manager provides support for Amazon Virtual Private Cloud (VPC) endpoints and VPC security groups, giving you additional security when you are using Secrets Manager within your VPC.
+
+You can use AWS Secrets Manager to store secrets for AWS resources like Amazon Relational Database Service (Amazon RDS), Amazon DocumentDB, and Amazon Aurora, as well as for third-party services like MongoDB, PostgreSQL, and MySQL. Secrets Manager can also be integrated with AWS CloudFormation, AWS Lambda, and AWS Identity and Access Management (IAM) to simplify your infrastructure and application deployments
+
+# Amazon Inspector 
+is an automated security assessment service that helps to improve the security and compliance of applications that are deployed on Amazon Web Services (AWS)
+ 
+# Clair is an open-source container security analyzer developed by CoreOS. 
+Its purpose is to scan container images for known vulnerabilities and produce a report of its findings
