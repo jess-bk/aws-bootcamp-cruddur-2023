@@ -494,7 +494,7 @@ REVOKE: This SQL statement is used to revoke privileges that were previously gra
 ![image GitPod.yml vs code extensions](assets/week%20one%20aws/gitpod%20yml%20file.png)
 
 # Health check implemented in the V3 Docker compose file
-![image GitPod.yml vs code extensions](assets/week%20one%20aws/health%20check%20docker-compose%20.png)
+![image Health Check](assets/week%20one%20aws/health%20check%20docker-compose%20.png)
 The healthcheck command is used to define a test that checks whether the container is working properly. If the test fails, the container will be considered unhealthy and will be restarted.
 
 health check sends a curl request to the frontend app running on localhost:3000 and backend running on localhost:3000 . If the request fails, it exits with status code 1 indicating a failure. The health check runs every 10 seconds (interval), and waits for a response for up to 5 seconds (timeout) before considering the check a failure. The health check is retried up to 3 times (retries) before it is considered a failure.
@@ -622,3 +622,11 @@ volumes:
 ```
 docker images
 ```
+
+# Images of multi-stage build
+![image multi stage build](assets/week%20one%20aws/backend%20flask%20multi-stage%20building%20.png)
+![image multi stage build](assets/week%20one%20aws/constiners%20up%20and%20running%20in%20the%20multi-stage%20build.png)
+![image multi stage build](assets/week%20one%20aws/docker-compose%20multi-stage%20build%20updated.png)
+![image multi stage build](assets/week%20one%20aws/multi-build%20out%20log%20in%20terminal%20image%20sizes.png)
+![image multi stage build](assets/week%20one%20aws/constiners%20up%20and%20running%20in%20the%20multi-stage%20build.png)
+
