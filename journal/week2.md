@@ -29,3 +29,15 @@ Traces are typically used in conjunction with other monitoring and observability
 
 # Honeycomb.io
 Honeycomb.io is a cloud-based observability platform that provides developers and operators with real-time insights into the behavior and performance of their distributed systems. The platform uses a unique event-based data model that allows users to ask complex questions of their data and quickly identify issues or opportunities for optimization. Honeycomb.io supports a wide range of data sources, including logs, metrics, and traces, and provides powerful visualization and analysis tools for exploring and understanding this data. The platform also includes features for alerting, collaboration, and integration with other tools and services in the DevOps toolchain. Overall, Honeycomb.io is a powerful tool for building and maintaining reliable, performant, and scalable systems in complex and dynamic environments
+
+# Honeycomb.io setting environment variables for Gitpod for start up
+this need to run in the cli on opening vs code from gitpod
+```
+export HONEYCOMB_API_KEY=<"API KEY">
+gp env HONEYCOMB_API_KEY=<"API KEY">
+```
+to check if the environment variables have been set enter the follwing command into your cli
+```
+env | grep HONEY
+```
+
