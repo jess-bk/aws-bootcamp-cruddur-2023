@@ -9,5 +9,9 @@
     "markdown",
     "python",
     "python3"
-  ]
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "python.analysis.typeCheckingMode": "basic",
+    "python.linting.pylintEnabled": false
+  }
 }
