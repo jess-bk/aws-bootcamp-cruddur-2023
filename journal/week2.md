@@ -68,3 +68,9 @@ opentelemetry-instrumentation-flask provides instrumentation for Flask web frame
 opentelemetry-instrumentation-requests provides instrumentation for the Python requests library, allowing for automatic tracing of HTTP requests made by the application.
 
 By adding these packages to the requirements.txt file in the Python backend folder, you ensure that these packages are installed when deploying the application, and the backend application will have the necessary instrumentation to generate and export telemetry data to a tracing and monitoring backend service like Honeycomb.io
+
+# Installing the Dependencies from the requirements.txt file
+cd into backend-flask and run the command
+```
+pip install -r requirements.txt
+```
