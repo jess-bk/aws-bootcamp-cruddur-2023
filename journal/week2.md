@@ -51,3 +51,20 @@ OTEL_SERVICE_NAME: "backend-flask"
 OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
 OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
 ```
+
+# Python packages that enable OpenTelemetry tracing and monitoring functionality in a Flask-based backend application added in requirement.txt file
+```
+opentelemetry-api 
+opentelemetry-sdk 
+opentelemetry-exporter-otlp-proto-http 
+opentelemetry-instrumentation-flask 
+opentelemetry-instrumentation-requests
+```
+explaination:
+opentelemetry-api provides the OpenTelemetry API which allows for instrumentation of various parts of the application and creation of traces and spans.
+opentelemetry-sdk provides the OpenTelemetry SDK which provides functionality to export telemetry data to various backends like Honeycomb.io or Jaeger.
+opentelemetry-exporter-otlp-proto-http is a package that provides the exporter for OTLP-HTTP protocol to send telemetry data to backend service.
+opentelemetry-instrumentation-flask provides instrumentation for Flask web framework to automatically generate traces and spans for requests.
+opentelemetry-instrumentation-requests provides instrumentation for the Python requests library, allowing for automatic tracing of HTTP requests made by the application.
+
+By adding these packages to the requirements.txt file in the Python backend folder, you ensure that these packages are installed when deploying the application, and the backend application will have the necessary instrumentation to generate and export telemetry data to a tracing and monitoring backend service like Honeycomb.io
