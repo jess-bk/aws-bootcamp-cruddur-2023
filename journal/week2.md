@@ -74,3 +74,43 @@ cd into backend-flask and run the command
 ```
 pip install -r requirements.txt
 ```
+# Initializes OpenTelemetry tracing and monitoring functionality for the flask-based backend application
+Importing required modules from the opentelemetry package for tracing and instrumentation.
+Initializing a TracerProvider and a BatchSpanProcessor for the OTLP exporter to export the telemetry data to Honeycomb.
+Adding the BatchSpanProcessor to the TracerProvider.
+Initializing FlaskInstrumentor and RequestsInstrumentor to automatically instrument the Flask application and the requests library respectively.
+Creating a Flask app object and instrumenting it using FlaskInstrumentor.
+Adding this code to the app.py file in the backend Flask app enables tracing and monitoring of the application and exporting the telemetry data to the specified OTLP exporter in this case honeycomb.io. This enables observability of the application's behavior and performance, which can help identify issues and optimize the application for better performance and reliability. Additionally, automatic instrumentation with Flask and requests library ensures that all requests and dependencies are automatically instrumented without any manual effort, which helps reduce the time and effort required for instrumentation
+
+add to app.py
+```
+#---after the import statements for services---
+# Honeycomb ---------
+from opentelemetry import trace
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+
+# Initialize tracing and an exporter that can send data to Honeycomb
+provider = TracerProvider()
+processor = BatchSpanProcessor(OTLPSpanExporter())
+provider.add_span_processor(processor)
+
+# Show this in the logs within the backend-flask app (STDOUT)
+simple_processor = SimpleSpanProcessor(ConsoleSpanExporter())
+
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(__name__)
+
+app = Flask(__name__)
+
+# HoneyComb ---------
+# Initialize automatic instrumentation with Flask
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+
+#---before the frontend = os.getenv('FRONTEND_URL') ---
+```
