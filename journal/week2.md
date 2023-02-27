@@ -114,3 +114,17 @@ RequestsInstrumentor().instrument()
 
 #---before the frontend = os.getenv('FRONTEND_URL') ---
 ```
+# Gitpod file update to open ports
+```
+ports:
+  - name: frontend
+    port: 3000
+    onOpen: open-browser
+    visibility: public
+  - name: backend
+    port: 4567
+    visibility: public
+  - name: xray-daemon
+    port: 2000
+    visibility: public
+```
