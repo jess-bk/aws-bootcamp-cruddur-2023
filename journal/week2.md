@@ -40,4 +40,14 @@ to check if the environment variables have been set enter the follwing command i
 ```
 env | grep HONEY
 ```
+# Configuring OTEL In Docker Compose
+OpenTelemetry (OTel) is an open source observability framework that provides IT teams with standardized protocols and tools for collecting and routing telemetry data.
+that will send honeycomb.io
+The OTEL_SERVICE_NAME specifies that the service is a backend implemented in Flask, OTEL_EXPORTER_OTLP_ENDPOINT specifies the endpoint of the Honeycomb.io OTLP exporter, and OTEL_EXPORTER_OTLP_HEADERS specifies the API key to be used when sending telemetry data to Honeycomb.io.
 
+Add the following to the docker compose file
+```
+OTEL_SERVICE_NAME: "backend-flask"
+OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
+OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+```
