@@ -1,7 +1,7 @@
 # Week 1 — App Containerization
 
 # watched the recorded live stream
-1. added the Dockerfile and thats contains the image and the scirpt that are instructions how to run the application, this was created in the backend-flask
+1. added the Dockerfile that contains the image and the scirpt that are set of instructions how to run the application, this was created in the backend-flask
 2. 
 ```
 FROM python:3.10-slim-buster
@@ -63,7 +63,7 @@ unset BACKEND_URL
 python3 -m flask run --host=0.0.0.0  --port=4567
 ```
 
-10. This command is used to create a Docker image for a backend application written in Flask The command docker build -t backend-flask ./backend-flask is used to build a Docker image with a given tag -t and context path ./backend-flask where the Dockerfile for building the image is located.
+10. This command is used to create a Docker image for a backend application written in Flask, The command docker build -t backend-flask ./backend-flask is used to build a Docker image with a given tag -t and context path ./backend-flask, the Dockerfile for building the image is located.
 
 More specifically, this command instructs Docker to look for a Dockerfile in the ./backend-flask directory and build a Docker image with the name backend-flask. The -t flag stands for "tag" and it allows us to give a name to the Docker image we are building
 ```
@@ -77,7 +77,7 @@ docker run --rm -p 4567:4567 -it -e FRONTEND_URL='*' -e BACKEND_URL='*' backend-
 
 12. The tag in  docker image --> does not mean it is the latest version it is set to latest tag as default by docker
 
-13. In the frontend created Dockerfile and added the following script to create the image for docker and cd into the frontend application
+13. In the frontend created Dockerfile and added the following script to create the image for docker.
 ```
 FROM node:16.18
 
@@ -122,7 +122,7 @@ networks:
     name: cruddur
 ```
 
-14. run the docker-compose file in the vs code by using docker-compose up, this will do a docker run and docker build on both of the containers, now you can open the ports and goto the apploication, docker compose on the frontend added file docker-compose that allows containers fron and backend to work together instead of doing them separately, you can update the app and it will take effect as the containers are running and will update the changes.
+14. run the docker-compose file in the vs code by using docker-compose up, this will do a docker run and docker build on both of the containers, now you can open the ports and goto the application, on the frontend added file docker-compose that allows containers front and backend to work together instead of doing them separately, you can update the app and it will take effect as the containers are running and will update the changes.
 
 # Docker
 Docker containerization is becoming an increasingly popular method for developing, packaging, deploying, and running software applications
@@ -234,7 +234,7 @@ import NotificationsFeedPage from './pages/NotificationsFeedPage';
   },
 ```
 
-6. Notifications page and Crested css file
+6. Notifications page and css file
 ```
 import './NotificationsFeedPage.css';
 import React from "react";
@@ -324,7 +324,7 @@ export default function NotificationsFeedPage() {
 ![image Notification](assets/week%20one%20aws/frontend%20connected%20to%20backend%20and%20updated%20notifications.png)
 
 # Issue with cors
-the issue was the notifications were not getting access from the backend because blocking the acccess generally cors will not alllow acccess to the web if the origin are not set and have installed cors that can allow access, in the back end we could have set the origins explicitly by addding acccess option to cors  by creating a file in the backend and then allowing cors to have access to certain address, but i just added them at all the endpoints and that just worked fine
+the issue was the notifications were not getting access from the backend because cors was blocking the acccess, generally cors will not alllow acccess to the web if the origin are not set and have not been installed in the app, in the backend we could have set the origins explicitly by addding acccess option to cors by creating a file in the backend and then allowing cors to have access to certain ip address, but i just added them at all the in the app.py file and that just worked fine
 
 ![image to update i made on the backend](assets/week%20one%20aws/week-cors-issue.png)
 
@@ -385,9 +385,9 @@ volumes:
   db:
     driver: local
 ```
-2. Run docker-compose up this will start the postgres and dynamobd local on the specified ports as done above and that will verify or call the correct api because of the ports that are set above
+2. Run docker-compose up this will start the postgres and dynamoDB local on the specified ports as done above and that will verify or call the correct api because of the ports that are set above
 
-3. running dynamodb local and checking if it works and setting some data into the local database of dynamobd
+3. running dynamoDB local and checking if it works and setting some data into the local database.
 # Create a table
 ```
 aws dynamodb create-table \
@@ -524,7 +524,7 @@ EXPOSE ${PORT}
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
 ```
-2. frontend app and added a new stage at the end of the file. This new stage will be used to build the production image, In this new stage, we're copying the entire directory as before, installing the production-only dependencies with npm install --only=production, and running the same command to start the app
+2. frontend app added a new stage at the end of the file. This new stage will be used to build the production image, In this new stage, we're copying the entire directory as before, installing the production-only dependencies with npm install --only=production, and running the same command to start the app
 
 ```
 # Frontend Production Stage
@@ -538,7 +538,7 @@ RUN npm install --only=production
 EXPOSE ${PORT}
 CMD ["npm", "start"]
 ```
-3. updated docker-compose.yml file with the new multi-stage build for the frontend, In this updated version of the file, we have added a build section to the frontend-react-js service. The context is set to the directory where the Dockerfile is located, and the dockerfile is set to the filename of the Dockerfile. This tells Docker Compose to build the frontend image using the Dockerfile in the specified directory.
+3. updated docker-compose.yml file with the new multi-stage build for the frontend, In this updated version of the file, i have added a build section to the frontend-react-js service. The context is set to the directory where the Dockerfile is located, and the dockerfile is set to the filename of the Dockerfile. This tells Docker Compose to build the frontend image using the Dockerfile in the specified directory.
 also added a depends_on section to the frontend-react-js service. This tells Docker Compose that the backend-flask service must be started before the frontend-react-js service. This is because the frontend needs to know the URL of the backend in order to make API requests.
 
 Finally, added the frontend-react-js service to the internal-network, which is the network that the other services are also connected to
@@ -697,7 +697,7 @@ docker-compose up --build
 ![image EC2 instance and docker running](assets/week%20one%20aws/ec2-instance-week1.png)
 ![image EC2 instance and docker running](assets/week%20one%20aws/sudo%20netstat%20-tulpn.png)
 
-11. i installed apache and checked if i can make http request and check if it was active and everything was working and running no error, i checked for any firewalls blocking the connection in my chrome extension and in ec2 instance
+11. i installed apache and checked if i can make http request and check if it was active and everything was working and running, with no error, i checked for any firewalls blocking the connection in my ec2 instance and everything was good also made sure that chrome extension was not causing an issue related to firewall not allowing access but that was all good to. the follwing is some of the steps i took to resolve the issue
 ```
 sudo systemctl start ufw
 ```
