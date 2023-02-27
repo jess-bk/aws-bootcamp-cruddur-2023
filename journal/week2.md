@@ -128,3 +128,30 @@ ports:
     port: 2000
     visibility: public
 ```
+
+# Backend Flask --> home_activity.py
+In the backend home_activity.py file i have added from opentelemetry import trace statement - imports the trace module from the opentelemetry package. This module provides an API for creating, managing, and exporting traces and spans for distributed tracing, The trace.get_tracer("home.activities") statement creates a new Tracer object with the name "home.activities". A Tracer is a component in the OpenTelemetry library that is responsible for generating and managing spans, which are the basic units of work in a trace. The get_tracer function is used to retrieve a Tracer instance with the specified name. By providing a name to the Tracer instance, you can organize and group spans by their purpose or function, making it easier to identify and analyze different parts of a trace. Once a Tracer instance is created, you can use it to start and stop spans, add attributes and events to spans, and export the trace data to a tracing backend.
+
+1. with tracer.start_as_current_span("home-activites-mock-data"): statement starts a new span with the name "home-activites-mock-data" and sets it as the active span.
+2. tracer object used here is an instance of the Tracer class from the OpenTelemetry library.
+3. tart_as_current_span() method creates a new Span instance as the active span for the duration of the with block.
+4. trace.get_current_span() method retrieves the active span created in the previous line and assigns it to the span variable.
+5. code sets another attribute on the span with the key "app.result_length", which is the length of the results object
+6.  code demonstrates how OpenTelemetry can be used to trace and monitor a specific operation within an application by creating and updating spans with attributes and events
+```
+from opentelemetry import trace
+
+tracer = trace.get_tracer("home.activities")
+
+class HomeActivities:
+  def run():
+    with tracer.start_as_current_span("home-activites-mock-data"):
+      span = trace.get_current_span()
+      now = datetime.now(timezone.utc).astimezone()
+      span.set_attribute("app.now", now.isoformat())
+      results = [{
+      --------------
+      }]
+       span.set_attribute("app.result_length", len(results))
+      return results
+```
