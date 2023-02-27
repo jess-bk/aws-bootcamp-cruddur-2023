@@ -24,3 +24,15 @@ vscode:
     - ms-python.python
     - esbenp.prettier-vscode
     - cmstead.js-snapshot-tools
+
+ports:
+  - name: frontend
+    port: 3000
+    onOpen: open-browser
+    visibility: public
+  - name: backend
+    port: 4567
+    visibility: public
+  - name: xray-daemon
+    port: 2000
+    visibility: public

@@ -1,58 +1,54 @@
-import './App.css';
+import "./App.css";
 
-import HomeFeedPage from './pages/HomeFeedPage';
-import NotificationsFeedPage from './pages/NotificationsFeedPage';
-import UserFeedPage from './pages/UserFeedPage';
-import SignupPage from './pages/SignupPage';
-import SigninPage from './pages/SigninPage';
-import RecoverPage from './pages/RecoverPage';
-import MessageGroupsPage from './pages/MessageGroupsPage';
-import MessageGroupPage from './pages/MessageGroupPage';
-import ConfirmationPage from './pages/ConfirmationPage';
-import React from 'react';
-import process from 'process';
-import {
-  createBrowserRouter,
-  RouterProvider
-} from "react-router-dom";
+import HomeFeedPage from "./pages/HomeFeedPage";
+import NotificationsFeedPage from "./pages/NotificationsFeedPage";
+import UserFeedPage from "./pages/UserFeedPage";
+import SignupPage from "./pages/SignupPage";
+import SigninPage from "./pages/SigninPage";
+import RecoverPage from "./pages/RecoverPage";
+import MessageGroupsPage from "./pages/MessageGroupsPage";
+import MessageGroupPage from "./pages/MessageGroupPage";
+import ConfirmationPage from "./pages/ConfirmationPage";
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomeFeedPage />
+    element: <HomeFeedPage />,
   },
   {
     path: "/notifications",
-    element: <NotificationsFeedPage />
+    element: <NotificationsFeedPage />,
   },
   {
     path: "/@:handle",
-    element: <UserFeedPage />
+    element: <UserFeedPage />,
   },
   {
     path: "/messages",
-    element: <MessageGroupsPage />
+    element: <MessageGroupsPage />,
   },
   {
     path: "/messages/@:handle",
-    element: <MessageGroupPage />
+    element: <MessageGroupPage />,
   },
   {
     path: "/signup",
-    element: <SignupPage />
+    element: <SignupPage />,
   },
   {
     path: "/signin",
-    element: <SigninPage />
+    element: <SigninPage />,
   },
   {
     path: "/confirm",
-    element: <ConfirmationPage />
+    element: <ConfirmationPage />,
   },
   {
     path: "/forgot",
-    element: <RecoverPage />
-  }
+    element: <RecoverPage />,
+  },
 ]);
 
 function App() {
