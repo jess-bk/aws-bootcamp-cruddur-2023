@@ -195,3 +195,12 @@ Event-driven architecture (EDA) is an approach to software design where software
 
 # Event-Driven Security
 Event-driven security with AWS services provides a flexible and scalable approach to building responsive and effective security systems. By leveraging services such as CloudTrail, GuardDuty, Macie, Lambda, and SNS, organizations can detect and respond to security threats quickly and effectively. This approach can improve security posture, reduce the impact of security incidents, and enhance overall security resilience.
+
+# AWS X-RAY --> service provided by Amazon Web Services (AWS)
+this service from aws enables developers to analyze and debug distributed applications, such as those built using microservices architecture. It provides end-to-end tracing of requests as they flow through the various components of an application, allowing developers to identify performance bottlenecks and errors.
+
+To use X-Ray, developers need to instrument their application code by adding an X-Ray SDK to their codebase. The SDK captures metadata about incoming requests, such as the service that is handling the request, the endpoint that was called, and any downstream services that were called. This data is then sent to the X-Ray service, where it is processed and displayed in a visualization tool.
+
+The visualization tool shows a map of all the services that were involved in handling a request, along with timing information for each service. This allows developers to see where time is being spent in their application and identify areas where performance can be improved. Additionally, X-Ray can be used to identify errors and exceptions that occur during request processing, helping developers to debug their code more easily.
+
+Overall, AWS X-Ray is a powerful tool for analyzing and debugging distributed applications, and it can be particularly useful for applications that are built using microservices architecture.
