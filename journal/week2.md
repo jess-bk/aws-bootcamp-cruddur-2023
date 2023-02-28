@@ -301,6 +301,7 @@ Finally, the ports parameter maps the container's UDP port 2000 to the host's UD
 ```
 AWS_XRAY_URL: "*4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}*"
 AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
+# run docker-compose up
 ```
 The AWS_XRAY_URL variable specifies the URL pattern that should be used for X-Ray tracing. The pattern includes the Gitpod workspace ID and cluster host, and is used to filter the trace data to be included in the "Cruddur" group that was previously created. By using a URL pattern for X-Ray tracing, user/developers can more easily track and analyze requests across different components of their system.
 
