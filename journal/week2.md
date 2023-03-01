@@ -530,7 +530,7 @@ gp env ROLLBAR_ACCESS_TOKEN=""
 ```
 6. check if the environment variable is set.
 ```
-gp env ROLLBAR
+env | grep ROLLBAR
 ```
 7. add the import statements to app.py.
 ```
