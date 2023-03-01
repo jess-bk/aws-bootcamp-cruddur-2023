@@ -273,15 +273,15 @@ aws xray create-group \
    --filter-expression "service(\"backend-flask\")"
 ```
 
-Updated Command to Configuring AWS X-Ray to create a group for the "Cruddur" service and filtering traces by the "backend-flask" service --> backend-flask --> cli
+Commands to Configuring AWS X-Ray to create a group for the "Cruddur" service and filtering traces by the "backend-flask" service --> backend-flask --> cli
 ```
-aws xray create-group --group-name "Cruddur" --filter-expression "service(\"backend-flask\")" --region us-east-1
-```
-```
-aws logs create-log-group --log-group-name "Cruddur" --region us-east-1
+aws xray create-group --group-name "Cruddur" --filter-expression "service(\"backend-flask\")" --region <enter region>
 ```
 ```
-aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json --region us-east-1
+aws logs create-log-group --log-group-name "name of group" --region <enter region>
+```
+```
+aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json --<enter region>
 ```
 
 # Commands for aws xray
@@ -291,10 +291,13 @@ aws xray delete-group --group-name Cruddur
 aws xray update-sampling-rule --cli-input-json file://aws/json/xray.json --region us-east-1
 aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json --region us-east-1
 aws logs create-log-group
+aws logs delete-log-group --log-group-name "/aws/xray/Cruddur" --region us-east-1 <-- example
+aws logs create-log-group --log-group-name "Cruddur" --region us-east-1 <-- example 
 aws xray get-sampling-rules
 aws xray delete-sampling-rule --rule-arn <rule-arn>
 aws logs describe-log-groups
 ```
+
 
 # Create a sampling rule for AWS X-Ray --> backend-flask --> cli
 The --cli-input-json parameter specifies that the JSON file at aws/json/xray.json should be used as input for the create-sampling-rule command. The contents of the xray.json file define the sampling rule, which specifies the criteria for which requests should be traced and the percentage of requests that should be sampled
@@ -451,4 +454,50 @@ Configured the logger to send log messages to AWS CloudWatch using the watchtowe
 AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
 AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
 AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+```
+# Stop Xray and Cloudwatch from logging
+app.py
+```
+# Configuring Logger to Use CloudWatch
+# LOGGER = logging.getLogger(__name__)
+# LOGGER.setLevel(logging.DEBUG)
+# console_handler = logging.StreamHandler()
+# cw_handler = watchtower.CloudWatchLogHandler(log_group='cruddur')
+# LOGGER.addHandler(console_handler)
+# LOGGER.addHandler(cw_handler)
+# LOGGER.info("test logs")
+------------------------------------
+# xray_url = os.getenv("AWS_XRAY_URL")
+# xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+------------------------------------
+# XRayMiddleware(app, xray_recorder)
+------------------------------------
+# @app.after_request
+# def after_request(response):
+#   timestamp = strftime('[%Y-%b-%d %H:%M]')
+#   LOGGER.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+#   return response
+------------------------------------
+@app.route("/api/activities/home", methods=['GET'])
+def data_home():
+  data = HomeActivities.run(logger=LOGGER)
+  return data, 200
+```
+
+2. backend-flask/services/home_activities.py    
+```
+# def run(logger):
+  # logger.info("HomeActivities")
+```
+3. backend-flask/services/user_activities.py
+```
+# segment = xray_recorder.begin_segment('user_activities')
+----------------------------------------------------------  
+# subsegment = xray_recorder.begin_subsegment('mock-data')
+# # xray ---
+# dict = {
+#   "now": now.isoformat(),
+#   "results-size": len(model['data'])
+# }
+    # subsegment.put_metadata('key', dict, 'namespace')
 ```
