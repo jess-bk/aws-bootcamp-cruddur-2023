@@ -501,3 +501,75 @@ def data_home():
 # }
     # subsegment.put_metadata('key', dict, 'namespace')
 ```
+# ROLLBAR  
+Rollbar.com is a cloud-based software development tool that helps software teams identify and debug errors in their applications quickly and efficiently. It provides real-time error monitoring, alerting, and analytics, allowing developers to identify and fix issues as soon as they occur.
+
+Rollbar integrates with a wide range of programming languages, frameworks, and platforms, making it easy to incorporate into your existing development workflow. It supports both server-side and client-side error monitoring, providing comprehensive visibility into application performance and reliability.
+
+In addition to error monitoring, Rollbar.com also provides a range of other features, including customizable dashboards, advanced search and filtering capabilities, and detailed error reports. These features help developers understand the root cause of errors, prioritize their debugging efforts, and track their progress over time.
+
+Rollbar is used by companies of all sizes, from startups to large enterprises, to improve the quality and reliability of their software applications.
+
+1. Sign into Rollbar and add select the sdk for the project.
+2. add the packages to the backend-flask ---> requirments.txt.
+```
+blinker
+rollbar
+```
+3. cd into the backend-flask and innstall the dependencies.
+```
+pip install -r requirements.txt
+```
+4. add rollbar access token to the backend-flask (setting the environment variable).
+```
+export ROLLBAR_ACCESS_TOKEN=""
+```
+5. command gp env ROLLBAR_ACCESS_TOKEN sets the value of the ROLLBAR_ACCESS_TOKEN environment variable.
+```
+gp env ROLLBAR_ACCESS_TOKEN=""
+```
+6. check if the environment variable is set.
+```
+gp env ROLLBAR
+```
+7. add the import statements to app.py.
+```
+import rollbar
+import rollbar.contrib.flask
+from flask import got_request_exception
+```
+8. This code initializes and configures the Rollbar error tracking library for a backend-flask application.
+add this to app.py
+```
+rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
+@app.before_first_request
+def init_rollbar():
+    """init rollbar module"""
+    rollbar.init(
+        # access token
+        rollbar_access_token,
+        # environment name
+        'production',
+        # server root directory, makes tracebacks prettier
+        root=os.path.dirname(os.path.realpath(__file__)),
+        # flask already sets up logging
+        allow_logging_basic_config=False)
+
+    # send exceptions from `app` to rollbar, using flask's signal system.
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+```
+First, it retrieves the Rollbar access token from the ROLLBAR_ACCESS_TOKEN environment variable using the os.getenv method and assigns it to the rollbar_access_token variable.
+Next, it defines a function called init_rollbar that uses the rollbar.init method to initialize the Rollbar library. It passes the access token, sets the environment name to 'production', and specifies the root directory for the server. It also sets allow_logging_basic_config to False, indicating that the backend-flask application should handle logging itself.
+Finally, the got_request_exception.connect line connects the Flask got_request_exception signal to the Rollbar report_exception method, allowing Rollbar to receive and track exceptions raised by the backend-flask application.
+
+9. This code defines a route for a backend-flask web application at the path /rollbar/test
+```
+@app.route('/rollbar/test')
+def rollbar_test():
+    rollbar.report_message('Hello World!', 'warning')
+    return "Hello World!"
+```
+10. Dockerc compose file set the ROLLBAR_ACCESS_TOKEN environment variable inside a Docker container to the value of the ROLLBAR_ACCESS_TOKEN environment variable in the host environment.
+```
+ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
+```
