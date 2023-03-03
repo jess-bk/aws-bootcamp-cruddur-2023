@@ -52,9 +52,10 @@ processor = BatchSpanProcessor(OTLPSpanExporter())
 provider.add_span_processor(processor)
 
 # X-RAY ----------
-# xray_url = os.getenv("AWS_XRAY_URL")
-# xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+xray_url = os.getenv("AWS_XRAY_URL")
+xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
 
+# OTEL ----------
 # Show this in the logs within the backend-flask app (STDOUT)
 # simple_processor = SimpleSpanProcessor(ConsoleSpanExporter())
 # provider.add_span_processor(simple_processor)
@@ -65,7 +66,7 @@ tracer = trace.get_tracer(__name__)
 app = Flask(__name__)
 
 # X-RAY ----------
-# XRayMiddleware(app, xray_recorder)
+XRayMiddleware(app, xray_recorder)
 
 # HoneyComb ---------
 # Initialize automatic instrumentation with Flask
@@ -83,6 +84,7 @@ cors = CORS(
   methods="OPTIONS,GET,HEAD,POST"
 )
 
+# CloudWatch Logs -----
 # @app.after_request
 # def after_request(response):
 #   timestamp = strftime('[%Y-%b-%d %H:%M]')
@@ -150,6 +152,7 @@ def data_create_message():
   return
 
 @app.route("/api/activities/home", methods=['GET'])
+@xray_recorder.capture('activities_home')
 @cross_origin()
 def data_home():
   data = HomeActivities.run()
@@ -160,13 +163,8 @@ def data_home():
 #   data = HomeActivities.run(logger=LOGGER)
 #   return data, 200
 
-@app.route("/api/activities/notifications", methods=['GET'])
-@cross_origin()
-def data_notifications():
-  data = NotificationsActivities.run()
-  return data, 200
-
 @app.route("/api/activities/@<string:handle>", methods=['GET'])
+@xray_recorder.capture('activities_users')
 @cross_origin()
 def data_handle(handle):
   model = UserActivities.run(handle)
@@ -198,6 +196,12 @@ def data_activities():
   else:
     return model['data'], 200
   return
+
+@app.route("/api/activities/notifications", methods=['GET'])
+@cross_origin()
+def data_notifications():
+  data = NotificationsActivities.run()
+  return data, 200
 
 @app.route("/api/activities/<string:activity_uuid>", methods=['GET'])
 @cross_origin()
