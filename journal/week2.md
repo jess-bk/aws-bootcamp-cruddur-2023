@@ -155,6 +155,11 @@ class HomeActivities:
        span.set_attribute("app.result_length", len(results))
       return results
 ```
+# Images Honeycomb Implementation
+
+![image Honeycomb.io](assets/week2aws/heatmap_query_honeycomb.png)
+![image Honeycomb.io](assets/week2aws/honeycomd_query-week2.png)
+![image Honeycomb.io](assets/week2aws/trace_query_honeycomb_week2.png)
 
 # Observability and centralized tracing for security and speed in AWS cloud
 Observability and centralized tracing are crucial components of modern cloud architectures, particularly in AWS, as they can help enhance security and speed.
@@ -378,6 +383,19 @@ This import statement enables the use of the AWS X-Ray SDK in the backend-flask 
 
 With the AWS X-Ray SDK, developers can gain visibility into the performance of their applications and identify issues such as latency, errors, and bottlenecks. This can help to improve application performance and optimize user experience
 
+# Images AWS X-RAY
+
+![image xray](assets/week2aws/info-x-ray-request.png)
+![image xray](assets/week2aws/output-x-ray-json.png)
+![image xray](assets/week2aws/sampling-rule-aws.png)
+![image xray](assets/week2aws/traces-x-ray.png)
+![image xray](assets/week2aws/x-ray-servicemap-image.png)
+![image xray](assets/week2aws/xray-traces-group-name.png)
+
+update updated-xray-samplingrule.png
+![image xray](assets/week2aws/updated-xray-samplingrule.png)
+
+
 # Watchtower
 Watchtower is a logging library for Python applications that allows you to easily send logs to AWS CloudWatch. The library provides a handler that you can use to log events in your Python code, and then send those logs to CloudWatch for storage, analysis, and visualization.
 
@@ -455,6 +473,10 @@ AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
 AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
 AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
 ```
+# images cloudwatch logging 
+![image cloudwatch](assets/week2aws/towerwatch-logs-cloudwatch.png)
+![image cloudwatch](assets/week2aws/watchtower-container-logs-cli.png)
+
 # Stop Xray and Cloudwatch from logging
 1. backend-flask/services/app.py
 ```
@@ -573,6 +595,13 @@ def rollbar_test():
 ```
 ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
 ```
+# Images Rollbar
+
+![image rollbar](assets/week2aws/rollbar-test-console.png)
+![image rollbar](assets/week2aws/rollbar-test-cli.png)
+![image rollbar](assets/week2aws/rollbar-console-test.png)
+![image rollbar](assets/week2aws/rollbar-test-cli.png)
+
 # Resolving Issue In Instrumenting AWS X-Ray Subsegments
 uncomment out x-ray from logging from the backend-flask app
 1. backend-flask/services/app.py
@@ -680,6 +709,11 @@ class UserActivities:
       xray_recorder.end_subsegment()
     return model
 ```
+# Images X-RAY Segments Resolved
+
+![image xary-segment](assets/week2aws/subsegment_log_xray.png)
+![image xray-segment](assets/week2aws/subsegment_xray-2.png)
+
 To summarise how the x-ray subsegment was resolved, first  the UserActivities class has a method called run that takes in a user handle as an argument. The method returns a dictionary called model that has two keys, 'errors' and 'data', and their respective values. The value for 'errors' is set to None or a list of error messages, while the value for 'data' is set to None or a list of data results.
 
 then the method first checks if the user_handle argument is None or an empty string, and if it is, it sets the 'errors' key in the model dictionary to ['blank_user_handle']. If the user_handle argument is not None or an empty string, it generates a mock data result and sets the 'data' key in the model dictionary to this result.
