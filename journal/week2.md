@@ -185,7 +185,7 @@ focusing on these three pillars of observability, engineers can gain a full arch
 observability instrumentation involves configuring various tools and services to collect and analyze data related to system performance, user behavior, and application behavior. This can include configuring logs, metrics, and traces to be collected and analyzed in real-time. observability instrumentation is crucial for maintaining the security and speed of cloud architectures in AWS. By collecting and analyzing data related to system performance, user behavior, and application behavior, Devops engineers can identify and resolve issues, optimize performance, and gain insights into user behavior. In AWS, this can be achieved through various tools and services, such as Amazon CloudWatch, AWS X-Ray, and AWS App Mesh.
 
 # Building Security Metric logs For Tracing
-Building security metric logs for tracing involves collecting and analyzing data related to security events and incidents in order to quickly identify and respond to security threats. Here are some key points to consider
+Building security metric logs for tracing involves collecting and analyzing data related to security events and incidents in order to quickly identify and respond to security threats.
 
 # Security For Central Observability Platforms
 security for central observability is crucial for maintaining the security and speed of cloud architectures. By implementing access controls, encryption, monitoring and alerts, auditing and compliance mechanisms, and incident response plans, you can ensure that your central observability platform is secure and can quickly respond to security threats.
@@ -456,7 +456,7 @@ AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
 AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
 ```
 # Stop Xray and Cloudwatch from logging
-app.py
+1. backend-flask/services/app.py
 ```
 # Configuring Logger to Use CloudWatch
 # LOGGER = logging.getLogger(__name__)
@@ -573,3 +573,117 @@ def rollbar_test():
 ```
 ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
 ```
+# Resolving Issue In Instrumenting AWS X-Ray Subsegments
+uncomment out x-ray from logging from the backend-flask app
+1. backend-flask/services/app.py
+```
+# Configuring Logger to Use CloudWatch
+# LOGGER = logging.getLogger(__name__)
+# LOGGER.setLevel(logging.DEBUG)
+# console_handler = logging.StreamHandler()
+# cw_handler = watchtower.CloudWatchLogHandler(log_group='cruddur')
+# LOGGER.addHandler(console_handler)
+# LOGGER.addHandler(cw_handler)
+# LOGGER.info("test logs")
+------------------------------------
+# xray_url = os.getenv("AWS_XRAY_URL")
+# xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+------------------------------------
+# XRayMiddleware(app, xray_recorder)
+------------------------------------
+# @app.after_request
+# def after_request(response):
+#   timestamp = strftime('[%Y-%b-%d %H:%M]')
+#   LOGGER.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+#   return response
+------------------------------------
+@app.route("/api/activities/home", methods=['GET'])
+def data_home():
+  data = HomeActivities.run(logger=LOGGER)
+  return data, 200
+```
+
+2. backend-flask/services/home_activities.py -- watchtower logs --  
+```
+# def run(logger):
+  # logger.info("HomeActivities")
+```
+3. backend-flask/services/user_activities.py
+```
+# segment = xray_recorder.begin_segment('user_activities')
+----------------------------------------------------------  
+# subsegment = xray_recorder.begin_subsegment('mock-data')
+# # xray ---
+# dict = {
+#   "now": now.isoformat(),
+#   "results-size": len(model['data'])
+# }
+    # subsegment.put_metadata('key', dict, 'namespace')
+```
+4. Add @xray_recorder.capture for performance monitoring and tracing purposes
+app.py
+```
+@app.route("/api/activities/home", methods=['GET'])
+@xray_recorder.capture('activities_home')
+def data_home():
+  data = HomeActivities.run()
+  return data, 200
+
+@app.route("/api/activities/@<string:handle>", methods=['GET'])
+@xray_recorder.capture('activities_users')
+def data_handle(handle):
+  model = UserActivities.run(handle)
+  if model['errors'] is not None:
+    return model['errors'], 422
+  else:
+    return model['data'], 200
+```
+5. 
+user_activities.py
+the issue was resolved by adding the end_subsegment method.This means that the subsegment will be closed and its metadata will be sent to X-Ray for analysis.
+```
+from datetime import datetime, timedelta, timezone
+from aws_xray_sdk.core import xray_recorder
+class UserActivities:
+  def run(user_handle):
+    try:
+      model = {
+        'errors': None,
+        'data': None
+      }
+
+      now = datetime.now(timezone.utc).astimezone()
+      
+      if user_handle == None or len(user_handle) < 1:
+        model['errors'] = ['blank_user_handle']
+      else:
+        now = datetime.now()
+        results = [{
+          'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
+          'handle':  'Andrew Brown',
+          'message': 'Cloud is fun!',
+          'created_at': (now - timedelta(days=1)).isoformat(),
+          'expires_at': (now + timedelta(days=31)).isoformat()
+        }]
+        model['data'] = results
+
+      subsegment = xray_recorder.begin_subsegment('mock-data')
+      # xray ---
+      dict = {
+        "now": now.isoformat(),
+        "results-size": len(model['data'])
+      }
+      subsegment.put_metadata('key', dict, 'namespace')
+      xray_recorder.end_subsegment()
+    finally:  
+    #  # Close the segment
+      xray_recorder.end_subsegment()
+    return model
+```
+To summarise how the x-ray subsegment was resolved, first  the UserActivities class has a method called run that takes in a user handle as an argument. The method returns a dictionary called model that has two keys, 'errors' and 'data', and their respective values. The value for 'errors' is set to None or a list of error messages, while the value for 'data' is set to None or a list of data results.
+
+then the method first checks if the user_handle argument is None or an empty string, and if it is, it sets the 'errors' key in the model dictionary to ['blank_user_handle']. If the user_handle argument is not None or an empty string, it generates a mock data result and sets the 'data' key in the model dictionary to this result.
+
+The interesting part of this code is how it uses AWS X-Ray subsegments to trace the mock data. When the run method is called, the X-Ray recorder starts a new segment for the request. Within the method, a new subsegment is created with the name 'mock-data' using the begin_subsegment method.
+
+Inside the subsegment, a dictionary called dict is created that contains metadata related to the mock data, such as the current time and the size of the result data. The put_metadata method is then used to add this dictionary to the subsegment metadata with the key 'key' and the namespace 'namespace'. and finally, the subsegment is ended using the end_subsegment method. This means that the subsegment will be closed and its metadata will be sent to X-Ray for analysis.
