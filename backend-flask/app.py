@@ -14,7 +14,7 @@ from services.messages import *
 from services.create_message import *
 from services.show_activity import *
 
-# Honeycomb ---------
+# Opentelemetry --------- honeycomb
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -49,7 +49,9 @@ from flask import got_request_exception
 # Initialize tracing and an exporter that can send data to Honeycomb
 provider = TracerProvider()
 processor = BatchSpanProcessor(OTLPSpanExporter())
+simple_processor = SimpleSpanProcessor(ConsoleSpanExporter())
 provider.add_span_processor(processor)
+provider.add_span_processor(simple_processor)
 
 # X-RAY ----------
 xray_url = os.getenv("AWS_XRAY_URL")
@@ -80,7 +82,8 @@ cors = CORS(
   app, 
   resources={r"/api/*": {"origins": origins}},
   expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
+  # allow_headers="content-type,if-modified-since",
+  allow_headers=["content-type", "if-modified-since", "traceparent"],
   methods="OPTIONS,GET,HEAD,POST"
 )
 
@@ -155,8 +158,10 @@ def data_create_message():
 @xray_recorder.capture('activities_home')
 @cross_origin()
 def data_home():
-  data = HomeActivities.run()
-  return data, 200
+# your existing Flask code here
+  with tracer.start_as_current_span("your_span_name"):
+    data = HomeActivities.run()
+    return data, 200
 
 # @app.route("/api/activities/home", methods=['GET'])
 # def data_home():

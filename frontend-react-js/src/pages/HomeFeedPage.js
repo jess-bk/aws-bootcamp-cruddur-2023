@@ -6,9 +6,11 @@ import DesktopSidebar     from '../components/DesktopSidebar';
 import ActivityFeed from '../components/ActivityFeed';
 import ActivityForm from '../components/ActivityForm';
 import ReplyForm from '../components/ReplyForm';
+import { trace } from '@opentelemetry/api';
 
 // [TODO] Authenication
 import Cookies from 'js-cookie'
+import { getSpanContext } from '@opentelemetry/api/build/src/trace/context-utils';
 
 export default function HomeFeedPage() {
   const [activities, setActivities] = React.useState([]);
@@ -19,6 +21,8 @@ export default function HomeFeedPage() {
   const dataFetchedRef = React.useRef(false);
 
   const loadData = async () => {
+    const span = trace.getTracer('my-tracer').startSpan('my-function');
+    console.log("span", span)
     try {
       const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`
       const res = await fetch(backend_url, {
@@ -33,6 +37,7 @@ export default function HomeFeedPage() {
     } catch (err) {
       console.log(err);
     }
+    span.end();
   };
 
   const checkAuth = async () => {
@@ -46,14 +51,15 @@ export default function HomeFeedPage() {
     }
   };
 
-  React.useEffect(()=>{
-    //prevents double call
+  React.useEffect(() => {
+    // prevents double call
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
+
     loadData();
     checkAuth();
-  }, [])
+  }, []);
 
   return (
     <article>
