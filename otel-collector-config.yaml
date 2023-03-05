@@ -5,15 +5,20 @@ receivers:
         endpoint: "0.0.0.0:4318"
         cors:
           allowed_origins:
-            - "https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
-            - "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+            - "*"
+            # - "https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+            # - "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+          allowed_headers:
+            - "*"
+            # - "https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+            # - "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
 processors:
   batch:
 exporters:
   otlp:
     endpoint: "api.honeycomb.io:443"
     headers:
-      "x-honeycomb-team": "${HONEYCOMB_API_KEY}"
+      "x-honeycomb-team" : "${HONEYCOMB_API_KEY}"
   logging:
     loglevel: debug
 service:

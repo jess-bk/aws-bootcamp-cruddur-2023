@@ -3,7 +3,6 @@ import { WebTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { trace } from '@opentelemetry/api';
 
 // For sending traces for all http requests
 import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
@@ -13,9 +12,9 @@ import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-docu
 
 export const initOpenTelemetry = () => {
   const exporter = new OTLPTraceExporter({
-    url: "http://localhost:4318/v1/traces" || "https://api.honeycomb.io",
+    url: "https://api.honeycomb.io/v1/traces",
     headers: {
-      'x-honeycomb-team': `${process.env.REACT_APP_HONEYCOMB_COLLECTOR_API_KEY}`
+      'x-honeycomb-team': "xUHgZRtfAxNEf5Nyu6UsED"
     }
   });
 

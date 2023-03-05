@@ -32,7 +32,8 @@ services:
       # REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       REACT_APP_BACKEND_URL: "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
       OTEL_RESOURCE_ATTRIBUTES: "service.name=frontend-react-js"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      # OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
     build:
       context: ./frontend-react-js
       dockerfile: Dockerfile
