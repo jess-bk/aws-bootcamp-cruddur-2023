@@ -399,3 +399,9 @@ cors = CORS(
 * set password - enter password
 * Users --> comfirm user by selecting the user to confirm
 * check email for password from aws
+
+# Resolving the issue with setting user with AWS INCOGNITO
+run this command in cli
+```
+cognito-idp admin-set-user-password --username <enter username> --password =<enter password> --user-pool-id <enter user pool ID>  --permanent
+```
