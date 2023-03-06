@@ -318,19 +318,17 @@ import { Auth } from 'aws-amplify';
 const onsubmit = async (event) => {
   setErrors('')
   event.preventDefault();
-  try {
-    Auth.signIn(username, password)
+    Auth.signIn(email, password)
       .then(user => {
         localStorage.setItem("access_token", user.signInUserSession.accessToken.jwtToken)
         window.location.href = "/"
       })
-      .catch(err => { console.log('Error!', err) });
-  } catch (error) {
-    if (error.code == 'UserNotConfirmedException') {
+      .catch(err => {
+          if (error.code == 'UserNotConfirmedException') {
       window.location.href = "/confirm"
-    }
+      }
     setErrors(error.message)
-  }
+  });
   return false
 }
 
@@ -460,3 +458,10 @@ cors = CORS(
   methods="OPTIONS,GET,HEAD,POST"
 )
 ```
+15. AWS --> navigate to user pool --> select --> create a user
+* click on email
+* user name - enter name
+* email address -  enter email address
+* set password - enter password
+* Users --> comfirm user by selecting the user to confirm
+* check email for password from aws
