@@ -74,4 +74,389 @@ Token permissions: Tokens should have the minimum necessary permissions to perfo
 Token storage: Tokens should be stored securely, preferably in a vault or secure key store. AWS provides various options for storing and managing secrets, such as AWS Secrets Manager or AWS Key Management Service (KMS).
 Token monitoring: Token usage should be monitored and audited regularly to detect unusual activity or potential security breaches. AWS provides various tools for monitoring access to AWS resources, such as AWS CloudTrail or Amazon GuardDuty.
 
+# Implementing AWS Congito In Project
 
+1. Navigate to Amazon Cognito in AWS
+2. Click on create a new user pool
+3. Authentication Providers --> Congnito user pool
+4. Cognito user pool sign-in-options --> username, email
+5. User name requirements --> leave blank
+6. Password Policy --> Password policy mode --> Cognito defaults
+7. Mulit-Factor-Authentication --> No MFA
+8. User account-recovery --> Enable self account recovery
+9. Delivey method for user account recovery messages --> email
+10. Configure sign-in experience --> self registration --> enable
+11. Attribute verification and user account confirmation --> Cognito-assisted verfification and confirmation --> Allow cognito to automatically send messages to verify and confirm --> enable
+12. Attributes to Verify --> Send email messages, verify email address
+13. Veifying attribute changes --> keep original attribute value when an update is pending --> enable
+14. Active attribute values when an update is pending --> email address
+15. Required attributes --> select name and preferred_username
+16. Configure message delivery --> Email --> Email Provider --> Send email with cognito --> enable
+17. SES region --> set your aws region
+18. From email address --> select --> no-reply@verificationemail.com
+19. Reply to email address leave blank
+20. Integrate your app --> User pool name --> enter user pool name cruddur-user-pool
+21. Hosted authentication pages --> disable
+22. Domain --> Domain type --> use coginto domain --> leave as it is
+23. Intial app client --> App type --> select --> Public client
+24. App client name --> enter name thats relevent to the project --> cruddur
+25. Client secret --> select --> Dont generate a client secret
+26. Advanced app client setting leave as default
+27. Attribute read and write permission leave as default
+28. Review and create user pool
+
+# AWS Amplify(frontend implementation with aws cognito)
+
+is a development platform and set of tools provided by Amazon Web Services (AWS) that helps developers build cloud-powered mobile and web applications quickly and efficiently. It provides a set of libraries, UI components, and tools to simplify the development process and enables developers to integrate their applications with various AWS services such as AWS Lambda, Amazon S3, Amazon DynamoDB, and others
+
+1. Install AWS Amplify --> cd into frontend-react-js
+```
+npm i aws-amplify --save
+```
+2. Configuring Amplify in App.js
+```
+import { Amplify } from 'aws-amplify';
+
+Amplify.configure({
+  "AWS_PROJECT_REGION": process.env.REACT_APP_AWS_PROJECT_REGION,
+  "aws_cognito_region": process.env.REACT_APP_AWS_COGNITO_REGION,
+  "aws_user_pools_id": process.env.REACT_APP_AWS_USER_POOLS_ID,
+  "aws_user_pools_web_client_id": process.env.REACT_APP_CLIENT_ID,
+  "oauth": {},
+  Auth: {
+    // We are not using an Identity Pool
+    // identityPoolId: process.env.REACT_APP_IDENTITY_POOL_ID, // REQUIRED - Amazon Cognito Identity Pool ID
+    region: process.env.REACT_AWS_PROJECT_REGION, // REQUIRED - Amazon Cognito Region
+    userPoolId: process.env.REACT_APP_AWS_USER_POOLS_ID,  // OPTIONAL - Amazon Cognito User Pool ID
+    userPoolWebClientId: process.env.REACT_APP_CLIENT_ID,  // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
+  }
+});
+```
+3.  Setting the env variables for the frontend from App.js and backend-flask in docker-compose file (This needs to be done inside the frontend in docker-compose)
+```
+******************************************************************
+  frontend-react-js:
+    environment:
+      -----------------------code--------------------------------
+      REACT_APP_AWS_PROJECT_REGION: "${AWS_DEFAULT_REGION}"
+      REACT_APP_AWS_COGNITO_REGION: "${AWS_DEFAULT_REGION}"
+      REACT_APP_AWS_USER_POOLS_ID: "us-east-1_<enter user pool ID from aws>"
+      REACT_APP_CLIENT_ID: "<enter aws App integration tab --> App client and analytics CLIENT ID>"
+      
+    build: ./frontend-react-js
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend-react-js:/frontend-react-js
+      -----------------------code--------------------------------
+******************************************************************
+```
+4. Conditionally Show Logged in or Logged out HomeFeedPage --> HomeFeedPage.js (this page will conditionally render is user is logged in or not)
+```
+import { Auth } from 'aws-amplify';
+
+// set a state
+const [user, setUser] = React.useState(null);
+
+// check if we are authenicated
+const checkAuth = async () => {
+  Auth.currentAuthenticatedUser({
+    // Optional, By default is false. 
+    // If set to true, this call will send a 
+    // request to Cognito to get the latest user data
+    bypassCache: false 
+  })
+  .then((user) => {
+    console.log('user',user);
+    return Auth.currentAuthenticatedUser()
+  }).then((cognito_user) => {
+      setUser({
+        display_name: cognito_user.attributes.name,
+        handle: cognito_user.attributes.preferred_username
+      })
+  })
+  .catch((err) => console.log(err));
+};
+
+// check when the page loads if we are authenicated
+React.useEffect(()=>{
+  loadData();
+  checkAuth();
+}, [])
+```
+5. Passing props to the components from HomeFeedPages.js
+```
+<DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
+<DesktopSidebar user={user} />
+```
+7. Update DesktopNaviagtion.js to render conditionally to show links if user is logged in or not
+```
+import './DesktopNavigation.css';
+import {ReactComponent as Logo} from './svg/logo.svg';
+import DesktopNavigationLink from '../components/DesktopNavigationLink';
+import CrudButton from '../components/CrudButton';
+import ProfileInfo from '../components/ProfileInfo';
+
+export default function DesktopNavigation(props) {
+
+  let button;
+  let profile;
+  let notificationsLink;
+  let messagesLink;
+  let profileLink;
+  if (props.user) {
+    button = <CrudButton setPopped={props.setPopped} />;
+    profile = <ProfileInfo user={props.user} />;
+    notificationsLink = <DesktopNavigationLink 
+      url="/notifications" 
+      name="Notifications" 
+      handle="notifications" 
+      active={props.active} />;
+    messagesLink = <DesktopNavigationLink 
+      url="/messages"
+      name="Messages"
+      handle="messages" 
+      active={props.active} />
+    profileLink = <DesktopNavigationLink 
+      url="/@andrewbrown" 
+      name="Profile"
+      handle="profile"
+      active={props.active} />
+  }
+
+  return (
+    <nav>
+      <Logo className='logo' />
+      <DesktopNavigationLink url="/" 
+        name="Home"
+        handle="home"
+        active={props.active} />
+      {notificationsLink}
+      {messagesLink}
+      {profileLink}
+      <DesktopNavigationLink url="/#" 
+        name="More" 
+        handle="more"
+        active={props.active} />
+      {button}
+      {profile}
+    </nav>
+  );
+}
+```
+8. Upadte DesktopSideBar.js syntax
+```
+import './DesktopSidebar.css';
+import Search from '../components/Search';
+import TrendingSection from '../components/TrendingsSection'
+import SuggestedUsersSection from '../components/SuggestedUsersSection'
+import JoinSection from '../components/JoinSection'
+
+export default function DesktopSidebar(props) {
+  const trendings = [
+    {"hashtag": "100DaysOfCloud", "count": 2053 },
+    {"hashtag": "CloudProject", "count": 8253 },
+    {"hashtag": "AWS", "count": 9053 },
+    {"hashtag": "FreeWillyReboot", "count": 7753 }
+  ]
+
+  const users = [
+    {"display_name": "Andrew Brown", "handle": "andrewbrown"}
+  ]
+
+  let trending;
+  if (props.user) {
+    trending = <TrendingSection trendings={trendings} />
+  }
+
+  let suggested;
+  if (props.user) {
+    suggested = <SuggestedUsersSection users={users} />
+  }
+  let join;
+  if (props.user) {
+  } else {
+    join = <JoinSection />
+  }
+
+  return (
+    <section>
+      <Search />
+      {trending}
+      {suggested}
+      {join}
+      <footer>
+        <a href="#">About</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+      </footer>
+    </section>
+  );
+}
+```
+9. Update Profile.js
+```
+// remove Cookies from "js-cookie and replace with code below
+import { Auth } from 'aws-amplify';
+
+const signOut = async () => {
+  try {
+      await Auth.signOut({ global: true });
+      window.location.href = "/"
+  } catch (error) {
+      console.log('error signing out: ', error);
+  }
+}
+```
+10. Update SignIn Page with Amplify Auth
+```
+// replace cookies with auth from aws-amplify
+import { Auth } from 'aws-amplify';
+
+// const [cognitoErrors, setCognitoErrors] = React.useState('');
+
+const onsubmit = async (event) => {
+  setErrors('')
+  event.preventDefault();
+  try {
+    Auth.signIn(username, password)
+      .then(user => {
+        localStorage.setItem("access_token", user.signInUserSession.accessToken.jwtToken)
+        window.location.href = "/"
+      })
+      .catch(err => { console.log('Error!', err) });
+  } catch (error) {
+    if (error.code == 'UserNotConfirmedException') {
+      window.location.href = "/confirm"
+    }
+    setErrors(error.message)
+  }
+  return false
+}
+
+let errors;
+if (Errors){
+  errors = <div className='errors'>{Errors}</div>;
+}
+
+// just before submit component
+{errors}
+```
+11. Update Signup Page with Amplify Auth
+```
+import { Auth } from 'aws-amplify';
+
+//const [cognitoErrors, setCognitoErrors] = React.useState('');
+
+const onsubmit = async (event) => {
+  event.preventDefault();
+  setErrors('')
+  try {
+      const { user } = await Auth.signUp({
+        username: email,
+        password: password,
+        attributes: {
+            name: name,
+            email: email,
+            preferred_username: username,
+        },
+        autoSignIn: { // optional - enables auto sign in after user is confirmed
+            enabled: true,
+        }
+      });
+      console.log(user);
+      window.location.href = `/confirm?email=${email}`
+  } catch (error) {
+      console.log(error);
+      setErrors(error.message)
+  }
+  return false
+}
+
+let errors;
+if (Errors){
+  errors = <div className='errors'>{Errors}</div>;
+}
+
+//before submit component
+{errors}
+```
+12. Update Confirmation Page to handle Auth to resend email
+```
+const resend_code = async (event) => {
+  setErrors('')
+  try {
+    await Auth.resendSignUp(email);
+    console.log('code resent successfully');
+    setCodeSent(true)
+  } catch (err) {
+    // does not return a code
+    // does cognito always return english
+    // for this to be an okay match?
+    console.log(err)
+    if (err.message == 'Username cannot be empty'){
+      setErrors("You need to provide an email in order to send Resend Activiation Code")   
+    } else if (err.message == "Username/client id combination not found."){
+      setErrors("Email is invalid or cannot be found.")   
+    }
+  }
+}
+
+const onsubmit = async (event) => {
+  event.preventDefault();
+  setErrors('')
+  try {
+    await Auth.confirmSignUp(email, code);
+    window.location.href = "/"
+  } catch (error) {
+    setErrors(error.message)
+  }
+  return false
+}
+```
+13. Upadte Recovery Page
+```
+import { Auth } from 'aws-amplify';
+
+const onsubmit_send_code = async (event) => {
+  event.preventDefault();
+  setErrors('')
+  Auth.forgotPassword(username)
+  .then((data) => setFormState('confirm_code') )
+  .catch((err) => setErrors(err.message) );
+  return false
+}
+
+const onsubmit_confirm_code = async (event) => {
+  event.preventDefault();
+  setErrors('')
+  if (password == passwordAgain){
+    Auth.forgotPasswordSubmit(username, code, password)
+    .then((data) => setFormState('success'))
+    .catch((err) => setErrors(err.message) );
+  } else {
+    setErrors('Passwords do not match')
+  }
+  return false
+}
+
+## Authenticating Server Side
+
+Add in the `HomeFeedPage.js` a header eto pass along the access token
+
+```js
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("access_token")}`
+  }
+```
+
+14. Update backend-flask app.py to allow headers for Authorization
+```
+cors = CORS(
+  app, 
+  resources={r"/api/*": {"origins": origins}},
+  headers=['Content-Type', 'Authorization'], 
+  expose_headers='Authorization',
+  methods="OPTIONS,GET,HEAD,POST"
+)
+```
