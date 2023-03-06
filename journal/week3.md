@@ -177,74 +177,13 @@ const checkAuth = async () => {
   })
   .catch((err) => console.log(err));
 };
-
-// check when the page loads if we are authenicated
-React.useEffect(()=>{
-  loadData();
-  checkAuth();
-}, [])
 ```
 5. Passing props to the components from HomeFeedPages.js
 ```
 <DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
 <DesktopSidebar user={user} />
 ```
-7. Update DesktopNaviagtion.js to render conditionally to show links if user is logged in or not
-```
-import './DesktopNavigation.css';
-import {ReactComponent as Logo} from './svg/logo.svg';
-import DesktopNavigationLink from '../components/DesktopNavigationLink';
-import CrudButton from '../components/CrudButton';
-import ProfileInfo from '../components/ProfileInfo';
-
-export default function DesktopNavigation(props) {
-
-  let button;
-  let profile;
-  let notificationsLink;
-  let messagesLink;
-  let profileLink;
-  if (props.user) {
-    button = <CrudButton setPopped={props.setPopped} />;
-    profile = <ProfileInfo user={props.user} />;
-    notificationsLink = <DesktopNavigationLink 
-      url="/notifications" 
-      name="Notifications" 
-      handle="notifications" 
-      active={props.active} />;
-    messagesLink = <DesktopNavigationLink 
-      url="/messages"
-      name="Messages"
-      handle="messages" 
-      active={props.active} />
-    profileLink = <DesktopNavigationLink 
-      url="/@andrewbrown" 
-      name="Profile"
-      handle="profile"
-      active={props.active} />
-  }
-
-  return (
-    <nav>
-      <Logo className='logo' />
-      <DesktopNavigationLink url="/" 
-        name="Home"
-        handle="home"
-        active={props.active} />
-      {notificationsLink}
-      {messagesLink}
-      {profileLink}
-      <DesktopNavigationLink url="/#" 
-        name="More" 
-        handle="more"
-        active={props.active} />
-      {button}
-      {profile}
-    </nav>
-  );
-}
-```
-8. Upadte DesktopSideBar.js syntax
+6. Upadte DesktopSideBar.js syntax
 ```
 import './DesktopSidebar.css';
 import Search from '../components/Search';
@@ -265,20 +204,15 @@ export default function DesktopSidebar(props) {
   ]
 
   let trending;
-  if (props.user) {
-    trending = <TrendingSection trendings={trendings} />
-  }
-
   let suggested;
-  if (props.user) {
-    suggested = <SuggestedUsersSection users={users} />
-  }
   let join;
   if (props.user) {
+    trending = <TrendingSection trendings={trendings} />
+    suggested = <SuggestedUsersSection users={users} />
   } else {
     join = <JoinSection />
   }
-
+  
   return (
     <section>
       <Search />
@@ -294,7 +228,7 @@ export default function DesktopSidebar(props) {
   );
 }
 ```
-9. Update Profile.js
+7. Update ProfileInfo.js
 ```
 // remove Cookies from "js-cookie and replace with code below
 import { Auth } from 'aws-amplify';
@@ -308,7 +242,7 @@ const signOut = async () => {
   }
 }
 ```
-10. Update SignIn Page with Amplify Auth
+8. Update SignIn Page with Amplify Auth
 ```
 // replace cookies with auth from aws-amplify
 import { Auth } from 'aws-amplify';
@@ -340,7 +274,7 @@ if (Errors){
 // just before submit component
 {errors}
 ```
-11. Update Signup Page with Amplify Auth
+9. Update Signup Page with Amplify Auth
 ```
 import { Auth } from 'aws-amplify';
 
@@ -379,7 +313,7 @@ if (Errors){
 //before submit component
 {errors}
 ```
-12. Update Confirmation Page to handle Auth to resend email
+10. Update Confirmation Page to handle Auth to resend email
 ```
 const resend_code = async (event) => {
   setErrors('')
@@ -412,7 +346,7 @@ const onsubmit = async (event) => {
   return false
 }
 ```
-13. Upadte Recovery Page
+11. Upadte Recovery Page
 ```
 import { Auth } from 'aws-amplify';
 
@@ -448,7 +382,7 @@ Add in the `HomeFeedPage.js` a header eto pass along the access token
   }
 ```
 
-14. Update backend-flask app.py to allow headers for Authorization
+12. Update backend-flask app.py to allow headers for Authorization
 ```
 cors = CORS(
   app, 
@@ -458,7 +392,7 @@ cors = CORS(
   methods="OPTIONS,GET,HEAD,POST"
 )
 ```
-15. AWS --> navigate to user pool --> select --> create a user
+14. AWS --> navigate to user pool --> select --> create a user
 * click on email
 * user name - enter name
 * email address -  enter email address
