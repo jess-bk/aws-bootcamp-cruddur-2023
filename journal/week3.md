@@ -365,28 +365,8 @@ const onsubmit_confirm_code = async (event) => {
   }
   return false
 }
-
-## Authenticating Server Side
-
-Add in the `HomeFeedPage.js` a header eto pass along the access token
-
-```js
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("access_token")}`
-  }
 ```
-
-12. Update backend-flask app.py to allow headers for Authorization
-```
-cors = CORS(
-  app, 
-  resources={r"/api/*": {"origins": origins}},
-  headers=['Content-Type', 'Authorization'], 
-  expose_headers='Authorization',
-  methods="OPTIONS,GET,HEAD,POST"
-)
-```
-14. AWS --> navigate to user pool --> select --> create a user
+12. AWS --> navigate to user pool --> select --> create a user
 * click on email
 * user name - enter name
 * email address -  enter email address
@@ -405,3 +385,232 @@ AWS navigate to user pool and inside the console click on user attributes and en
 
 # Implementing signup in AWS Cognito --> frontend
 1. delete the user created in AWS in the user pool (previously created manually now will be done in the frontend)
+
+## Authenticating Server Side
+Add in the `HomeFeedPage.js` a header eto pass along the access token (frontend-react-js)
+
+```js
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("access_token")}`
+  }
+```
+13. Update backend-flask app.py to allow headers from the frontend for Authorization (cd into backend-flask)
+14. Add in the `app.py`
+```
+import sys 
+
+cors = CORS(
+  app, 
+  resources={r"/api/*": {"origins": origins}},
+  headers=['Content-Type', 'Authorization'], 
+  expose_headers='Authorization',
+  methods="OPTIONS,GET,HEAD,POST"
+)
+```
+15. Adding Token Verification --> verify JWTs obtained from an Amazon Cognito user pool and extract information from them
+create a folder name lib on the bakcend-flask directory and create a file inside cognito_jwt_token.py and add the following code
+```
+import time
+import requests
+from jose import jwk, jwt
+from jose.exceptions import JOSEError
+from jose.utils import base64url_decode
+
+class FlaskAWSCognitoError(Exception):
+  pass
+
+class TokenVerifyError(Exception):
+  pass
+
+def extract_access_token(request_headers):
+    access_token = None
+    auth_header = request_headers.get("Authorization")
+    if auth_header and " " in auth_header:
+        _, access_token = auth_header.split()
+    return access_token
+
+class CognitoJwtToken:
+    def __init__(self, user_pool_id, user_pool_client_id, region, request_client=None):
+        self.region = region
+        if not self.region:
+            raise FlaskAWSCognitoError("No AWS region provided")
+        self.user_pool_id = user_pool_id
+        self.user_pool_client_id = user_pool_client_id
+        self.claims = None
+        if not request_client:
+            self.request_client = requests.get
+        else:
+            self.request_client = request_client
+        self._load_jwk_keys()
+
+
+    def _load_jwk_keys(self):
+        keys_url = f"https://cognito-idp.{self.region}.amazonaws.com/{self.user_pool_id}/.well-known/jwks.json"
+        try:
+            response = self.request_client(keys_url)
+            self.jwk_keys = response.json()["keys"]
+        except requests.exceptions.RequestException as e:
+            raise FlaskAWSCognitoError(str(e)) from e
+
+    @staticmethod
+    def _extract_headers(token):
+        try:
+            headers = jwt.get_unverified_headers(token)
+            return headers
+        except JOSEError as e:
+            raise TokenVerifyError(str(e)) from e
+
+    def _find_pkey(self, headers):
+        kid = headers["kid"]
+        # search for the kid in the downloaded public keys
+        key_index = -1
+        for i in range(len(self.jwk_keys)):
+            if kid == self.jwk_keys[i]["kid"]:
+                key_index = i
+                break
+        if key_index == -1:
+            raise TokenVerifyError("Public key not found in jwks.json")
+        return self.jwk_keys[key_index]
+
+    @staticmethod
+    def _verify_signature(token, pkey_data):
+        try:
+            # construct the public key
+            public_key = jwk.construct(pkey_data)
+        except JOSEError as e:
+            raise TokenVerifyError(str(e)) from e
+        # get the last two sections of the token,
+        # message and signature (encoded in base64)
+        message, encoded_signature = str(token).rsplit(".", 1)
+        # decode the signature
+        decoded_signature = base64url_decode(encoded_signature.encode("utf-8"))
+        # verify the signature
+        if not public_key.verify(message.encode("utf8"), decoded_signature):
+            raise TokenVerifyError("Signature verification failed")
+
+    @staticmethod
+    def _extract_claims(token):
+        try:
+            claims = jwt.get_unverified_claims(token)
+            return claims
+        except JOSEError as e:
+            raise TokenVerifyError(str(e)) from e
+
+    @staticmethod
+    def _check_expiration(claims, current_time):
+        if not current_time:
+            current_time = time.time()
+        if current_time > claims["exp"]:
+            raise TokenVerifyError("Token is expired")  # probably another exception
+
+    def _check_audience(self, claims):
+        # and the Audience  (use claims['client_id'] if verifying an access token)
+        audience = claims["aud"] if "aud" in claims else claims["client_id"]
+        if audience != self.user_pool_client_id:
+            raise TokenVerifyError("Token was not issued for this audience")
+
+    def verify(self, token, current_time=None):
+        """ https://github.com/awslabs/aws-support-tools/blob/master/Cognito/decode-verify-jwt/decode-verify-jwt.py """
+        if not token:
+            raise TokenVerifyError("No token provided")
+
+        headers = self._extract_headers(token)
+        pkey_data = self._find_pkey(headers)
+        self._verify_signature(token, pkey_data)
+
+        claims = self._extract_claims(token)
+        self._check_expiration(claims, current_time)
+        self._check_audience(claims)
+
+        self.claims = claims 
+        return claims
+```
+CognitoJwtToken, which is used to verify a JWT (JSON Web Token) obtained from an Amazon Cognito user pool. The purpose of this script is to provide a way to validate and extract information from the JWT provided by Amazon Cognito, such as the user ID, username, or other claims contained in the JWT.
+
+The script imports several libraries that are used to decode, verify, and extract information from the JWT, such as requests, jose, and base64url_decode. The FlaskAWSCognitoError and TokenVerifyError classes are custom exceptions that are raised in case of errors while verifying the token.
+
+The extract_access_token() function extracts the access token from the Authorization header of a request. The CognitoJwtToken class has several methods, including _loadjwt_keys() to download the public keys from the Cognito user pool, _extract_headers() to extract the headers from the JWT, _find_pkey() to find the matching public key based on the kid header, _verify_signature() to verify the signature of the JWT, _extract_claims() to extract the claims from the JWT, _check_expiration() to check if the token is expired, _check_audience() to check if the token was issued for the correct audience, and verify() to verify the JWT and return the claims contained in it.
+
+16. Update requirements.txt
+```
+Flask-AWSCognito
+```
+run command in cli to update the dependecies 
+```
+pip install -r requirements.txt
+```
+17. Docker-compose file update the env vars for the backend to implement verification for incognito
+```
+  backend-flask:
+    environment:
+    -------------------code-------------------------------
+      AWS_COGNITO_USER_POOL_ID: "us-east-1_<enter user pool ID from aws>"
+      AWS_COGNITO_USER_POOL_CLIENT_ID: "<enter aws App integration tab --> App client and analytics CLIENT ID>"     
+    build: ./backend-flask
+    ports:
+      - "4567:4567"
+    volumes:
+      - ./backend-flask:/backend-flask
+    -------------------code-------------------------------
+```
+18. app.py --> import cognito_jwt_token into app.py to be used for verification
+```
+from lib.cognito_jwt_token import CognitoJwtToken, extract_access_token, TokenVerifyError
+```
+19. app.py --> allow the env vars to be passed into aws
+```
+----------------------
+app = Flask(__name__)
+----------------------
+
+cognito_jwt_token = CognitoJwtToken(
+  user_pool_id=os.getenv("AWS_COGNITO_USER_POOL_ID"), 
+  user_pool_client_id=os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
+  region=os.getenv("AWS_DEFAULT_REGION")
+)
+```
+20. In the @app.route("/api/activities/home") --> update with the following code
+```
+@app.route("/api/activities/home", methods=['GET'])
+@xray_recorder.capture('activities_home')
+def data_home():
+  access_token = extract_access_token(request.headers)
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    # authenicatied request
+    app.logger.debug("authenicated")
+    app.logger.debug(claims)
+    app.logger.debug(claims['username'])
+    data = HomeActivities.run(cognito_user_id=claims['username'])
+  except TokenVerifyError as e:
+    # unauthenicatied request
+    app.logger.debug(e)
+    app.logger.debug("unauthenicated")
+    data = HomeActivities.run()
+  return data, 200
+```
+When the route is accessed, it first extracts an access token from the request headers using the extract_access_token function. It then tries to verify the token using the cognito_jwt_token object, which is an instance of the CognitoJwtToken class defined in the previous code block.
+If the token is successfully verified, the code logs that the request is authenticated and uses the username from the token claims to run the HomeActivities function with that user ID. If the token is not verified, the code logs that the request is unauthenticated and runs the HomeActivities function without a user ID.
+The function returns the data generated by the HomeActivities function along with an HTTP status code of 200.
+
+21. Adding aditional record to the list of results being returned by the HomeActivities.run() function call (from app.py for authenticated user)
+```
+if cognito_user_id != None:
+  extra_crud = {
+    'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
+    'handle':  'Lore',
+    'message': 'My dear brother, it the humans that are the problem',
+    'created_at': (now - timedelta(hours=1)).isoformat(),
+    'expires_at': (now + timedelta(hours=12)).isoformat(),
+    'likes': 1042,
+    'replies': []
+  }
+  results.insert(0,extra_crud)
+```
+The if statement checks if the cognito_user_id variable is not equal to None. If it's not None, it means that the user is authenticated and the extra_crud dictionary containing some data is created and added to the results list at the beginning of the list using the insert() method.
+The extra_crud dictionary contains some key-value pairs such as a UUID, a handle, a message, the creation and expiration timestamps, the number of likes, and an empty list of replies. These values will be returned to the client as part of the response.
+
+22. Remove the user from local storage on signout from ProfileInfo.js
+```
+localStorage.removeItem("access_token")
+```
