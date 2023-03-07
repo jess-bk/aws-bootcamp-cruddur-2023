@@ -79,7 +79,7 @@ Token monitoring: Token usage should be monitored and audited regularly to detec
 1. Navigate to Amazon Cognito in AWS
 2. Click on create a new user pool
 3. Authentication Providers --> Congnito user pool
-4. Cognito user pool sign-in-options --> username, email
+4. Cognito user pool sign-in-options --> email only
 5. User name requirements --> leave blank
 6. Password Policy --> Password policy mode --> Cognito defaults
 7. Mulit-Factor-Authentication --> No MFA
@@ -270,9 +270,6 @@ let errors;
 if (Errors){
   errors = <div className='errors'>{Errors}</div>;
 }
-
-// just before submit component
-{errors}
 ```
 9. Update Signup Page with Amplify Auth
 ```
@@ -280,41 +277,38 @@ import { Auth } from 'aws-amplify';
 
 //const [cognitoErrors, setCognitoErrors] = React.useState('');
 
-const onsubmit = async (event) => {
-  event.preventDefault();
-  setErrors('')
-  try {
+  const onsubmit = async (event) => {
+    event.preventDefault();
+    setErrors('')
+    console.log('username',username)
+    console.log('email',email)
+    console.log('name',name)
+    try {
       const { user } = await Auth.signUp({
         username: email,
         password: password,
         attributes: {
-            name: name,
-            email: email,
-            preferred_username: username,
+          name: name,
+          email: email,
+          preferred_username: username,
         },
         autoSignIn: { // optional - enables auto sign in after user is confirmed
-            enabled: true,
+          enabled: true,
         }
       });
       console.log(user);
       window.location.href = `/confirm?email=${email}`
-  } catch (error) {
-      console.log(error);
-      setErrors(error.message)
+    } catch (error) {
+        console.log(error);
+        setErrors(error.message)
+    }
+    return false
   }
-  return false
-}
-
-let errors;
-if (Errors){
-  errors = <div className='errors'>{Errors}</div>;
-}
-
-//before submit component
-{errors}
 ```
 10. Update Confirmation Page to handle Auth to resend email
 ```
+import { Auth } from 'aws-amplify';
+
 const resend_code = async (event) => {
   setErrors('')
   try {
@@ -400,8 +394,14 @@ cors = CORS(
 * Users --> comfirm user by selecting the user to confirm
 * check email for password from aws
 
-# Resolving the issue with setting user with AWS INCOGNITO
+# Resolving the issue with setting user with AWS INCOGNITO (step 14 did not work this will resolve the issue)
 run this command in cli
 ```
 cognito-idp admin-set-user-password --username <enter username> --password =<enter password> --user-pool-id <enter user pool ID>  --permanent
 ```
+
+# Resolving Name In Frontend User Attributes --> frontend sidebar navigation
+AWS navigate to user pool and inside the console click on user attributes and enter name and preffered name.
+
+# Implementing signup in AWS Cognito --> frontend
+1. delete the user created in AWS in the user pool (previously created manually now will be done in the frontend)
