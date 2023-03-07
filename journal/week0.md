@@ -27,13 +27,16 @@
 
 # Link to Diagram
 1. https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?viewport_loc=84%2C-220%2C1993%2C821%2C0_0&invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904 --> this link is updated to the new one below but the first architectural diageam is in the journal.
+![image architectural diagram](assets/week1-aws-images/Cruddur%20-%20Conceptual%20Diagram%20(1).png)
+
 
 # Updated Diagram 
 https://lucid.app/lucidchart/80205cea-a148-417a-a783-564ed91d936c/edit?invitationId=inv_2df8bca3-47af-4579-8130-ede019d13904
+![image architectural diagram](assets/week1-aws-images/Cruddur%20-%20Conceptual%20Diagram%20(2)%20updated.png)
 
 # Created third Architectural Diagram like Andrews
 https://lucid.app/lucidchart/deb47ba2-2d64-4389-b355-7a1411ec62a3/edit?viewport_loc=-293%2C49%2C1993%2C821%2C0_0&invitationId=inv_74d19ea9-70a9-416d-8a59-713547c556b8
-
+![image architectural diagram](assets/week1-aws-images/CruddurArchitectDesignFromBootcamp.png)
 
 # Billing AWS Console
 1. created a budget and billing alarm with AWS Console.
