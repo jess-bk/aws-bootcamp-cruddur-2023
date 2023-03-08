@@ -1,20 +1,32 @@
-* { box-sizing: border-box; }
-html,body { 
-  height: 100%; 
-  width: 100%; 
-  background: rgb(14,3,28);
+:root {
+  --bg: rgb(61, 13, 123);
+  --fg: rgb(8, 1, 14);
+
+  --field-border: rgb(255, 255, 255, 0.29);
+  --field-border-focus: rgb(149, 0, 255, 1);
+  --field-bg: rgb(31, 31, 31);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+  background: var(--bg);
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }

@@ -1,4 +1,5 @@
-main, article {
+main,
+article {
   height: 100%;
   width: 100%;
 }
@@ -6,5 +7,5 @@ main, article {
 .content {
   width: 600px;
   height: 100%;
-  background: #000;
+  background: var(--fg);
 }
