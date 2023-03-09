@@ -104,6 +104,8 @@ Token monitoring: Token usage should be monitored and audited regularly to detec
 26. Advanced app client setting leave as default
 27. Attribute read and write permission leave as default
 28. Review and create user pool
+![image user pool created](assets/week3aws/cognito-user-pool.png)
+![image user pool created](assets/week3aws/cognito-user-pool-2.png)
 
 # AWS Amplify(frontend implementation with aws cognito)
 
@@ -270,6 +272,7 @@ let errors;
 if (Errors){
   errors = <div className='errors'>{Errors}</div>;
 }
+
 ```
 9. Update Signup Page with Amplify Auth
 ```
@@ -379,6 +382,7 @@ run this command in cli
 ```
 cognito-idp admin-set-user-password --username <enter username> --password =<enter password> --user-pool-id <enter user pool ID>  --permanent
 ```
+![image user pool created](assets/week3aws/cognito-user-pool-3.png)
 
 # Resolving Name In Frontend User Attributes --> frontend sidebar navigation
 AWS navigate to user pool and inside the console click on user attributes and enter name and preffered name.
@@ -634,6 +638,24 @@ The extra_crud dictionary contains some key-value pairs such as a UUID, a handle
 ```
 localStorage.removeItem("access_token")
 ```
+# Images From UI after implementation of JWT and Incognito
+
+![image conditinally rendering user](assets/week3aws/cognito-homepage-user-not-loggedin.png)
+
+![image conditinally rendering user](assets/week3aws/cognito-jwt-user-loggedin.png)
+
+![image recovery page](assets/week3aws/recovery-page.png)
+
+![image reset password](assets/week3aws/reset_password.png)
+
+![image reset password](assets/week3aws/reset_password.png)
+
+![image reset password done](assets/week3aws/password_reset_done.png)
+
+![image reset password confirmed](assets/week3aws/confirm_password_reset.png)
+
+![image reset password logged in after reset](assets/week3aws/after_reset_password.png)
+
 
 # Exploring JWT's 
 First an explaination about what JWT's, JWT stands for JSON Web Token, and it is a compact, URL-safe means of representing claims to be transferred between two parties. JWT is a type of authentication mechanism that allows users to securely transmit information between different systems.
