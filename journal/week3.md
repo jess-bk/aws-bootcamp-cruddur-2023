@@ -656,6 +656,10 @@ localStorage.removeItem("access_token")
 
 ![image reset password logged in after reset](assets/week3aws/after_reset_password.png)
 
+![image reset password logged in after reset](assets/week3aws/authenticated-request-jwt-middleware.png)
+
+![image reset password logged in after reset](assets/week3aws/jwt-console-auth.png)
+
 
 # Exploring JWT's 
 First an explaination about what JWT's, JWT stands for JSON Web Token, and it is a compact, URL-safe means of representing claims to be transferred between two parties. JWT is a type of authentication mechanism that allows users to securely transmit information between different systems.
@@ -681,8 +685,3 @@ In a decoupled architecture, you can use JWTs to authenticate users and then use
 
 Regardless of whether you choose a coupled or decoupled architecture, it's important to follow best practices for securing your JWTs. For example, you should use a strong algorithm to sign your tokens, such as HMAC-SHA256 or RSA-SHA256. You should also validate the signature and check the expiration time to ensure that the token has not been tampered with or expired.provides several services that can be used in conjunction with JWTs to create a secure and scalable application. One such service is Amazon Cognito, which is a fully managed user authentication and authorization service. With Cognito, you can create user pools and identity pools, which allow you to manage user authentication and authorization for your application.
 
-In a coupled architecture, you can use Cognito to authenticate users and generate JWTs, which can then be used to access resources in other AWS services, such as Amazon S3 or Amazon API Gateway. This approach provides a seamless integration between authentication and authorization, making it easy to manage user access to your application.
-
-In a decoupled architecture, you can use JWTs to authenticate users and then use the token to authorize access to your application's resources. This approach provides more flexibility and allows you to use a variety of authorization mechanisms, such as role-based access control or attribute-based access control.
-
-Regardless of whether you choose a coupled or decoupled architecture, it's important to follow best practices for securing your JWTs. For example, you should use a strong algorithm to sign your tokens, such as HMAC-SHA256 or RSA-SHA256. You should also validate the signature and check the expiration time to ensure that the token has not been tampered with or expired.
