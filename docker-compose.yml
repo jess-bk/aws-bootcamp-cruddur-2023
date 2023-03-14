@@ -67,14 +67,14 @@ services:
     networks:
       - internal-network
 
-  custom-proxy:
-    image: nginx:latest
-    volumes:
-      - ./custom-proxy.conf:/custom-proxy.conf
-    ports:
-      - "8123:80"
-    networks:
-      - internal-network
+  # custom-proxy:
+  #   image: nginx:latest
+  #   volumes:
+  #     - ./custom-proxy.conf:/custom-proxy.conf
+  #   ports:
+  #     - "8123:80"
+  #   networks:
+  #     - internal-network
 
   xray-daemon:
     image: "amazon/aws-xray-daemon"
@@ -86,27 +86,27 @@ services:
       - "xray -o -b xray-daemon:2000"
     ports:
       - 2000:2000/udp
-  dynamodb-local:
-    # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
-    # We needed to add user:root to get this working.
-    user: root
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
-    working_dir: /home/dynamodblocal
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "aws dynamodb list-tables --endpoint-url http://localhost:8000",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+  # dynamodb-local:
+  #   # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
+  #   # We needed to add user:root to get this working.
+  #   user: root
+  #   command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+  #   image: "amazon/dynamodb-local:latest"
+  #   container_name: dynamodb-local
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - "./docker/dynamodb:/home/dynamodblocal/data"
+  #   working_dir: /home/dynamodblocal
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "aws dynamodb list-tables --endpoint-url http://localhost:8000",
+  #       ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
   db:
     image: postgres:13-alpine
     restart: always
