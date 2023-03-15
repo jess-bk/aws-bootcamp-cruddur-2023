@@ -115,12 +115,12 @@ psql cruddur < db/schema.sql -h localhost -U postgres
 ```
 11. Create a URL CONNECTION STRING instead of running the script everytime we update and check if the CONNECTION URL STRING works in PostgreSQL --> run the script in cli
 ```
-export CONNECTION_URL="postgresql://postgres:pssword@127.0.0.1:5433/cruddur"
+psql postgresql://postgres:password@localhost:5432/cruddur
 ```
 this show the PostgreSQL output password and local host
 12. Quit out of PostgreSQL --> run \q and run script into the bash terminal --> cli
 ```
-export CONNECTION_URL="postgresql://postgres:pssword@127.0.0.1:5433/cruddur"
+export CONNECTION_URL="postgresql://postgres:password@localhost:5432/cruddur"
 ```
 13. type in cli --> 
 ```
@@ -129,15 +129,15 @@ psql CONNECTION_URL
 output: cruudur=# and then quit --> \q
 14. Now set the env vars for DB connections in gitpod
 ```
-gp env CONNECTION_URL="postgresql://postgres:pssword@127.0.0.1:5433/cruddur"
+gp env CONNECTION_URL="postgresql://postgres:password@localhost:5432/cruddur"
 ```
 15 Setup connection for the RDS INSTANCE --> cli
 ```
-export PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS RDS:5433/cruddur>"
+export PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5433/cruddur"
 ```
 16. Now set the env vars for DB connections in gitpod for RDS INSTANCE --> cli
 ```
-gp env PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS RDS:5433/cruddur>
+gp env PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5433/cruddur"
 ```
 17. Create a bin file to add scripts to add and remove from the schema file --> backend-flask in the root create a folder named bin and create 3 files db-create, db-drop, db-schema-load.
 run in cli --> whereis bash --> add the path to all three file at the top
@@ -206,7 +206,7 @@ run in cli check if the access has been given --> ls -l ./bin (cd into backend-f
 19. run command to drop db --> ./bin/db-drop
 20. run command to create db --> ./bin/db-create
 21. run command to schema --> ./bin/db-schema-load --> this should create the tables from the schema
-22. create a file insode bin --> db-connect
+22. create a file inside bin --> db-connect
 ```
 #! /usr/bin/bash
 if [ "$1" = "prod" ]; then
@@ -219,8 +219,24 @@ fi
 psql $URL
 ```
 23. grant access permission to the bash script --> chmod u+x db-connect --> check if worked --> ./bin/db-connect.
-24. check if tables exist --> /dt.
-25. create a new file in bin folder --> db-seed
+24. check if tables exist --> \dt.
+25. create a new inside db --> seed.sql
+```
+-- this file was manually created
+INSERT INTO public.users (display_name, handle, cognito_user_id)
+VALUES
+  ('Andrew Brown', 'andrewbrown' ,'MOCK'),
+  ('Andrew Bayko', 'bayko' ,'MOCK');
+
+INSERT INTO public.activities (user_uuid, message, expires_at)
+VALUES
+  (
+    (SELECT uuid from public.users WHERE users.handle = 'andrewbrown' LIMIT 1),
+    'This was imported as seed data!',
+    current_timestamp + interval '10 day'
+  )
+```
+26. create a new file in bin folder --> db-seed
 ```
 #! /usr/bin/bash
 
@@ -241,27 +257,11 @@ fi
 
 psql $URL cruddur < $seed_path
 ```
-26. grant access permission to the bash script --> chmod u+x db-seed --> check if worked --> ./bin/db-seed.
-27. create a new inside db --> seed.sql
-```
--- this file was manually created
-INSERT INTO public.users (display_name, handle, cognito_user_id)
-VALUES
-  ('Andrew Brown', 'andrewbrown' ,'MOCK'),
-  ('Andrew Bayko', 'bayko' ,'MOCK');
-
-INSERT INTO public.activities (user_uuid, message, expires_at)
-VALUES
-  (
-    (SELECT uuid from public.users WHERE users.handle = 'andrewbrown' LIMIT 1),
-    'This was imported as seed data!',
-    current_timestamp + interval '10 day'
-  )
-```
+27. grant access permission to the bash script --> chmod u+x db-seed --> check if worked --> ./bin/db-seed.
 28. run in cli --> ./bin/seed.sql
 
 # Checking Data
-To check the data in the data base run --> ./bin/db-connect --> \td --> SELECT * FROM activities; 
+To check the data in the data base run --> ./bin/db-connect --> \dt --> SELECT * FROM activities; 
 to check the data in more readable format --> first quit out of data table --> then type --> \x on and then type --> SELECT * FROM activities; 
 
 # Check The Active Connection We Are Using In PostgreSQL
@@ -425,7 +425,8 @@ The method is responsible for executing a SQL query to fetch some data from a da
 * TYPE --> PostgreSQL
 * PROTOCOL --> TCP
 * PORT RANGE --> 5432 
-* SOURCE --> run in cli --> GITPOD_IP=$(curl ifconfig.me) enter here
+* RUN IN CLI --> GITPOD_IP=$(curl ifconfig.me) --> get the ip address and add in AWS source
+* SOURCE --> eneter here the ip address
 * DESCRIPTION --> GITPOD
 * SAVE
 3. run in terminal cli
@@ -443,14 +444,15 @@ gp env DB_SG_ID="<Add the security group id here from AWS>"
 export DB_SG_RULE_ID="<Add the security group rule here from AWS>"
 gp env DB_SG_RULE_ID="<Add the security group rule here from AWS>"
 ```
-2. now set the modified security rules --? paste into cli and hit enter.
+2. now set the modified security rules --> paste into cli and hit enter.
+* first run export GITPOD_IP=$(curl ifconfig.me) in cli and then paste the code in cli 
 ```
 aws ec2 modify-security-group-rules \
     --group-id $DB_SG_ID \
     --security-group-rules "SecurityGroupRuleId=$DB_SG_RULE_ID,SecurityGroupRule={Description=GITPOD,IpProtocol=tcp,FromPort=5432,ToPort=5432,CidrIpv4=$GITPOD_IP/32}"
 ```
 3. create a new bash script to update the GITPOD yml file to load the env vars into AWS RDS security rules
-* create a new file rds-update-sg-rule inside the bin folder and add the code below.
+* create a new file db-rds-update-sg-rule inside the bin folder and add the code below.
 ```
 #! /usr/bin/bash
 
@@ -472,7 +474,7 @@ export GITPOD_IP=$(curl ifconfig.me)
 ```
 command: |
   export GITPOD_IP=$(curl ifconfig.me)
-  source  "$THEIA_WORKSPACE_ROOT/backend-flask/bin/rds-update-sg-rule"
+  source  "$THEIA_WORKSPACE_ROOT/backend-flask/bin/db-rds-update-sg-rule"
 ```
 7. Check in AWS RDS security rules if the script has worked and git commit and quit out of gitpod and restart a new GITPOD environment.
 8. run script --> ./bin/db-connect PROD
