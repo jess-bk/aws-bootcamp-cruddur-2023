@@ -485,7 +485,7 @@ Implementing custom authorizer for congito for user to be inserted into db.
 Create a Lambda Function in AWS
 1. AWS ---> Lambda --> create a function.
 2. Author from scratch
-3. Function name --> cruudur-post-confirmation.
+3. Function name --> cruddur-post-confirmation.
 4. Runtime --> Python 3.8.
 5. Architecture --> x86_64.
 6. Change default execution role --> create a new role basic lambda permissions.
@@ -558,30 +558,10 @@ CREATE TABLE public.users (
 # Lambda Function
 1. Edit Environment Variables --> key - CONNECTION_URL --> value - enter prod_connection_url value here 
 2. Code Source --> paste in the code from --> cruddur-post-confirrmation.py
-3. Add Lambda Layer as in the tutorial this was not the region i was in i had th implement the following steps to resolve the issue
+3. Add Lambda Layer as in the tutorial this was not the region i was in i had to implement the following step to resolve the issue
 ```
-mkdir aws-psycopg2
-
-cd aws-psycopg2
-
-vi get_layer_packages.sh
-
-export PKG_DIR="python"
-
-rm -rf ${PKG_DIR} && mkdir -p ${PKG_DIR}
-
-docker run --rm -v $(pwd):/foo -w /foo lambci/lambda:build-python3.6 \
-    pip install -r requirements.txt --no-deps -t ${PKG_DIR}
-vi requirements.txt
-
-aws-psycopg2
-then do : chmod +x get_layer_packages.sh
-
-./get_layer_packages.sh
-
-zip -r aws-psycopg2.zip .
-
-upload this zip to the AWS Lambda Layer.
+# github repo added the arn from here
+https://github.com/jetbridge/psycopg2-lambda-layer
 ```
 4. hit verify
 5. Add Trigger to Congnito --> cruddur-user-pool --> User Pool Properties tab ---> Lambda Triggers.
@@ -601,7 +581,7 @@ upload this zip to the AWS Lambda Layer.
       "ec2:CreateNetworkInterface",
       "ec2:DeleteNetworkInterface",
       "ec2:DescribeInstances",
-      "ec2:AttachNetworkInterface",
+      "ec2:AttachNetworkInterface"
     ],
     "Resource": "*"
   }]
