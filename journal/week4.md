@@ -477,5 +477,141 @@ command: |
   source  "$THEIA_WORKSPACE_ROOT/backend-flask/bin/db-rds-update-sg-rule"
 ```
 7. Check in AWS RDS security rules if the script has worked and git commit and quit out of gitpod and restart a new GITPOD environment.
-8. run script --> ./bin/db-connect PROD
-9. make sure in backend-flask and run script --> ./bin/db-schema-load and refresh frontend page.
+8. run script --> ./bin/db-connect PROD to check if the production mode is running, if yes then quit.
+9. make sure in backend-flask and run script --> ./bin/db-schema-load prod and refresh frontend page and should get 200 response with empty object as nothing has been added yet in data base.
+
+# Cognito Post Confirmation Lambda
+Implementing custom authorizer for congito for user to be inserted into db.
+Create a Lambda Function in AWS
+1. AWS ---> Lambda --> create a function.
+2. Author from scratch
+3. Function name --> cruudur-post-confirmation.
+4. Runtime --> Python 3.8.
+5. Architecture --> x86_64.
+6. Change default execution role --> create a new role basic lambda permissions.
+7. Advanced settings --> as default.
+8. create function
+
+# Create a new folder in backend-flask aws --> lambdas and add file name --> cruddur-post-confirrmation.py
+```
+import json
+import psycopg2
+import os
+
+
+def lambda_handler(event, context):
+    user = event['request']['userAttributes']
+    user_display_name = user['name']
+    user_email = user['email']
+    user_cognito_id = user['sub']
+    user_handle = user['preferred_username']
+
+    try:
+        
+        sql = f"""
+        INSERT INTO users (
+            display_name,
+            email,
+            handle, 
+            cognito_user_id
+            )
+        VALUES(
+            '{user_display_name}',
+            '{user_email}', 
+            '{user_handle}', 
+            '{user_cognito_id}'
+        )
+        """
+        
+        print('SQL =========')
+        print(sql)
+        
+        conn = psycopg2.connect(os.getenv('CONNECTION_URL'))
+        cur = conn.cursor()
+        
+        cur.execute(sql)
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+    finally:
+        if conn is not None:
+            cur.close()
+            conn.close()
+            print('Database connection closed.')
+
+    return event
+```
+
+# Update schema.sql to handle the requests for the db tables.
+```
+CREATE TABLE public.users (
+  uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  display_name text NOT NULL,
+  handle text NOT NULL,
+  email text NOT NULL,
+  cognito_user_id text NOT NULL,
+  created_at TIMESTAMP default current_timestamp NOT NULL
+);
+```
+# Lambda Function
+1. Edit Environment Variables --> key - CONNECTION_URL --> value - enter prod_connection_url value here 
+2. Code Source --> paste in the code from --> cruddur-post-confirrmation.py
+3. Add Lambda Layer as in the tutorial this was not the region i was in i had th implement the following steps to resolve the issue
+```
+mkdir aws-psycopg2
+
+cd aws-psycopg2
+
+vi get_layer_packages.sh
+
+export PKG_DIR="python"
+
+rm -rf ${PKG_DIR} && mkdir -p ${PKG_DIR}
+
+docker run --rm -v $(pwd):/foo -w /foo lambci/lambda:build-python3.6 \
+    pip install -r requirements.txt --no-deps -t ${PKG_DIR}
+vi requirements.txt
+
+aws-psycopg2
+then do : chmod +x get_layer_packages.sh
+
+./get_layer_packages.sh
+
+zip -r aws-psycopg2.zip .
+
+upload this zip to the AWS Lambda Layer.
+```
+4. hit verify
+5. Add Trigger to Congnito --> cruddur-user-pool --> User Pool Properties tab ---> Lambda Triggers.
+6. Add Lambda Trigger --> Sign-up --> Post confirmation trigger.
+7. Lambda Function --> Assign Lambda Function --> select --> one you created earlier.
+8. Add Lamdba Trigger.
+9. Create Permission for user for EC2 instance for VPC --> Create Role Policy --> Open Lamdba in AWS console
+10. Configuration tab --> Permissions --> click on Execution roles --> cruddur.
+11. Permission Policies -->  Policies --> Create Policy --> JSON
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DescribeInstances",
+      "ec2:AttachNetworkInterface",
+    ],
+    "Resource": "*"
+  }]
+}
+```
+12. Copy the name of the Role.
+13. Click on next once created the json file.
+14. Review Policy Name --> Paste the Role copied. --> Description AWS Lambda Function Role Policy for user.
+15. Lambda Aws console --> Permissions --> Execution Roles --> Attach the Policy created.
+16. Add the VPC --> VPC add one that is provided now --> Subnets --> add 2 from us-east-1a --> Security Group --> add the default one --> hit save
+17. Hit deploy.
+18. Make sure running Docker-compose up and cd backend-flask, run bash script ./bin/db-connect prod --> \dt --> type --> select * from users;(this show thw user in DB)
+19. Cognito --> goto to frontend and create a user and check log in Lambda Cloudwatch.
