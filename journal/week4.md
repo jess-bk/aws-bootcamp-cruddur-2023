@@ -133,11 +133,11 @@ gp env CONNECTION_URL="postgresql://postgres:password@localhost:5432/cruddur"
 ```
 15 Setup connection for the RDS INSTANCE --> cli
 ```
-export PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5433/cruddur"
+export PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5432/cruddur"
 ```
 16. Now set the env vars for DB connections in gitpod for RDS INSTANCE --> cli
 ```
-gp env PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5433/cruddur"
+gp env PROD_CONNECTION_URL="postgresql://root:<PASSWORD>@<ENTER DATA BASE ENDPOINT AND PORT FROM AWS>RDS:5432/cruddur"
 ```
 17. Create a bin file to add scripts to add and remove from the schema file --> backend-flask in the root create a folder named bin and create 3 files db-create, db-drop, db-schema-load.
 run in cli --> whereis bash --> add the path to all three file at the top
