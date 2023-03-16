@@ -35,4 +35,4 @@ class HomeActivities:
           # this will return a tuple
           # the first field being the data
           json = cur.fetchone()
-      return results
+      return json[0]
