@@ -844,7 +844,7 @@ class Db:
 
 db = Db()
 ```
-5.Updated create_activities in services
+5. Updated create_activities in services
 ```
 from datetime import datetime, timedelta, timezone
 
@@ -965,3 +965,14 @@ body: JSON.stringify({
 />
 ```
 With all the implementation above i was able to create an activity.
+
+# Securing Your Amazon RDS Postgres Database
+Securing your Amazon RDS Postgres database is crucial to protect your data from unauthorized access, tampering, or theft. Here are some best practices to secure your Amazon RDS Postgres database
+
+1. Use strong passwords: Use strong passwords for your database users and avoid using easily guessable passwords. Consider using a password manager to store and manage your passwords securely. 
+2. Enable SSL/TLS encryption: Use SSL/TLS encryption to secure data in transit between your application and database. This can be done by enabling SSL on your database instance and configuring your application to use SSL.
+3. Restrict access to your database: Use security groups to restrict access to your database instance to only authorized IP addresses and/or EC2 instances.
+4. Use IAM authentication: Use IAM authentication to manage database access for your AWS resources, including EC2 instances and Lambda functions.
+5. Enable automatic backups: Enable automatic backups for your database instance and store backups in a secure location.
+6. Monitor database activity: Monitor your database activity using Amazon CloudWatch and Amazon RDS event notifications to detect unusual activity and potential security threats.
+7. Regularly update and patch your database: Keep your database software up-to-date with the latest patches and security updates to address any vulnerabilities.
