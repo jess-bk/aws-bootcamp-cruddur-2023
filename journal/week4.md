@@ -50,6 +50,7 @@ The above command is using the AWS CLI (Command Line Interface) to create a new 
 * --enable-performance-insights option enables Performance Insights, a feature that provides database performance monitoring and diagnostics.
 * --performance-insights-retention-period option sets the number of days to retain Performance Insights data, in this case 7.
 * --no-deletion-protection option specifies that deletion protection should not be enabled for the RDS instance.
+
 3. Start docker-compose --> docker compose up (comment out dynamoDB to free up container space if needed).
 4. Check if RDS is running in AWS if yes then stop temporarily. (this will insure not to incure any charges), the RDS instance will incure charges after 7 days of being active and will need stoping before that date from incuring any charges.
 5. Check if you have a running connection to your PostgreSQL in cli
@@ -122,10 +123,16 @@ this show the PostgreSQL output password and local host
 ```
 export CONNECTION_URL="postgresql://postgres:password@localhost:5432/cruddur"
 ```
+
+![image rds](assets/week4aws/running-command-schema.sql.png)
+
 13. type in cli --> 
 ```
 psql CONNECTION_URL
 ```
+
+![image rds](assets/week4aws/postgres-password-stored-cli.png)
+
 output: cruudur=# and then quit --> \q
 14. Now set the env vars for DB connections in gitpod
 ```
@@ -219,8 +226,14 @@ fi
 psql $URL
 ```
 23. grant access permission to the bash script --> chmod u+x db-connect --> check if worked --> ./bin/db-connect.
-24. check if tables exist --> \dt.
-25. create a new inside db --> seed.sql
+
+![image rds](assets/week4aws/postgres-password-stored-cli.png)
+
+25. check if tables exist --> \dt.
+
+![image rds](assets/week4aws/td-command-tables.png)
+
+27. create a new inside db --> seed.sql
 ```
 -- this file was manually created
 INSERT INTO public.users (display_name, handle, email, cognito_user_id)
@@ -264,6 +277,8 @@ psql $URL cruddur < $seed_path
 To check the data in the data base run --> ./bin/db-connect --> \dt --> SELECT * FROM activities; 
 to check the data in more readable format --> first quit out of data table --> then type --> \x on and then type --> SELECT * FROM activities; 
 
+![image rds](assets/week4aws/x-on-postgress.png)
+
 # Check The Active Connection We Are Using In PostgreSQL
 1. create a new file in bin folder --> db-sessions.
 2. add the code below
@@ -293,6 +308,8 @@ from pg_stat_activity;"
 3. make the file executable --> chmod u+x bin/db-session.
 4. run the bash script --> ./bin/db-session.
 
+![image rds](assets/week4aws/db-sessions.png)
+
 # Create a new bash script to Setup Data Base
 1. create a new file in the bin folder and name it db-setup.
 2. add the code below.
@@ -315,6 +332,8 @@ source "$bin_path/db-seed"
 3. make the file executable --> chmod u+x bin/db-setup.
 4. run the bash script --> ./bin/db-setup.
 
+![image rds](assets/week4aws/db-setup.png)
+
 # Create a bash script to connect to DB
 1. create a file name db-connect
 2. add the code below
@@ -331,6 +350,8 @@ psql $URL
 ```
 3. grant access to the script --> chmod u+x bin/db-connect.
 4. run the script --> ./bin/db-connect PROD
+
+![image rds](assets/week4aws/db-connect-PROD.png)
 
 # Installing Drivers For PostgreSQL
 1. add the packages to the requirements.txt file.
@@ -477,8 +498,17 @@ command: |
   source  "$THEIA_WORKSPACE_ROOT/backend-flask/bin/db-rds-update-sg-rule"
 ```
 7. Check in AWS RDS security rules if the script has worked and git commit and quit out of gitpod and restart a new GITPOD environment.
-8. run script --> ./bin/db-connect PROD to check if the production mode is running, if yes then quit.
-9. make sure in backend-flask and run script --> ./bin/db-schema-load prod and refresh frontend page and should get 200 response with empty object as nothing has been added yet in data base.
+
+![image rds](assets/week4aws/sg-rule-gitpod.png)
+
+9. run script --> ./bin/db-connect PROD to check if the production mode is running, if yes then quit.
+
+![image rds](assets/week4aws/db-connect-PROD.png)
+
+10. make sure in backend-flask and run script --> ./bin/db-schema-load prod and refresh frontend page and should get 200 response with empty object as nothing has been added yet in data base.
+
+![image rds](assets/week4aws/prod-console-200-empty.png)
+![image rds](assets/week4aws/prod-console-frontend-200.png)
 
 # Cognito Post Confirmation Lambda
 Implementing custom authorizer for congito for user to be inserted into db.
@@ -595,6 +625,11 @@ https://github.com/jetbridge/psycopg2-lambda-layer
 17. Hit deploy.
 18. Make sure running Docker-compose up and cd backend-flask, run bash script ./bin/db-connect prod --> \dt --> type --> select * from users;(this show thw user in DB)
 19. Cognito --> goto to frontend and create a user and check log in Lambda Cloudwatch.
+
+
+![image rds](assets/week4aws/lambda-aws-cloudwatch-logs-user.png)
+![image rds](assets/week4aws/lambda-cognito-user-created.png)
+
 
 # Create Activites
 The following is all the updates i needed to make to create the implementation of user to create a message on the frontend
@@ -965,6 +1000,10 @@ body: JSON.stringify({
 />
 ```
 With all the implementation above i was able to create an activity.
+
+![image rds](assets/week4aws/query-working.png)
+![image rds](assets/week4aws/create_activites.png)
+![image rds](assets/week4aws/create-activites-withuser.png)
 
 # Securing Your Amazon RDS Postgres Database
 Securing your Amazon RDS Postgres database is crucial to protect your data from unauthorized access, tampering, or theft. Here are some best practices to secure your Amazon RDS Postgres database
