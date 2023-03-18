@@ -223,15 +223,15 @@ psql $URL
 25. create a new inside db --> seed.sql
 ```
 -- this file was manually created
-INSERT INTO public.users (display_name, handle, cognito_user_id)
+INSERT INTO public.users (display_name, handle, email, cognito_user_id)
 VALUES
-  ('Andrew Brown', 'andrewbrown' ,'MOCK'),
-  ('Andrew Bayko', 'bayko' ,'MOCK');
+  ('Jess BK', 'jess-bk' , 'jessbk@hotmail.com', 'MOCK'),
+  ('Andrew Bayko', 'bayko' , 'test@test.com', 'MOCK');
 
 INSERT INTO public.activities (user_uuid, message, expires_at)
 VALUES
   (
-    (SELECT uuid from public.users WHERE users.handle = 'andrewbrown' LIMIT 1),
+    (SELECT uuid from public.users WHERE users.handle = 'jess-bk' LIMIT 1),
     'This was imported as seed data!',
     current_timestamp + interval '10 day'
   )
@@ -595,3 +595,373 @@ https://github.com/jetbridge/psycopg2-lambda-layer
 17. Hit deploy.
 18. Make sure running Docker-compose up and cd backend-flask, run bash script ./bin/db-connect prod --> \dt --> type --> select * from users;(this show thw user in DB)
 19. Cognito --> goto to frontend and create a user and check log in Lambda Cloudwatch.
+
+# Create Activites
+The following is all the updates i needed to make to create the implementation of user to create a message on the frontend
+* first all the updates made on the backend-flask
+1. update lambda function and upload to AWS Lambda function and deploy.
+```
+import json
+import psycopg2
+import os
+
+def lambda_handler(event, context):
+    user = event['request']['userAttributes']
+    print('userAttributes')
+    print(user)
+
+    user_display_name  = user['name']
+    user_email         = user['email']
+    user_handle        = user['preferred_username']
+    user_cognito_id    = user['sub']
+    try:
+      print('entered-try')
+      sql = f"""
+         INSERT INTO public.users (
+          display_name, 
+          email,
+          handle, 
+          cognito_user_id
+          ) 
+        VALUES(%s,%s,%s,%s)
+      """
+      print('SQL Statement ----')
+      print(sql)
+      conn = psycopg2.connect(os.getenv('CONNECTION_URL'))
+      cur = conn.cursor()
+      params = [
+        user_display_name,
+        user_email,
+        user_handle,
+        user_cognito_id
+      ]
+      cur.execute(sql,params)
+      conn.commit() 
+
+    except (Exception, psycopg2.DatabaseError) as error:
+      print(error)
+    finally:
+      if conn is not None:
+          cur.close()
+          conn.close()
+          print('Database connection closed.')
+    return event
+```
+2. updated schema.sql
+```
+-- https://www.postgresql.org/docs/current/uuid-ossp.html
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- forcefully drop our tables if they already exist
+DROP TABLE IF EXISTS public.users;
+DROP TABLE IF EXISTS public.activities;
+object
+CREATE TABLE public.users (
+  uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  display_name text NOT NULL,
+  handle text NOT NULL,
+  email text NOT NULL,
+  cognito_user_id text NOT NULL,
+  created_at TIMESTAMP default current_timestamp NOT NULL
+);
+
+
+CREATE TABLE public.activities (
+  uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_uuid UUID NOT NULL,
+  message text NOT NULL,
+  replies_count integer DEFAULT 0,
+  reposts_count integer DEFAULT 0,
+  likes_count integer DEFAULT 0,
+  reply_to_activity_uuid integer,
+  expires_at TIMESTAMP,
+  created_at TIMESTAMP default current_timestamp NOT NULL
+);
+```
+3. created folder inside db sql/activites --> created three files home.sql, object.sql, create.sql.
+* create.sql
+```
+INSERT INTO public.activities (
+  user_uuid,
+  message,
+  expires_at
+)
+VALUES (
+  (SELECT uuid 
+    FROM public.users 
+    WHERE users.handle = %(handle)s
+    LIMIT 1
+  ),
+  %(message)s,
+  %(expires_at)s
+) RETURNING uuid;
+```
+* home.sql
+```
+SELECT
+  activities.uuid,
+  users.display_name,
+  users.handle,
+  activities.message,
+  activities.replies_count,
+  activities.reposts_count,
+  activities.likes_count,
+  activities.reply_to_activity_uuid,
+  activities.expires_at,
+  activities.created_at
+FROM public.activities
+LEFT JOIN public.users ON users.uuid = activities.user_uuid
+ORDER BY activities.created_at DESC
+```
+* object.sql
+```
+SELECT
+  activities.uuid,
+  users.display_name,
+  users.handle,
+  activities.message,
+  activities.created_at,
+  activities.expires_at
+FROM public.activities
+INNER JOIN public.users ON users.uuid = activities.user_uuid 
+WHERE 
+  activities.uuid = %(uuid)s
+```
+4. Updated db.py file inside lib folder
+```
+from psycopg_pool import ConnectionPool
+import os
+import re
+import sys
+from flask import current_app as app
+
+class Db:
+  def __init__(self):
+    self.init_pool()
+
+  def template(self,*args):
+    pathing = list((app.root_path,'db','sql',) + args)
+    pathing[-1] = pathing[-1] + ".sql"
+
+    template_path = os.path.join(*pathing)
+
+    green = '\033[92m'
+    no_color = '\033[0m'
+    print("\n")
+    print(f'{green} Load SQL Template: {template_path} {no_color}')
+
+    with open(template_path, 'r') as f:
+      template_content = f.read()
+    return template_content
+
+  def init_pool(self):
+    connection_url = os.getenv("CONNECTION_URL")
+    self.pool = ConnectionPool(connection_url)
+  # we want to commit data such as an insert
+  # be sure to check for RETURNING in all uppercases
+  def print_params(self,params):
+    blue = '\033[94m'
+    no_color = '\033[0m'
+    print(f'{blue} SQL Params:{no_color}')
+    for key, value in params.items():
+      print(key, ":", value)
+
+  def print_sql(self,title,sql):
+    cyan = '\033[96m'
+    no_color = '\033[0m'
+    print(f'{cyan} SQL STATEMENT-[{title}]------{no_color}')
+    print(sql)
+  def query_commit(self,sql,params={}):
+    self.print_sql('commit with returning',sql)
+
+    pattern = r"\bRETURNING\b"
+    is_returning_id = re.search(pattern, sql)
+
+    try:
+      with self.pool.connection() as conn:
+        cur =  conn.cursor()
+        cur.execute(sql,params)
+        if is_returning_id:
+          returning_id = cur.fetchone()[0]
+        conn.commit() 
+        if is_returning_id:
+          return returning_id
+    except Exception as err:
+      self.print_sql_err(err)
+  # when we want to return a json object
+  def query_array_json(self,sql,params={}):
+    self.print_sql('array',sql)
+
+    wrapped_sql = self.query_wrap_array(sql)
+    with self.pool.connection() as conn:
+      with conn.cursor() as cur:
+        cur.execute(wrapped_sql,params)
+        json = cur.fetchone()
+        return json[0]
+  # When we want to return an array of json objects
+  def query_object_json(self,sql,params={}):
+
+    self.print_sql('json',sql)
+    self.print_params(params)
+    wrapped_sql = self.query_wrap_object(sql)
+
+    with self.pool.connection() as conn:
+      with conn.cursor() as cur:
+        cur.execute(wrapped_sql,params)
+        json = cur.fetchone()
+        if json == None:
+          "{}"
+        else:
+          return json[0]
+  def query_wrap_object(self,template):
+    sql = f"""
+    (SELECT COALESCE(row_to_json(object_row),'{{}}'::json) FROM (
+    {template}
+    ) object_row);
+    """
+    return sql
+  def query_wrap_array(self,template):
+    sql = f"""
+    (SELECT COALESCE(array_to_json(array_agg(row_to_json(array_row))),'[]'::json) FROM (
+    {template}
+    ) array_row);
+    """
+    return sql
+  def print_sql_err(self,err):
+    # get details about the exception
+    err_type, err_obj, traceback = sys.exc_info()
+
+    # get the line number when exception occured
+    line_num = traceback.tb_lineno
+
+    # print the connect() error
+    print ("\npsycopg ERROR:", err, "on line number:", line_num)
+    print ("psycopg traceback:", traceback, "-- type:", err_type)
+
+    # print the pgcode and pgerror exceptions
+    print ("pgerror:", err.pgerror)
+    print ("pgcode:", err.pgcode, "\n")
+
+db = Db()
+```
+5.Updated create_activities in services
+```
+from datetime import datetime, timedelta, timezone
+
+from lib.db import db
+
+class CreateActivity:
+  def run(message, user_handle, ttl):
+    model = {
+      'errors': None,
+      'data': None
+    }
+
+    now = datetime.now(timezone.utc).astimezone()
+
+    if (ttl == '30-days'):
+      ttl_offset = timedelta(days=30) 
+    elif (ttl == '7-days'):
+      ttl_offset = timedelta(days=7) 
+    elif (ttl == '3-days'):
+      ttl_offset = timedelta(days=3) 
+    elif (ttl == '1-day'):
+      ttl_offset = timedelta(days=1) 
+    elif (ttl == '12-hours'):
+      ttl_offset = timedelta(hours=12) 
+    elif (ttl == '3-hours'):
+      ttl_offset = timedelta(hours=3) 
+    elif (ttl == '1-hour'):
+      ttl_offset = timedelta(hours=1) 
+    else:
+      model['errors'] = ['ttl_blank']
+
+    if user_handle == None or len(user_handle) < 1:
+      model['errors'] = ['user_handle_blank']
+
+    if message == None or len(message) < 1:
+      model['errors'] = ['message_blank'] 
+    elif len(message) > 280:
+      model['errors'] = ['message_exceed_max_chars'] 
+
+    if model['errors']:
+      model['data'] = {
+        'handle':  user_handle,
+        'message': message
+      }   
+    else:
+      expires_at = (now + ttl_offset)
+      uuid = CreateActivity.create_activity(user_handle,message,expires_at)
+
+      object_json = CreateActivity.query_object_activity(uuid)
+      model['data'] = object_json
+    return model
+
+  def create_activity(handle, message, expires_at):
+    sql = db.template('activities','create')
+    uuid = db.query_commit(sql,{
+      'handle': handle,
+      'message': message,
+      'expires_at': expires_at
+    })
+    return uuid
+  def query_object_activity(uuid):
+    sql = db.template('activities','object')
+    return db.query_object_json(sql,{
+      'uuid': uuid
+    })
+```
+6. Updated home_activities in services
+```
+from datetime import datetime, timedelta, timezone
+from opentelemetry import trace
+
+from lib.db import db
+
+#tracer = trace.get_tracer("home.activities")
+
+class HomeActivities:
+  def run(cognito_user_id=None):
+    #logger.info("HomeActivities")
+    #with tracer.start_as_current_span("home-activites-mock-data"):
+    #  span = trace.get_current_span()
+    #  now = datetime.now(timezone.utc).astimezone()
+    #  span.set_attribute("app.now", now.isoformat())
+    sql = db.template('activities','home')
+    results = db.query_array_json(sql)
+    return results
+```
+7. Updated app.py
+```
+@app.route("/api/activities", methods=['POST','OPTIONS'])
+@cross_origin()
+def data_activities():
+  user_handle = request.json["user_handle"]
+  message = request.json['message']
+  ttl = request.json['ttl']
+  model = CreateActivity.run(message, user_handle, ttl)
+  if model['errors'] is not None:
+    return model['errors'], 422
+  else:
+    return model['data'], 200
+  return
+```
+* Second all the updates made on the frontend
+1. added response for the body to handle the user from the frontend for @handle in the components/ActivityForm.js 
+```
+body: JSON.stringify({
+  user_handle: props.user_handle.handle,
+  message: message,
+  ttl: ttl,
+}),
+```
+2. updated the props in pages/HomeFeedPage.js 
+```
+<ActivityForm
+  user_handle={user}
+  popped={popped}
+  setPopped={setPopped}
+  setActivities={setActivities}
+/>
+```
+With all the implementation above i was able to create an activity.
