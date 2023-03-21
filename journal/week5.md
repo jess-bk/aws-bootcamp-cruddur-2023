@@ -463,7 +463,7 @@ for i in range(len(lines)):
 ```
 * schema-load
 ```
-./bin/schema-load
+./bin/db/schema-load
 ```
 * seed
 ```
@@ -473,7 +473,7 @@ for i in range(len(lines)):
 ```
 chmod u+x bin/ddb/seed
 ```
-20.  execute the bash script.
+20.  execute the bash script.(if error create the list-tables again and load schema again from ddb file bash scripts)
 ```
 ./bin/ddb/seed
 ```
@@ -697,4 +697,613 @@ chmod u+x bin/ddb/patterns/list-conversations
 27. execute the file.
 ```
 ./bin/ddb/patterns/list-conversations 
+```
+# Implement Coversations with DynamoDB
+1. first update gitpod.yml file to run and install the requirements.txt file.
+```
+  - name: flask
+    command: |
+      cd backend-flask
+      pip install -r requirements.txt
+```
+2. Update the bin folder for db so the script works --> drop.
+```
+psql $NO_DB_CONNECTION_URL -c "drop database IF EXISTS cruddur;"
+```
+3. create a new folder inside lib folder name --> ddb.py
+```
+import boto3
+import sys
+from datetime import datetime, timedelta, timezone
+import uuid
+import os
+import botocore.exceptions
+
+class Ddb:
+  def client():
+    endpoint_url = os.getenv("AWS_ENDPOINT_URL")
+    if endpoint_url:
+      attrs = { 'endpoint_url': endpoint_url }
+    else:
+      attrs = {}
+    dynamodb = boto3.client('dynamodb',**attrs)
+    return dynamodb
+  def list_message_groups(client,my_user_uuid):
+    year = str(datetime.now().year)
+    table_name = 'cruddur-messages'
+    query_params = {
+      'TableName': table_name,
+      'KeyConditionExpression': 'pk = :pk AND begins_with(sk,:year)',
+      'ScanIndexForward': False,
+      'Limit': 20,
+      'ExpressionAttributeValues': {
+        ':year': {'S': year },
+        ':pk': {'S': f"GRP#{my_user_uuid}"}
+      }
+    }
+    print('query-params:',query_params)
+    print(query_params)
+    # query the table
+    response = client.query(**query_params)
+    items = response['Items']
+    
+
+    results = []
+    for item in items:
+      last_sent_at = item['sk']['S']
+      results.append({
+        'uuid': item['message_group_uuid']['S'],
+        'display_name': item['user_display_name']['S'],
+        'handle': item['user_handle']['S'],
+        'message': item['message']['S'],
+        'created_at': last_sent_at
+      })
+    return results
+  def list_messages(client,message_group_uuid):
+    year = str(datetime.now().year)
+    table_name = 'cruddur-messages'
+    query_params = {
+      'TableName': table_name,
+      'KeyConditionExpression': 'pk = :pk AND begins_with(sk,:year)',
+      'ScanIndexForward': False,
+      'Limit': 20,
+      'ExpressionAttributeValues': {
+        ':year': {'S': year },
+        ':pk': {'S': f"MSG#{message_group_uuid}"}
+      }
+    }
+
+    response = client.query(**query_params)
+    items = response['Items']
+    items.reverse()
+    results = []
+    for item in items:
+      created_at = item['sk']['S']
+      results.append({
+        'uuid': item['message_uuid']['S'],
+        'display_name': item['user_display_name']['S'],
+        'handle': item['user_handle']['S'],
+        'message': item['message']['S'],
+        'created_at': created_at
+      })
+    return results
+  def create_message(client,message_group_uuid, message, my_user_uuid, my_user_display_name, my_user_handle):
+    now = datetime.now(timezone.utc).astimezone().isoformat()
+    created_at = now
+    message_uuid = str(uuid.uuid4())
+
+    record = {
+      'pk':   {'S': f"MSG#{message_group_uuid}"},
+      'sk':   {'S': created_at },
+      'message': {'S': message},
+      'message_uuid': {'S': message_uuid},
+      'user_uuid': {'S': my_user_uuid},
+      'user_display_name': {'S': my_user_display_name},
+      'user_handle': {'S': my_user_handle}
+    }
+    # insert the record into the table
+    table_name = 'cruddur-messages'
+    response = client.put_item(
+      TableName=table_name,
+      Item=record
+    )
+    # print the response
+    print(response)
+    return {
+      'message_group_uuid': message_group_uuid,
+      'uuid': my_user_uuid,
+      'display_name': my_user_display_name,
+      'handle':  my_user_handle,
+      'message': message,
+      'created_at': created_at
+    }
+  def create_message_group(client, message,my_user_uuid, my_user_display_name, my_user_handle, other_user_uuid, other_user_display_name, other_user_handle):
+    print('== create_message_group.1')
+    table_name = 'cruddur-messages'
+
+    message_group_uuid = str(uuid.uuid4())
+    message_uuid = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).astimezone().isoformat()
+    last_message_at = now
+    created_at = now
+    print('== create_message_group.2')
+
+    my_message_group = {
+      'pk': {'S': f"GRP#{my_user_uuid}"},
+      'sk': {'S': last_message_at},
+      'message_group_uuid': {'S': message_group_uuid},
+      'message': {'S': message},
+      'user_uuid': {'S': other_user_uuid},
+      'user_display_name': {'S': other_user_display_name},
+      'user_handle':  {'S': other_user_handle}
+    }
+
+    print('== create_message_group.3')
+    other_message_group = {
+      'pk': {'S': f"GRP#{other_user_uuid}"},
+      'sk': {'S': last_message_at},
+      'message_group_uuid': {'S': message_group_uuid},
+      'message': {'S': message},
+      'user_uuid': {'S': my_user_uuid},
+      'user_display_name': {'S': my_user_display_name},
+      'user_handle':  {'S': my_user_handle}
+    }
+
+    print('== create_message_group.4')
+    message = {
+      'pk':   {'S': f"MSG#{message_group_uuid}"},
+      'sk':   {'S': created_at },
+      'message': {'S': message},
+      'message_uuid': {'S': message_uuid},
+      'user_uuid': {'S': my_user_uuid},
+      'user_display_name': {'S': my_user_display_name},
+      'user_handle': {'S': my_user_handle}
+    }
+
+    items = {
+      table_name: [
+        {'PutRequest': {'Item': my_message_group}},
+        {'PutRequest': {'Item': other_message_group}},
+        {'PutRequest': {'Item': message}}
+      ]
+    }
+
+    try:
+      print('== create_message_group.try')
+      # Begin the transaction
+      response = client.batch_write_item(RequestItems=items)
+      return {
+        'message_group_uuid': message_group_uuid
+      }
+    except botocore.exceptions.ClientError as e:
+      print('== create_message_group.error')
+      print(e)
+```
+5. set env vars for AWS_COGNITO_USER_POOL_ID to use in the app.
+```
+export AWS_COGNITO_USER_POOL_ID="<enter user pool id>"
+gp env AWS_COGNITO_USER_POOL_ID="<enter user pool id>"
+```
+check if the env has been set --> gp env AWS_COGNITO_USER_POOL_ID
+6. update the docker compose file to haves access to the env variable
+````
+AWS_COGNITO_USER_POOL_ID: "${AWS_COGNITO_USER_POOL_ID}"
+````
+8. create a new folder inside bin folder name --> cognito
+9. create a file name --> list-users.
+```
+#!/usr/bin/env python3
+
+import boto3
+import os
+import json
+
+userpool_id = os.getenv("AWS_COGNITO_USER_POOL_ID")
+client = boto3.client('cognito-idp')
+params = {
+  'UserPoolId': userpool_id,
+  'AttributesToGet': [
+      'preferred_username',
+      'sub'
+  ]
+}
+response = client.list_users(**params)
+users = response['Users']
+
+print(json.dumps(users, sort_keys=True, indent=2, default=str))
+
+dict_users = {}
+for user in users:
+  attrs = user['Attributes']
+  sub    = next((a for a in attrs if a["Name"] == 'sub'), None)
+  handle = next((a for a in attrs if a["Name"] == 'preferred_username'), None)
+  dict_users[handle['Value']] = sub['Value']
+
+print(json.dumps(dict_users, sort_keys=True, indent=2, default=str))
+```
+10. make the file executable.
+```
+chmod u+x bin/cognito/list-users
+```
+20. execute the file.
+```
+./bin/cognito/list-users
+```
+21. create a new bash script inside bin/db and name --> update_cognito_user_ids 
+```
+#!/usr/bin/env python3
+
+import boto3
+import os
+import sys
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = os.path.abspath(os.path.join(current_path, '..', '..'))
+sys.path.append(parent_path)
+from lib.db import db
+
+def update_users_with_cognito_user_id(handle,sub):
+  sql = """
+    UPDATE public.users
+    SET cognito_user_id = %(sub)s
+    WHERE
+      users.handle = %(handle)s;
+  """
+  db.query_commit(sql,{
+    'handle' : handle,
+    'sub' : sub
+  })
+
+def get_cognito_user_ids():
+  userpool_id = os.getenv("AWS_COGNITO_USER_POOL_ID")
+  client = boto3.client('cognito-idp')
+  params = {
+    'UserPoolId': userpool_id,
+    'AttributesToGet': [
+        'preferred_username',
+        'sub'
+    ]
+  }
+  response = client.list_users(**params)
+  users = response['Users']
+  dict_users = {}
+  for user in users:
+    attrs = user['Attributes']
+    sub    = next((a for a in attrs if a["Name"] == 'sub'), None)
+    handle = next((a for a in attrs if a["Name"] == 'preferred_username'), None)
+    dict_users[handle['Value']] = sub['Value']
+  return dict_users
+
+
+users = get_cognito_user_ids()
+
+for handle, sub in users.items():
+  print('----',handle,sub)
+  update_users_with_cognito_user_id(
+    handle=handle,
+    sub=sub
+  )
+```
+22. add the script to db/setup.
+```
+source "$bin_path/db/update_cognito_user_ids"
+```
+23. make the update_cognito_user_ids executable.
+```
+chomd u+x bin/db/update_cognito_user_ids
+```
+24. update the lib/db.py
+```
+  def query_commit(self,sql,params={}):
+    self.print_sql('commit with returning',sql,params)
+```
+25. now run the setup script.
+```
+./bin/db/setup
+```
+26. if the script gives error run the update_cognito_user_ids script.
+```
+./bin/db/update_cognito_user_ids
+```
+27. check if production env vars are working if not set them back to the hard coded version in docker-compose file
+```
+CONNECTION_URL: "postgresql://postgres:password@db:5432/cruddur"
+```
+28. update app.py route /api/message_groups
+```
+@app.route("/api/message_groups", methods=['GET'])
+def data_message_groups():
+  access_token = extract_access_token(request.headers)
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    cognito_user_id = claims['sub']
+    model = MessageGroups.run(cognito_user_id=cognito_user_id)
+    if model['errors'] is not None:
+      return model['errors'], 422
+    else:
+      return model['data'], 200
+
+  except TokenVerifyError as e:
+    app.logger.debug(e)
+    return {}, 401
+```
+29. update message_groups.py in services.
+```
+from lib.ddb import Ddb
+from lib.db import db
+
+class MessageGroups:
+  def run(cognito_user_id):
+    model = {
+      'errors': None,
+      'data': None
+    }
+
+    sql = db.template('users','uuid_from_cognito_user_id')
+    my_user_uuid = db.query_value(sql,{'cognito_user_id': cognito_user_id})
+
+    print("UUID",my_user_uuid)
+
+
+    ddb = Ddb.client()
+    data = Ddb.list_message_groups(ddb, my_user_uuid)
+    print("list_message_groups:",data)
+    model['data'] = data
+    return model
+```
+30. create a new folder inside sql directory --> users
+31. create a file name --> uuid_from_cognito_user_id.sql
+```
+SELECT 
+  users.uuid
+FROM public.users
+WHERE 
+  users.cognito_user_id = %(cognito_user_id)s
+```
+32. Update the frontend MessageForm.js component for user requests by making a get request with Bearer Token.
+```
+  const onsubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/messages`
+      console.log('onsubmit payload', message)
+      const res = await fetch(backend_url, {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: message,
+          message_group_uuid: params.uuid
+        }),
+      });
+      let data = await res.json();
+      if (res.status === 200) {
+        props.setMessages(current => [...current,data]);
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+```
+33. in the frontend root directory creat a new folder --> lib.
+34. inside libe create a new file --> CheckAuth.js(this can now be used inside other components and pages for autherization instead of hard coded CheckAuth)
+```
+import { Auth } from 'aws-amplify';
+
+const checkAuth = async (setUser) => {
+  Auth.currentAuthenticatedUser({
+    // Optional, By default is false. 
+    // If set to true, this call will send a 
+    // request to Cognito to get the latest user data
+    bypassCache: false 
+  })
+  .then((user) => {
+    console.log('user',user);
+    return Auth.currentAuthenticatedUser()
+  }).then((cognito_user) => {
+      setUser({
+        display_name: cognito_user.attributes.name,
+        handle: cognito_user.attributes.preferred_username
+      })
+  })
+  .catch((err) => console.log(err));
+};
+
+export default checkAuth;
+```
+35. Update the frontend HomeFeed.js to handle the user requests by making a get request with Bearer Token
+```
+import checkAuth from '../lib/CheckAuth';
+
+  const loadData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`
+      const res = await fetch(backend_url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        },
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setActivities(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
+    React.useEffect(()=>{
+    //prevents double call
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
+    loadData();
+    checkAuth(setUser);
+  }, [])
+```
+33. Update the frontend MessageGroupsPage.js for user to make a get request for the Bearer Token and checkAuth function in the useEffect hook also updated the endpoint to handle the route in the app.js.
+```
+import checkAuth from '../lib/CheckAuth';
+
+  const loadData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/message_groups`
+      const res = await fetch(backend_url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        },
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setMessageGroups(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
+  React.useEffect(()=>{
+    //prevents double call
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true
+```
+refresh page and check if any messages appear on page.
+
+34. Update the frontend MessageGroupPage.js for user requests by making a get request with Bearer Token.
+```
+  const loadMessageGroupsData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/message_groups`
+      const res = await fetch(backend_url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        },
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setMessageGroups(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
+  const loadMessageGroupData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/messages/${params.message_group_uuid}`
+      const res = await fetch(backend_url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        },
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setMessages(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
+  React.useEffect(()=>{
+    //prevents double call
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
+    loadMessageGroupsData();
+    loadMessageGroupData();
+    checkAuth(setUser);
+  }, [])
+```
+refresh page and click on messages and check if any group messages appear on page.
+
+35. now to check if messages from groups you will have to load the schema from the backend.
+```
+./bin/ddb/schema-load
+```
+36. now lets seed the data.
+```
+./bin/ddb/seed
+```
+37. add the AWS_ENDPOINT_URL in the docker compose file
+```
+AWS_ENDPOINT_URL: "http://dynamodb-local:8000"
+```
+38. update app.js.
+```
+  {
+    path: "/messages/:message_group_uuid",
+    element: <MessageGroupPage />
+  },
+```
+39. update the bin/ddb/patterns/get-conversation to use the correct date and time using the date and time module.
+```
+import datetime
+
+year = str(datetime.datetime.now().year)
+# define the query parameters
+query_params = {
+  'TableName': table_name,
+  'ScanIndexForward': False,
+  'Limit': 20,
+  'ReturnConsumedCapacity': 'TOTAL',
+  'KeyConditionExpression': 'pk = :pk AND begins_with(sk,:year)',
+  #'KeyConditionExpression': 'pk = :pk AND sk BETWEEN :start_date AND :end_date',
+  'ExpressionAttributeValues': {
+    ':year': {'S': year },
+    #":start_date": { "S": "2023-03-01T00:00:00.000000+00:00" },
+    #":end_date": { "S": "2023-03-19T23:59:59.999999+00:00" },
+    ':pk': {'S': f"MSG#{message_group_uuid}"}
+  }
+}
+```
+40. update the bin/ddb/patterns/get-conversation to use the correct date and time using the date and time module.
+```
+year = str(datetime.datetime.now().year)
+# define the query parameters
+query_params = {
+  'TableName': table_name,
+  'ScanIndexForward': False,
+  'Limit': 20,
+  'ReturnConsumedCapacity': 'TOTAL',
+  'KeyConditionExpression': 'pk = :pk AND begins_with(sk,:year)',
+  #'KeyConditionExpression': 'pk = :pk AND sk BETWEEN :start_date AND :end_date',
+  'ExpressionAttributeValues': {
+    ':year': {'S': year },
+    #":start_date": { "S": "2023-03-01T00:00:00.000000+00:00" },
+    #":end_date": { "S": "2023-03-19T23:59:59.999999+00:00" },
+    ':pk': {'S': f"MSG#{message_group_uuid}"}
+  }
+}
+```
+41. update the frontend to handle the @handle message_group.handle props
+```
+  const classes = () => {
+    let classes = ["message_group_item"];
+    if (params.message_group_uuid == props.message_group.uuid){
+      classes.push('active')
+    }
+    return classes.join(' ');
+  }
+  
+  return (
+    <Link className={classes()} to={`/messages/`+props.message_group.uuid}>
+
 ```
