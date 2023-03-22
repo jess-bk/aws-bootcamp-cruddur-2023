@@ -698,7 +698,7 @@ chmod u+x bin/ddb/patterns/list-conversations
 ```
 ./bin/ddb/patterns/list-conversations 
 ```
-# Implement Coversations with DynamoDB
+# Implement Conversations with DynamoDB
 1. first update gitpod.yml file to run and install the requirements.txt file.
 ```
   - name: flask
@@ -1404,3 +1404,345 @@ items.reverse()
     }
   }
 ```
+47. update the app.py for route @app.route("/api/messages", methods=['POST','OPTIONS']).
+```
+@app.route("/api/messages", methods=['POST','OPTIONS'])
+@cross_origin()
+def data_create_message():
+  message_group_uuid   = request.json.get('message_group_uuid',None)
+  user_receiver_handle = request.json.get('handle',None)
+  message = request.json['message']
+  access_token = extract_access_token(request.headers)
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    # authenicatied request
+    app.logger.debug("authenicated")
+    app.logger.debug(claims)
+    cognito_user_id = claims['sub']
+    if message_group_uuid == None:
+      # Create for the first time
+      model = CreateMessage.run(
+        mode="create",
+        message=message,
+        cognito_user_id=cognito_user_id,
+        user_receiver_handle=user_receiver_handle
+      )
+    else:
+      # Push onto existing Message Group
+      model = CreateMessage.run(
+        mode="update",
+        message=message,
+        message_group_uuid=message_group_uuid,
+        cognito_user_id=cognito_user_id
+      )
+    if model['errors'] is not None:
+      return model['errors'], 422
+    else:
+      return model['data'], 200
+  except TokenVerifyError as e:
+    # unauthenicatied request
+    app.logger.debug(e)
+    return {}, 401
+```
+49.update the create_message.py in services.
+```
+from datetime import datetime, timedelta, timezone
+
+from lib.db import db
+from lib.ddb import Ddb
+
+class CreateMessage:
+  # mode indicates if we want to create a new message_group or using an existing one
+  def run(mode, message, cognito_user_id, message_group_uuid=None, user_receiver_handle=None):
+    model = {
+      'errors': None,
+      'data': None
+    }
+
+    if (mode == "update"):
+      if message_group_uuid == None or len(message_group_uuid) < 1:
+        model['errors'] = ['message_group_uuid_blank']
+
+
+    if cognito_user_id == None or len(cognito_user_id) < 1:
+      model['errors'] = ['cognito_user_id_blank']
+
+    if (mode == "create"):
+      if user_receiver_handle == None or len(user_receiver_handle) < 1:
+        model['errors'] = ['user_reciever_handle_blank']
+
+    if message == None or len(message) < 1:
+      model['errors'] = ['message_blank'] 
+    elif len(message) > 1024:
+      model['errors'] = ['message_exceed_max_chars'] 
+
+    if model['errors']:
+      # return what we provided
+      model['data'] = {
+        'display_name': 'Andrew Brown',
+        'handle':  user_sender_handle,
+        'message': message
+      }
+    else:
+      sql = db.template('users','create_message_users')
+
+      if user_receiver_handle == None:
+        rev_handle = ''
+      else:
+        rev_handle = user_receiver_handle
+      users = db.query_array_json(sql,{
+        'cognito_user_id': cognito_user_id,
+        'user_receiver_handle': rev_handle
+      })
+      print("USERS =-=-=-=-==")
+      print(users)
+
+      my_user    = next((item for item in users if item["kind"] == 'sender'), None)
+      other_user = next((item for item in users if item["kind"] == 'recv')  , None)
+
+      print("USERS=[my-user]==")
+      print(my_user)
+      print("USERS=[other-user]==")
+      print(other_user)
+
+      ddb = Ddb.client()
+
+      if (mode == "update"):
+        data = Ddb.create_message(
+          client=ddb,
+          message_group_uuid=message_group_uuid,
+          message=message,
+          my_user_uuid=my_user['uuid'],
+          my_user_display_name=my_user['display_name'],
+          my_user_handle=my_user['handle']
+        )
+      # elif (mode == "create"):
+        # data = Ddb.create_message_group(
+          # client=ddb,
+          # message=message,
+          # my_user_uuid=my_user['uuid'],
+          # my_user_display_name=my_user['display_name'],
+          # my_user_handle=my_user['handle'],
+          # other_user_uuid=other_user['uuid'],
+          # other_user_display_name=other_user['display_name'],
+          # other_user_handle=other_user['handle']
+        # )
+      model['data'] = data
+    return model
+```
+50. create a new folder in backend-flask/db/sql/  name --> users
+51. create a new file --> create_message_users.sql.
+```
+SELECT 
+  users.uuid,
+  users.display_name,
+  users.handle,
+  CASE users.cognito_user_id = %(cognito_user_id)s
+  WHEN TRUE THEN
+    'sender'
+  WHEN FALSE THEN
+    'recv'
+  ELSE
+    'other'
+  END as kind
+FROM public.users
+WHERE
+  users.cognito_user_id = %(cognito_user_id)s
+  OR 
+  users.handle = %(user_receiver_handle)s
+```
+53. create a new route in the frontend in app.js and import the page which we will create.
+```
+import MessageGroupNewPage from './pages/MessageGroupNewPage';
+
+  {
+    path: "/messages/new/:handle",
+    element: <MessageGroupNewPage />
+  },
+```
+54. create the MessageGroupNewPage.js component
+```
+import './MessageGroupPage.css';
+import React from "react";
+import { useParams } from 'react-router-dom';
+
+import DesktopNavigation  from '../components/DesktopNavigation';
+import MessageGroupFeed from '../components/MessageGroupFeed';
+import MessagesFeed from '../components/MessageFeed';
+import MessagesForm from '../components/MessageForm';
+import checkAuth from '../lib/CheckAuth';
+
+export default function MessageGroupPage() {
+  const [otherUser, setOtherUser] = React.useState([]);
+  const [messageGroups, setMessageGroups] = React.useState([]);
+  const [messages, setMessages] = React.useState([]);
+  const [popped, setPopped] = React.useState([]);
+  const [user, setUser] = React.useState(null);
+  const dataFetchedRef = React.useRef(false);
+  const params = useParams();
+
+  const loadUserShortData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/users/@${params.handle}/short`
+      const res = await fetch(backend_url, {
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        console.log('other user:',resJson)
+        setOtherUser(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
+  const loadMessageGroupsData = async () => {
+    try {
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/message_groups`
+      const res = await fetch(backend_url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`
+        },
+        method: "GET"
+      });
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setMessageGroups(resJson)
+      } else {
+        console.log(res)
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };  
+
+  React.useEffect(()=>{
+    //prevents double call
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
+    loadMessageGroupsData();
+    loadUserShortData();
+    checkAuth(setUser);
+  }, [])
+  return (
+    <article>
+      <DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
+      <section className='message_groups'>
+        <MessageGroupFeed otherUser={otherUser} message_groups={messageGroups} />
+      </section>
+      <div className='content messages'>
+        <MessagesFeed messages={messages} />
+        <MessagesForm setMessages={setMessages} />
+      </div>
+    </article>
+  );
+}
+```
+55. update the backend-flask --> backend-flask/db/seed.sql
+```
+('Londo Mollari','lmollari@centari.com' ,'londo' ,'MOCK');
+```
+56. now update the data base by running the seed file.
+```
+./bin/db/connect
+
+INSERT INTO public.users (display_name, email, handle, cognito_user_id)
+
+VALUES ('Londo Mollari','lmollari@centari.com' ,'londo' ,'MOCK');
+```
+57. create an api endpoint the component just created. in app.py add the code below to create the route.
+```
+@app.route("/api/users/@<string:handle>/short", methods=['GET'])
+def data_users_short(handle):
+  data = UsersShort.run(handle)
+  return data, 200
+```
+58. create a new service --> users_short.py
+```
+from lib.db import db
+
+class UsersShort:
+  def run(handle):
+    sql = db.template('users','short')
+    results = db.query_object_json(sql,{
+      'handle': handle
+    })
+    return 
+```
+59. create a new file in /backend-flask/db/sql/users/ --> short.sql
+```
+SELECT
+  users.uuid,
+  users.handle,
+  users.display_name
+FROM public.users
+WHERE 
+  users.handle = %(handle)s
+```
+60. create a new component on the frontend in /frontend-react-js/src/components/ --> MessageGroupNewItem.js
+```
+import './MessageGroupItem.css';
+import { Link } from "react-router-dom";
+
+export default function MessageGroupNewItem(props) {
+  return (
+
+    <Link className='message_group_item active' to={`/messages/new/`+props.user.handle}>
+      <div className='message_group_avatar'></div>
+      <div className='message_content'>
+        <div classsName='message_group_meta'>
+          <div className='message_group_identity'>
+            <div className='display_name'>{props.user.display_name}</div>
+            <div className="handle">@{props.user.handle}</div>
+          </div>{/* activity_identity */}
+        </div>{/* message_meta */}
+      </div>{/* message_content */}
+    </Link>
+  );
+}
+```
+61. update frontend-react-js/src/components/MessageGroupFeed.js component.
+```
+import './MessageGroupFeed.css';
+import MessageGroupItem from './MessageGroupItem';
+import MessageGroupNewItem from './MessageGroupNewItem';
+export default function MessageGroupFeed(props) {
+  let message_group_new_item;
+  if (props.otherUser) {
+    message_group_new_item = <MessageGroupNewItem user={props.otherUser} />
+  }
+
+  return (
+    <div className='message_group_feed'>
+      <div className='message_group_feed_heading'>
+        <div className='title'>Messages</div>
+      </div>
+      <div className='message_group_feed_collection'>
+        {message_group_new_item}
+        {props.message_groups.map(message_group => {
+        return  <MessageGroupItem key={message_group.uuid} message_group={message_group} />
+        })}
+      </div>
+    </div>
+  );
+}
+```
+62. uncomment out the create_message.py in services elif statement.
+```
+  elif (mode == "create"):
+    data = Ddb.create_message_group(
+      client=ddb,
+      message=message,
+      my_user_uuid=my_user['uuid'],
+      my_user_display_name=my_user['display_name'],
+      my_user_handle=my_user['handle'],
+      other_user_uuid=other_user['uuid'],
+      other_user_display_name=other_user['display_name'],
+      other_user_handle=other_user['handle']
+    )
+```
+63. refresh frontend page and click on messages and create messages.
