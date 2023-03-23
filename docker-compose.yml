@@ -44,18 +44,11 @@ services:
       REACT_APP_AWS_COGNITO_REGION: "${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_USER_POOLS_ID: "us-east-1_FpcgxtNfc"
       REACT_APP_CLIENT_ID: "6jbj9dn4cf8oldfrvmm5cg34t9"
-    build:
-      context: ./frontend-react-js
-      dockerfile: Dockerfile
+    build: ./frontend-react-js
     ports:
       - "3000:3000"
     volumes:
       - ./frontend-react-js:/frontend-react-js
-    command: sh -c "npm i && npm start"
-    depends_on:
-      - backend-flask
-    networks:
-      - internal-network
 
   # otel-collector:
   #   environment:

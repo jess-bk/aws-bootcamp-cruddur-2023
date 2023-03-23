@@ -6,4 +6,4 @@ class UsersShort:
     results = db.query_object_json(sql,{
       'handle': handle
     })
-    return 
+    return results

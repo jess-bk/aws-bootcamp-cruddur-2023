@@ -20,6 +20,10 @@ tasks:
     command: |
       export GITPOD_IP=$(curl ifconfig.me)
       source "$THEIA_WORKSPACE_ROOT/backend-flask/bin/rds/db-rds-update-sg-rule"
+  - name: react-js
+    command: |
+      cd frontend-react-js
+      npm i
   - name: flask
     command: |
       cd backend-flask
