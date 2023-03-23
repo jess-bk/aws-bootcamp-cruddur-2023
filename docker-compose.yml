@@ -28,11 +28,11 @@ services:
       - "4567:4567"
     volumes:
       - ./backend-flask:/backend-flask
-    healthcheck:
-      test: ["CMD-SHELL", "curl --fail http://localhost:4567/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl --fail http://localhost:4567/health || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
@@ -80,16 +80,16 @@ services:
   #   networks:
   #     - internal-network
 
-  xray-daemon:
-    image: "amazon/aws-xray-daemon"
-    environment:
-      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
-      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
-      AWS_REGION: "us-east-1"
-    command:
-      - "xray -o -b xray-daemon:2000"
-    ports:
-      - 2000:2000/udp
+  # xray-daemon:
+  #   image: "amazon/aws-xray-daemon"
+  #   environment:
+  #     AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+  #     AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+  #     AWS_REGION: "us-east-1"
+  #   command:
+  #     - "xray -o -b xray-daemon:2000"
+  #   ports:
+  #     - 2000:2000/udp
 
   dynamodb-local:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
@@ -103,15 +103,15 @@ services:
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "aws dynamodb list-tables --endpoint-url http://localhost:8000",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "aws dynamodb list-tables --endpoint-url http://localhost:8000",
+    #     ]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
   db:
     image: postgres:13-alpine
     restart: always
