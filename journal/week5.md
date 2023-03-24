@@ -1750,4 +1750,186 @@ export default function MessageGroupFeed(props) {
 ```
 created_at = (now + timedelta(hours=-3) + timedelta(minutes=i)).isoformat()
 ```
-65. to load londo in the message group you need to manually enter the route in the browser tab https://<your_frontend_address>/messages/new/londo, then you can see the name appear on the message tab.
+65. updated the seed file in backend-flask/db/seed.sql as this was not loading the data into the data base correctly, the fix was below:
+```
+-- this file was manually created
+INSERT INTO public.users (display_name, email, handle, cognito_user_id)
+VALUES
+  ('Jess BK','victory187@hotmail.com' , 'jess-bk' ,'MOCK'),
+  ('Andrew Bayko','saimarshad143@hotmail.com' , 'bayko' ,'MOCK'),
+  ('Londo Mollari','lmollari@centari.com' ,'londo' ,'MOCK');
+
+INSERT INTO public.activities (user_uuid, message, expires_at)
+VALUES
+  (
+    (SELECT uuid from public.users WHERE users.handle = 'jess-bk' LIMIT 1),
+    'This was imported as seed data!',
+    current_timestamp + interval '10 day'
+  )
+```
+66. to load londo in the message group you need to manually enter the route in the browser tab https://<your_frontend_address>/messages/new/londo, then you can see the name appear on the message tab.
+
+# DYNAMODB CONVERSATION EPISODE COMPLETED
+
+# DynamoDB Stream
+
+1. first run docker compose up. (check if you have env var set to PRODUCTION_URL)
+2. update the schema in backend-flask/bin/ddb/schema-load.
+```
+#!/usr/bin/env python3
+
+import boto3
+import sys
+
+attrs = {
+  'endpoint_url': 'http://localhost:8000'
+}
+
+if len(sys.argv) == 2:
+  if "prod" in sys.argv[1]:
+    attrs = {}
+
+ddb = boto3.client('dynamodb',**attrs)
+
+table_name = 'cruddur-messages'
+
+
+response = ddb.create_table(
+  TableName=table_name,
+  AttributeDefinitions=[
+    {
+      'AttributeName': 'message_group_uuid',
+      'AttributeType': 'S'
+    },
+    {
+      'AttributeName': 'pk',
+      'AttributeType': 'S'
+    },
+    {
+      'AttributeName': 'sk',
+      'AttributeType': 'S'
+    },
+  ],
+  KeySchema=[
+    {
+      'AttributeName': 'pk',
+      'KeyType': 'HASH'
+    },
+    {
+      'AttributeName': 'sk',
+      'KeyType': 'RANGE'
+    },
+  ],
+  GlobalSecondaryIndexes= [{
+    'IndexName':'message-group-sk-index',
+    'KeySchema':[{
+      'AttributeName': 'message_group_uuid',
+      'KeyType': 'HASH'
+    },{
+      'AttributeName': 'sk',
+      'KeyType': 'RANGE'
+    }],
+    'Projection': {
+      'ProjectionType': 'ALL'
+    },
+    'ProvisionedThroughput': {
+      'ReadCapacityUnits': 5,
+      'WriteCapacityUnits': 5
+    },
+  }],
+  BillingMode='PROVISIONED',
+  ProvisionedThroughput={
+      'ReadCapacityUnits': 5,
+      'WriteCapacityUnits': 5
+  }
+)
+
+print(response)
+)
+
+# print the response
+print(response)
+```
+3. run in the cli ./bin/ddb/schema-load prod --> this will create the table in database.
+4. if you get an error message table already exists delete in AWS --> DynamoDB --> Tables --> Actions --> Delete. leave default when deleting.
+5. run in the cli ./bin/ddb/schema-load prod.
+6. in AWS DynamoDB click on image turn on DynamoDB streams in AWS.
+7. in AWS goto vpc and click on Endpoints.
+8. create a new endpoint.
+9. Name tage --> ddb-cruddur.
+10. Service category default.
+11. Services enter --> dynamodb.
+12. VPC --> click on default.
+13. click on the route table.
+14. Policy --> FullAccess.
+15. create endpoint.
+
+# Create a Lambda Function For DynamoDB Stream
+1. create a lambda function.
+2. function name --> cruudur-messaging-stream.
+3. runtime --> python 3.9.
+4. architecture --> x86_64
+5. change default execution role --> leave default.
+6. advanced settings --> enable vpc --> select default one --> click on 2 the subnets --> security group click on default.
+7. create the lambda function.
+8. create a new policy to give access to the lambda function.
+9. configurations tab and then click on permissions tab.
+10. click on the execution role name.
+11. add permission and attach a policy.
+12. paste this into the search policy --> AWSLambdaInvocation-DynamoDB --> select --> add permissions.
+13. paste the code below in the code source
+```
+import json
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamodb = boto3.resource(
+ 'dynamodb',
+ region_name='us-east-1',
+ endpoint_url="http://dynamodb.us-east-1.amazonaws.com"
+)
+
+def lambda_handler(event, context):
+  pk = event['Records'][0]['dynamodb']['Keys']['pk']['S']
+  sk = event['Records'][0]['dynamodb']['Keys']['sk']['S']
+  if pk.startswith('MSG#'):
+    group_uuid = pk.replace("MSG#","")
+    message = event['Records'][0]['dynamodb']['NewImage']['message']['S']
+    print("GRUP ===>",group_uuid,message)
+    
+    table_name = 'cruddur-messages'
+    index_name = 'message-group-sk-index'
+    table = dynamodb.Table(table_name)
+    data = table.query(
+      IndexName=index_name,
+      KeyConditionExpression=Key('message_group_uuid').eq(group_uuid)
+    )
+    print("RESP ===>",data['Items'])
+    
+    # recreate the message group rows with new SK value
+    for i in data['Items']:
+      delete_item = table.delete_item(Key={'pk': i['pk'], 'sk': i['sk']})
+      print("DELETE ===>",delete_item)
+      
+      response = table.put_item(
+        Item={
+          'pk': i['pk'],
+          'sk': sk,
+          'message_group_uuid':i['message_group_uuid'],
+          'message':message,
+          'user_display_name': i['user_display_name'],
+          'user_handle': i['user_handle'],
+          'user_uuid': i['user_uuid']
+        }
+      )
+      print("CREATE ===>",response)
+```
+
+# Create a Trigger
+1. Lanbda Function choose function --> cruddur-messaging-stream.
+2. Batch size default.
+3. create trigger.
+
+# Connect Application For Production
+1. comment out the AWS_ENDPOINT_URL in docker compose file and compose down.
+2. frontend url add to the endpoint /new/bayko and create a message
