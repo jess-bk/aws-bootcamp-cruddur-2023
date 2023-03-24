@@ -10,5 +10,5 @@ VALUES
   (
     (SELECT uuid from public.users WHERE users.handle = 'jess-bk' LIMIT 1),
     'This was imported as seed data!',
-    created_at = (now + timedelta(hours=-3) + timedelta(minutes=minute)).isoformat()
+    current_timestamp + interval '10 day'
   )
