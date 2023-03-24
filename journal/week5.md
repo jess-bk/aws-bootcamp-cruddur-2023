@@ -1671,7 +1671,7 @@ class UsersShort:
     results = db.query_object_json(sql,{
       'handle': handle
     })
-    return 
+    return results
 ```
 59. create a new file in /backend-flask/db/sql/users/ --> short.sql
 ```
@@ -1746,3 +1746,8 @@ export default function MessageGroupFeed(props) {
     )
 ```
 63. refresh frontend page and click on messages and create messages.
+64. the messages in the group were not showing up to resolve the issue we had to update the time format in seed file in ddb folder. --> backend-flask/bin/ddb/seed
+```
+created_at = (now + timedelta(hours=-3) + timedelta(minutes=i)).isoformat()
+```
+65. to load londo in the message group you need to manually enter the route in the browser tab https://<your_frontend_address>/messages/new/londo, then you can see the name appear on the message tab.
