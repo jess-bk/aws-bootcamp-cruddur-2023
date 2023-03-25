@@ -1755,8 +1755,8 @@ created_at = (now + timedelta(hours=-3) + timedelta(minutes=i)).isoformat()
 -- this file was manually created
 INSERT INTO public.users (display_name, email, handle, cognito_user_id)
 VALUES
-  ('Jess BK','victory187@hotmail.com' , 'jess-bk' ,'MOCK'),
-  ('Andrew Bayko','saimarshad143@hotmail.com' , 'bayko' ,'MOCK'),
+  ('Jess BK','my email address' , 'jess-bk' ,'MOCK'),
+  ('Andrew Bayko','another email address' , 'bayko' ,'MOCK'),
   ('Londo Mollari','lmollari@centari.com' ,'londo' ,'MOCK');
 
 INSERT INTO public.activities (user_uuid, message, expires_at)
@@ -1877,7 +1877,15 @@ print(response)
 10. click on the execution role name.
 11. add permission and attach a policy.
 12. paste this into the search policy --> AWSLambdaInvocation-DynamoDB --> select --> add permissions.
-13. paste the code below in the code source
+13. create a inline policy for the DynamoDB Access --> click on permissions and attch a policy.
+14. select a service below --> DynamoDB --> Actions --> query, delete item, put item add these to the actions you want to make with the policy.
+15. resources specific --> table --> region *us-east-1* --> table name *cruddur-messages*, click on add.
+16. index --> region *us-east-1* --> table name *cruddur-messages --> index name **(DynamoDB/Tables/crudder-messages index).
+17. request permissions default.
+18. copy the json format and save in the code --> aws --> name folder policies and file inside name --> cruddur-messages-stream-policy.json.(paste on the jsonpolicy).
+19. review policy add name --> cruddur-messaging-stream-dynamodb. --> create policy.
+20. store the lambda function in your code base in lambda folder name --> cruddur_messaging_stream.py
+21. paste the code below in the code source and deploy.
 ```
 import json
 import boto3
@@ -1932,4 +1940,5 @@ def lambda_handler(event, context):
 
 # Connect Application For Production
 1. comment out the AWS_ENDPOINT_URL in docker compose file and compose down.
-2. frontend url add to the endpoint /new/bayko and create a message
+2. frontend url add to the endpoint /new/bayko and create a message.
+3. check the monitor tab for logs --> cloudwatch logs.
