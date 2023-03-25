@@ -1932,6 +1932,7 @@ def lambda_handler(event, context):
       )
       print("CREATE ===>",response)
 ```
+22. comment out the AWS_ENDPOINT_URL: "http://dynamodb-local:8000" in docker compose file as we will now be using the dynamoDB in AWS.
 
 # Create a Trigger
 1. Lanbda Function choose function --> cruddur-messaging-stream.
