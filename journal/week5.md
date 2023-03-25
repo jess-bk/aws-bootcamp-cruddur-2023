@@ -85,7 +85,7 @@ source "$bin_path/db/seed"
 ```
 7. create a folder inside db --> ddb(dynamodb).
 8. create  files names --> * drop * seed * schema-load.
-9. create a table in dynamodb with a pyhton file bash script.
+9. create a table in dynamodb with a python file bash script.
 * schema-load
 ```
 #!/usr/bin/env python3
@@ -149,7 +149,7 @@ chmod u+x bin/ddb/schema-load
 ./bin/ddb/schema-load
 ```
 13. git commit and push to repo.
-14. ![image of the output from cli]
+14. ![image DynamoDB](assets/week5aws/schema-load.png)
 15. create a new file in ddb folder --> name --> list-tables and this is a bash script
 ```
 #! /usr/bin/bash
@@ -175,6 +175,9 @@ chmod u+x bin/ddb/list-tables
 ```
 ./bin/ddb/list-tables
 ```
+
+![image DynamoDB](assets/week5aws/list-tables.png)
+
 13. update setup from db.
 ```
 set -e # stop if it fails at any point
@@ -211,6 +214,8 @@ chmod u+x bin/ddb/drop
 ```
 ./bin/ddb/drop cruddur-messages
 ```
+![image DynamoDB](assets/week5aws/drop.png)
+
 17. create the seed bash script in the ddb folder.
 ```
 #!/usr/bin/env python3
@@ -477,6 +482,8 @@ chmod u+x bin/ddb/seed
 ```
 ./bin/ddb/seed
 ```
+![image DynamoDB](assets/week5aws/ddb-seed-data.png)
+
 21. run bash script to check if tables exist if you are getting an error --> youtube 1:06 time.
 22. create a new file inside folder ddb --> scan (this will scan the db for data that was just created with seed file as SDK).
 ```
@@ -505,6 +512,8 @@ chmod u+x bin/ddb/scan
 ```
 ./bin/ddb/scan
 ```
+![image DynamoDB](assets/week5aws/ddb-scan.png)
+
 24. create a new folder inside ddb folder name --> patterns and create 2 file *get-conversation and *list-conversations
 
 *get-conversation
@@ -637,6 +646,9 @@ chmod u+x bin/ddb/patterns/list-conversations
 ```
 ./bin/ddb/patterns/get-conversation 
 ```
+
+![image DynamoDB](assets/week5aws/get-conversation.png)
+
 26. need to update db.py file in lib folder to print out the sql as params.
 ```
   def print_sql(self,title,sql,params={}):
@@ -698,6 +710,9 @@ chmod u+x bin/ddb/patterns/list-conversations
 ```
 ./bin/ddb/patterns/list-conversations 
 ```
+
+![image DynamoDB](assets/week5aws/list-conversations.png)
+
 # Implement Conversations with DynamoDB
 1. first update gitpod.yml file to run and install the requirements.txt file.
 ```
@@ -929,6 +944,9 @@ chmod u+x bin/cognito/list-users
 ```
 ./bin/cognito/list-users
 ```
+
+![image DynamoDB](assets/week5aws/bin-cognito-list-users.png)
+
 21. create a new bash script inside bin/db and name --> update_cognito_user_ids 
 ```
 #!/usr/bin/env python3
@@ -1001,6 +1019,9 @@ chomd u+x bin/db/update_cognito_user_ids
 ```
 ./bin/db/setup
 ```
+
+![image DynamoDB](assets/week5aws/setup.png)
+
 26. if the script gives error run the update_cognito_user_ids script.
 ```
 ./bin/db/update_cognito_user_ids
@@ -1238,10 +1259,16 @@ refresh page and click on messages and check if any group messages appear on pag
 ```
 ./bin/ddb/schema-load
 ```
+
+![image DynamoDB](assets/week5aws/schema-load.png)
+
 36. now lets seed the data.
 ```
 ./bin/ddb/seed
 ```
+
+![image DynamoDB](assets/week5aws/ddb-seed-data.png)
+
 37. add the AWS_ENDPOINT_URL in the docker compose file
 ```
 AWS_ENDPOINT_URL: "http://dynamodb-local:8000"
@@ -1769,6 +1796,10 @@ VALUES
 ```
 66. to load londo in the message group you need to manually enter the route in the browser tab https://<your_frontend_address>/messages/new/londo, then you can see the name appear on the message tab.
 
+![image DynamoDB](assets/week5aws/message_test_londo.png)
+
+![image DynamoDB](assets/week5aws/sending_message.png)
+
 # DYNAMODB CONVERSATION EPISODE COMPLETED
 
 # DynamoDB Stream
@@ -1943,3 +1974,11 @@ def lambda_handler(event, context):
 1. comment out the AWS_ENDPOINT_URL in docker compose file and compose down.
 2. frontend url add to the endpoint /new/bayko and create a message.
 3. check the monitor tab for logs --> cloudwatch logs.
+
+![image DynamoDB](assets/week5aws/dynamoDB-stream-bayko.png)
+
+![image DynamoDB](assets/week5aws/dynamoDB-stream.png)
+
+![image DynamoDB](assets/week5aws/dynamoDB-stream-cli.png)
+
+![image DynamoDB](assets/week5aws/cloudwatch-logs-dynamoDB.png)
