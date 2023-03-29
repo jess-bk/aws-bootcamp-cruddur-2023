@@ -127,6 +127,10 @@ cors = CORS(
 #     rollbar.report_message('Hello World!', 'warning')
 #     return "Hello World!"
 
+@app.route('/api/health-check')
+def health_check():
+  return {'success': True}, 200
+
 @app.route("/api/message_groups", methods=['GET'])
 @cross_origin()
 def data_message_groups():
