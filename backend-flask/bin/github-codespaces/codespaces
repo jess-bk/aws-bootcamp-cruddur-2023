@@ -15,7 +15,6 @@ sudo apt install -y postgresql-client-13 libpq-dev
 # UPDATE RDS SECURITY RULES
 LABEL="UPDATING RDS RULES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
-export CODESPACES_IP=$(curl ifconfig.me)
 cd /workspaces/aws-bootcamp-cruddur-2023/backend-flask
 source bin/github-rds/rds-update-sg-rule
 
