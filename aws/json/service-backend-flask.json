@@ -1,26 +1,35 @@
 {
-    "cluster": "cruddur",
-    "launchType": "FARGATE",
-    "desiredCount": 1,
-    "enableECSManagedTags": true,
-    "enableExecuteCommand": true,
-    "networkConfiguration": {
-      "awsvpcConfiguration": {
-        "assignPublicIp": "ENABLED",
-        "securityGroups": [
-          "sg-0820b5304a5ee80e9"
-        ],
-        "subnets": [
-          "subnet-03e3a5c1aa03299b1",
-          "subnet-06714eeeabf2bd86a",
-          "subnet-03d51885e5c9efa6f",
-          "subnet-027cde93d77629ca9",
-          "subnet-0e2263519728cf2e5",
-          "subnet-09ef883d0db83aa05"
-        ]
+  "cluster": "cruddur",
+  "launchType": "FARGATE",
+  "desiredCount": 1,
+  "enableECSManagedTags": true,
+  "enableExecuteCommand": true,
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "securityGroups": ["sg-0820b5304a5ee80e9"],
+      "subnets": [
+        "subnet-03e3a5c1aa03299b1",
+        "subnet-06714eeeabf2bd86a",
+        "subnet-03d51885e5c9efa6f",
+        "subnet-027cde93d77629ca9",
+        "subnet-0e2263519728cf2e5",
+        "subnet-09ef883d0db83aa05"
+      ]
+    }
+  },
+  "propagateTags": "SERVICE",
+  "serviceName": "backend-flask",
+  "taskDefinition": "backend-flask",
+  "serviceConnectConfiguration": {
+    "enabled": true,
+    "namespace": "cruddur",
+    "services": [
+      {
+        "portName": "backend-flask",
+        "discoveryName": "backend-flask",
+        "clientAliases": [{ "port": 4567 }]
       }
-    },
-    "propagateTags": "SERVICE",
-    "serviceName": "backend-flask",
-    "taskDefinition": "backend-flask"
+    ]
   }
+}
