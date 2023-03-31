@@ -4,6 +4,7 @@
   "desiredCount": 1,
   "enableECSManagedTags": true,
   "enableExecuteCommand": true,
+  "requiresCompatibilities": ["FARGATE"],
   "loadBalancers": [
     {
       "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:517899574827:targetgroup/cruddur-backend-flask-tg/9844366be652066a",
