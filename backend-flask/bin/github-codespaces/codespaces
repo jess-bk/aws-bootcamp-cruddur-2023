@@ -12,6 +12,12 @@ echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" 
 sudo apt update
 sudo apt install -y postgresql-client-13 libpq-dev
 
+# INSTALL SESSION MANAGER
+LABEL="INSTALL SESSION MANAGER"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+sudo dpkg -i session-manager-plugin.deb
+
 # UPDATE RDS SECURITY RULES
 LABEL="UPDATING RDS RULES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
@@ -23,6 +29,7 @@ LABEL="INSTALL FRONTEND REACT DEPENDENCIES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/frontend-react-js
 npm install
+cd /workspaces/aws-bootcamp-cruddur-2023/frontend-react-js
 
 # INSTALL BACKEND FLASK REQUIREMENTS
 LABEL="INSTALL BACKEND FLASK REQUIREMENTS"
