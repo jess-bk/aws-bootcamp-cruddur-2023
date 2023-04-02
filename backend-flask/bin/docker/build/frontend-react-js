@@ -1,0 +1,17 @@
+#! /usr/bin/bash
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+LABEL="backend-flask-prod-build"
+printf "${CYAN}==== ${LABEL}${NO_COLOR}====\n"
+
+docker build \
+--build-arg REACT_APP_BACKEND_URL="https://4567-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST" \
+--build-arg CODESPACES_REACT_APP_BACKEND_URL="https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}" \
+--build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_USER_POOLS_ID="us-east-1_FpcgxtNfc" \
+--build-arg REACT_APP_CLIENT_ID="6jbj9dn4cf8oldfrvmm5cg34t9" \
+-t frontend-react-js \
+-f Dockerfile.prod \
+.
