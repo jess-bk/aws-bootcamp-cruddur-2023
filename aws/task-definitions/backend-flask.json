@@ -48,8 +48,8 @@
           "name": "AWS_COGNITO_USER_POOL_CLIENT_ID",
           "value": "6jbj9dn4cf8oldfrvmm5cg34t9"
         },
-        { "name": "FRONTEND_URL", "value": "*" },
-        { "name": "BACKEND_URL", "value": "*" },
+        { "name": "FRONTEND_URL", "value": "jessbkcloudcampus.com" },
+        { "name": "BACKEND_URL", "value": "api.jessbkcloudcampus.com" },
         { "name": "AWS_DEFAULT_REGION", "value": "us-east-1" }
       ],
       "secrets": [
