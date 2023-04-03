@@ -21,7 +21,7 @@ sudo dpkg -i session-manager-plugin.deb
 # UPDATE RDS SECURITY RULES
 LABEL="UPDATING RDS RULES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
-cd /workspaces/aws-bootcamp-cruddur-2023/backend-flask
+cd /workspaces/aws-bootcamp-cruddur-2023
 source bin/github-rds/rds-update-sg-rule
 
 # INSTALL FRONTEND REACT DEPENDENCIES
@@ -29,7 +29,6 @@ LABEL="INSTALL FRONTEND REACT DEPENDENCIES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/frontend-react-js
 npm install
-cd /workspaces/aws-bootcamp-cruddur-2023/frontend-react-js
 
 # INSTALL BACKEND FLASK REQUIREMENTS
 LABEL="INSTALL BACKEND FLASK REQUIREMENTS"
