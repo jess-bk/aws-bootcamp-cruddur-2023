@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+# Start a Docker container in interactive mode and remove it when it exits.
+docker run --rm \
+  # Connect the container to the "cruddur-net" network.
+  --network cruddur-net \
+  # Publish port 4567 on the container to port 4567 on the host machine.
+  --publish 4567:4567 \
+  # Use the "busybox" image for the container.
+  -it busybox

@@ -2,51 +2,28 @@ version: "3.8"
 
 services:
   backend-flask:
-    environment:
-      # CONNECTION_URL: "${PROD_CONNECTION_URL}"
-      # CONNECTION_URL: "${CONNECTION_URL}"
-      CONNECTION_URL: "postgresql://postgres:password@db:5432/cruddur"
-      # FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
-      # BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
-      FRONTEND_URL: "https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
-      BACKEND_URL: "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
-      OTEL_SERVICE_NAME: "backend-flask"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
-      OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
-      AWS_XRAY_URL: "*4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}*"
-      # OTEL_RESOURCE_ATTRIBUTES: "service.name=backend-flask"
-      AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
-      AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
-      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
-      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
-      ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
-      AWS_COGNITO_USER_POOL_ID: "us-east-1_FpcgxtNfc"
-      AWS_COGNITO_USER_POOL_CLIENT_ID: "6jbj9dn4cf8oldfrvmm5cg34t9"
-      # AWS_ENDPOINT_URL: "http://dynamodb-local:8000"
+    env_file:
+      - backend-flask.env
     build: ./backend-flask
     ports:
       - "4567:4567"
     volumes:
       - ./backend-flask:/backend-flask
+    networks:
+      - cruddur-net
     # healthcheck:
     #   test: ["CMD-SHELL", "curl --fail http://localhost:4567/health || exit 1"]
     #   interval: 10s
     #   timeout: 5s
     #   retries: 3
   frontend-react-js:
-    environment:
-      # REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
-      REACT_APP_BACKEND_URL: "https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
-      # OTEL_RESOURCE_ATTRIBUTES: "service.name=frontend-react-js"
-      # OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
-      # OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
-      REACT_APP_AWS_PROJECT_REGION: "${AWS_DEFAULT_REGION}"
-      REACT_APP_AWS_COGNITO_REGION: "${AWS_DEFAULT_REGION}"
-      REACT_APP_AWS_USER_POOLS_ID: "us-east-1_FpcgxtNfc"
-      REACT_APP_CLIENT_ID: "6jbj9dn4cf8oldfrvmm5cg34t9"
+    env_file:
+      - frontend-react-js.env
     build: ./frontend-react-js
     ports:
       - "3000:3000"
+    networks:
+      - cruddur-net
     volumes:
       - ./frontend-react-js:/frontend-react-js
 
@@ -83,6 +60,8 @@ services:
       - "xray -o -b xray-daemon:2000"
     ports:
       - 2000:2000/udp
+    networks:
+      - cruddur-net
 
   dynamodb-local:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
@@ -93,6 +72,8 @@ services:
     container_name: dynamodb-local
     ports:
       - "8000:8000"
+    networks:
+      - cruddur-net
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
@@ -113,15 +94,17 @@ services:
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
+    networks:
+      - cruddur-net
     volumes:
       - db:/var/lib/postgresql/data
 
 # the name flag is a hack to change the default prepend folder
 # name when outputting the image names
 networks:
-  internal-network:
+  cruddur-net:
     driver: bridge
-    name: cruddur
+    name: cruddur-net
 
 volumes:
   db:
