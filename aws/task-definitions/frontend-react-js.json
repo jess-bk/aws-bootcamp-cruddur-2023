@@ -18,17 +18,7 @@
           "containerPort": 2000,
           "protocol": "udp"
         }
-      ],
-      "healthCheck": {
-        "command": [
-          "CMD-SHELL",
-          "curl -sS http://localhost:2000 | grep -q '\"DaemonVersion\":\"'"
-        ],
-        "interval": 30,
-        "timeout": 5,
-        "retries": 3,
-        "startPeriod": 60
-      }
+      ]
     },
     {
       "name": "frontend-react-js",
