@@ -1,6 +1,10 @@
 # Base Image ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 FROM node:16.18 AS build
 
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG REACT_APP_BACKEND_URL
 ARG REACT_APP_AWS_PROJECT_REGION
 ARG REACT_APP_AWS_COGNITO_REGION

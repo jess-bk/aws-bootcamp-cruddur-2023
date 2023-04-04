@@ -6,6 +6,10 @@ FROM 517899574827.dkr.ecr.us-east-1.amazonaws.com/cruddur-python:3.10-slim-buste
 #RUN apt-get install iputils-ping -y
 # -----
 
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Inside Container
 # make a new folder inside container
 WORKDIR /backend-flask
