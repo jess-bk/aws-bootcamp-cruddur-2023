@@ -219,3 +219,31 @@ pushing the Docker image to the ECR.
 
 The task definition defines how the containers should be launched and run, and the service is used to manage the tasks that are run on the ECS cluster.
 the status of the deployed containers can be checked in the AWS console to ensure that they are healthy and running as expected.
+
+# Updating alb outbound rules for load balancer
+inbound rule for a security group with ID sg-<sg-rule>, which allows traffic on port 4567 using the TCP protocol. This rule is associated with the security group cruddur-alb-sg and has a description CRUDDUR_ALB_BACKEND. The rule references the security group with ID sgr-<sg-rule>.
+  
+inbound rule for the same security group cruddur-alb-sg, which allows traffic on port 3000 using the TCP protocol. The rule is associated with the same security group cruddur-alb-sg and has a description CRUDDUR_ALB_FRONTEN. The rule references the security group with ID sgr-<sg rule>.
+  
+# Configuring infrastructure to allow traffic to flow securely from a custom domain name to the frontend of your application
+Copied the load balancer DNS hostname and added it to the endpoint :3000 in the browser. This allowed you to open up the frontend with data.
+
+Created a custom domain with Route53. You added the domain name that you acquired earlier (jessbkcloudcampus.com) and created a public hosted zone.
+
+Added all the name servers to your ionos domain name provider.
+
+Created an AWS Certificate Manager (ACM) and requested a public certificate for the domain names jessbkcloudcampus.com and *.jessbkcloudcampus.com. You chose DNS as the validation method and used the default key algorithm. You created the certificate, which could take up to 1-2 hours.
+
+Clicked on "Records" in Route53.
+
+Updated the load balancer to handle the domain name. You clicked on "Actions" and edited the listener 4567. You added the protocol HTTPS on port 443, forwarded the target group cruddur-frontend-react-tg, added the recommended security policy, and added the newly created SSL certificate for jessbkcloudcampus.com. You also created a new listener with protocol HTTP on port 80 and redirected it to HTTPS port 443 with an itemized URL. The original host had a status code of 302-not found.
+
+Created a new listener on port 80 for HTTP traffic and added a redirect rule to forward traffic to HTTPS on port 443. The rule is itemized and redirects with a 302 status code. This is done to ensure that all traffic to the site is encrypted and secure.
+
+Added a rule to the cruddur-alb to forward traffic with a specific host header value (api.jessbkcloudcampus.com) to the cruddur-backend-flask-tg. This ensures that traffic to the backend is properly routed.
+
+Updated Route53 to point to the load balancer by creating a record of type A-Routes with an alias pointing to the application load balancer in your region. This creates a simple routing record that directs traffic to the load balancer.
+
+You have also created a record of type CNAME that aliases to the application load balancer in your region. This creates another routing record that directs traffic to the load balancer.
+
+Finally, you have tested the setup by using the curl command to send a request to https://api.jessbkcloudcampus.com/api/health-check, which should return a response indicating that the API is running and healthy.
