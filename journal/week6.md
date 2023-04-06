@@ -247,3 +247,30 @@ Updated Route53 to point to the load balancer by creating a record of type A-Rou
 You have also created a record of type CNAME that aliases to the application load balancer in your region. This creates another routing record that directs traffic to the load balancer.
 
 Finally, you have tested the setup by using the curl command to send a request to https://api.jessbkcloudcampus.com/api/health-check, which should return a response indicating that the API is running and healthy.
+
+# Securing Flask
+Updated inbound rules for load balanced to my ip address
+
+# backend Docker file
+updated by removing the ENV FLASK_ENV=development and adding the --debug to the command script
+  
+# This Dockerfile.prod is used to build a container image for a backend Flask application. Here is what each line does:
+FROM <image id with aws region>: specifies the base image to use for this container. In this case, it is a slim version of the Python 3.10 image provided by CRUDDUR.
+
+WORKDIR /backend-flask: sets the working directory to /backend-flask inside the container.
+
+COPY requirements.txt requirements.txt: copies the requirements.txt file from the host (outside the container) to the container's /backend-flask directory.
+
+RUN pip3 install -r requirements.txt: runs pip3 inside the container to install the Python dependencies specified in requirements.txt.
+
+COPY . .: copies all files and directories from the host's current directory to the container's /backend-flask directory.
+
+EXPOSE ${PORT}: specifies that the container will listen on the port specified by the ${PORT} environment variable. The value of ${PORT} will be provided when the container is run.
+
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567", "--no-debug","--no-debugger","--no-reload"]: specifies the command to run when the container is started. In this case, it starts the Flask application with python3 -m flask run, listens on 0.0.0.0 (which means all available network interfaces) on port 4567, and disables debugging, the debugger, and automatic reloading.
+  
+--no-debug: This flag disables the Flask debugger, which is a built-in debugger that can be very useful during development but can potentially expose security vulnerabilities in production. Therefore, it is recommended to disable the debugger in production.
+
+--no-debugger: This flag disables the Werkzeug debugger, which is also a built-in debugger in Flask. Werkzeug is a WSGI (Web Server Gateway Interface) toolkit that Flask uses internally to handle requests and responses. The Werkzeug debugger can provide detailed information about the application's internal state and the request and response data. However, it can also reveal sensitive information, so it's recommended to disable it in production.
+
+--no-reload: This flag disables the Flask automatic reloader, which is a feature that reloads the application automatically whenever a change is made to the source code. While this feature can be helpful during development, it can cause performance issues and security risks in production. Therefore, it is recommended to disable it in production.
