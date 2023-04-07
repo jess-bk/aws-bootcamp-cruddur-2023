@@ -21,6 +21,52 @@ Use Amazon ECR for Image Storage: Use Amazon Elastic Container Registry (ECR) to
 
 Enable Container Insights: Amazon ECS Container Insights provides visibility into the performance and health of your Amazon ECS clusters, tasks, and services. It helps you identify potential security threats and troubleshoot issues before they impact your applications.
 
+# How To Securely Host a Website on AWS with a Custom Domain
+To securely host a website on AWS with a custom domain, you can use Amazon Route53 to manage your DNS records and domain names. Route53 provides features such as health checks, failover routing, and DNSSEC to improve the reliability and security of your website.
+
+You can use AWS WAF to protect your website against common web exploits, such as SQL injection and cross-site scripting (XSS) attacks. WAF allows you to define custom rules and conditions for filtering and blocking malicious traffic.
+
+Amazon CloudFront can be used as a content delivery network (CDN) to distribute and cache your website content globally, improving the speed and performance of your website. CloudFront also provides features such as SSL/TLS termination, origin access identity (OAI), and field-level encryption to enhance the security of your website.
+
+You can use an AWS Application Load Balancer (ALB) to distribute incoming traffic to your website across multiple EC2 instances, improving the availability and scalability of your website. ALB also provides features such as SSL/TLS termination and client authentication to secure your website.
+
+AWS Compute Capacity provides various compute resources, such as EC2 instances, containers, and serverless computing services, that you can use to run your website and its backend services. You can choose the appropriate compute resources based on your website's traffic and workload requirements.
+
+#  Protecting serverless applications in AWS
+Use AWS Lambda with IAM roles: AWS Lambda is a serverless compute service that allows you to run your code without managing servers. To protect your Lambda functions, you should use AWS Identity and Access Management (IAM) roles to control access to your Lambda functions. IAM roles allow you to specify which AWS services can invoke your Lambda function and which AWS resources your Lambda function can access.
+
+Use AWS API Gateway: AWS API Gateway is a fully managed service that makes it easy to create, publish, and manage APIs. API Gateway provides features such as authentication, authorization, and rate limiting, which you can use to protect your serverless applications from attacks.
+
+Secure your data in transit and at rest: When data is transmitted between your serverless application and other AWS services or external systems, you should use SSL/TLS encryption to protect it from interception. Additionally, when data is stored in databases or other data stores, you should use encryption at rest to prevent unauthorized access.
+
+Monitor your serverless application: You should use AWS CloudWatch to monitor your serverless application and detect any abnormal behavior or security incidents. CloudWatch provides logs, metrics, and alarms that you can use to identify and respond to security incidents.
+
+Implement AWS WAF: AWS WAF is a web application firewall that you can use to protect your serverless applications from common web attacks, such as SQL injection and cross-site scripting. You can use WAF to create rules that allow, block, or monitor web traffic based on criteria such as IP addresses, user agents, and HTTP headers.
+
+
+# Protecting on-premises applications in AWS
+involves using AWS Direct Connect and Amazon VPC to create a secure network connection, using AWS IAM to control access to your resources, using AWS WAF to protect against web attacks, using AWS Shield to protect against DDoS attacks, and using AWS KMS to encrypt your data.
+
+# Amazon GuardDuty
+Amazon GuardDuty provides a comprehensive and cost-effective way to monitor and protect your AWS resources and accounts from security threats. Its ability to automatically detect and analyze security threats can help to improve the security posture of your AWS environment and reduce the risk of security breaches.
+
+# Amazon Certificate Manager (ACM) 
+ACM also provides additional features, such as automatic certificate renewal and the ability to manage multiple certificates in a single place, which can help to simplify the management of SSL/TLS certificates for your applications.
+integrating ACM with SSL/TLS provides a secure and convenient way to manage certificates for your AWS applications, without having to go through the traditional process of purchasing and installing certificates from a third-party CA.
+
+# How To Securely Host a Website on AWS with a Custom Domain
+To securely host a website on AWS with a custom domain, you can use Amazon Route53 to manage your DNS records and domain names. Route53 provides features such as health checks, failover routing, and DNSSEC to improve the reliability and security of your website.
+
+You can use AWS WAF to protect your website against common web exploits, such as SQL injection and cross-site scripting (XSS) attacks. WAF allows you to define custom rules and conditions for filtering and blocking malicious traffic.
+
+Amazon CloudFront can be used as a content delivery network (CDN) to distribute and cache your website content globally, improving the speed and performance of your website. CloudFront also provides features such as SSL/TLS termination, origin access identity (OAI), and field-level encryption to enhance the security of your website.
+
+You can use an AWS Application Load Balancer (ALB) to distribute incoming traffic to your website across multiple EC2 instances, improving the availability and scalability of your website. ALB also provides features such as SSL/TLS termination and client authentication to secure your website.
+
+AWS Compute Capacity provides various compute resources, such as EC2 instances, containers, and serverless computing services, that you can use to run your website and its backend services. You can choose the appropriate compute resources based on your website's traffic and workload requirements.
+
+# Dangling domain name
+A dangling domain name, also known as an abandoned domain name or expired domain name, is a domain name that is no longer registered to a specific owner or organization. Dangling domain names can pose a security risk because they can be easily hijacked or used in phishing attacks. When a domain name becomes dangling, it can be re-registered by anyone, including cybercriminals who can use it for malicious purposes. For example, they can create fake websites that mimic legitimate ones and use them to steal sensitive information from users.To prevent dangling domain names from being used in malicious activities, it's important to regularly monitor your domain names and ensure that they are renewed on time. If you are no longer using a domain name, it's best to let it expire and not leave it dangling.
 
 # RDS Connecetion
 
