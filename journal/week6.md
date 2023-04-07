@@ -60,6 +60,8 @@ I updated the Dockerfile to use a custom image from your AWS account's Elastic C
 
 I created two JSON policies that you'll attach to the appropriate IAM roles later. The first policy, cruddur-messages-stream-policy.json, allows your application to put, delete, and query items in the cruddur-messages table in DynamoDB, as well as access the message-group-sk-index index. The second policy, service-execution-policy.json, grants the necessary permissions to create and manage ECS services, ECR repositories, and Cognito user pools.
 
+![image week6 fargate](assets/week6aws/connection_successfull.png)
+
 #  IAM execution role, attach a policy to it, and create a policy document. Here is a breakdown of each command:
 
 aws iam create-role: This command creates an IAM role with the specified name (CruddurServiceExecutionRole) and an assume role policy document that allows ECS tasks to assume the role. The assume role policy document is written as a JSON string in the command.
@@ -70,14 +72,112 @@ aws iam attach-role-policy: This command attaches a policy to the IAM role by pr
 
 Create a policy: This code block is a policy document that includes permissions for various AWS services such as ECS, ECR, Cognito, and DynamoDB.
 
+![image week6 fargate](assets/week6aws/CruddurServiceExecutionPolicy.png)
+
 # Creating a Task Role in AWS IAM
 
 which defines the permissions for the tasks running on an ECS cluster. The aws iam create-role command creates the role, while aws iam put-role-policy attaches a policy to the role. Finally, aws iam attach-role-policy attaches additional policies to the role.
 
 In this case, the first command creates a role called CruddurTaskRole with a trust policy that allows ECS tasks to assume the role. The aws iam put-role-policy command attaches a policy called SSMAccessPolicy to the role, which grants permission to create and open SSM control and data channels. The next two aws iam attach-role-policy commands attach the CloudWatchFullAccess and AWSXRayDaemonWriteAccess policies to the CruddurTaskRole, which grant permission to write logs to CloudWatch and send tracing data to X-Ray, respectively.
 
+![image week6 fargate](assets/week6aws/CruddurTaskRoles.png)
+
 # Created a JSON file called "backend-flask.json"
-in the "task-definitions" folder under your AWS bootcamp project directory. The contents of this file define the task definition for your Fargate service.
+```
+{
+  "family": "backend-flask",
+  "executionRoleArn": "add arn for CruddurServiceExecutionRole",
+  "taskRoleArn": "add arn for CruddurTaskRole",
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "requiresCompatibilities": ["FARGATE"],
+  "containerDefinitions": [
+    {
+      "name": "xray",
+      "image": "public.ecr.aws/xray/aws-xray-daemon",
+      "essential": true,
+      "user": "1337",
+      "portMappings": [
+        {
+          "name": "xray",
+          "containerPort": 2000,
+          "protocol": "udp"
+        }
+      ]
+    },
+    {
+      "name": "backend-flask",
+      "image": "add backend image",
+      "essential": true,
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python /backend-flask/bin/flask/health-check"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "portMappings": [
+        {
+          "name": "backend-flask",
+          "containerPort": 4567,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "cruddur",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "backend-flask"
+        }
+      },
+      "environment": [
+        { "name": "OTEL_SERVICE_NAME", "value": "backend-flask" },
+        {
+          "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+          "value": "https://api.honeycomb.io"
+        },
+        { "name": "AWS_COGNITO_USER_POOL_ID", "value": "add user pool id" },
+        {
+          "name": "AWS_COGNITO_USER_POOL_CLIENT_ID",
+          "value": "6jbj9dn4cf8oldfrvmm5cg34t9"
+        },
+        { "name": "FRONTEND_URL", "value": "jessbkcloudcampus.com" },
+        { "name": "BACKEND_URL", "value": "api.jessbkcloudcampus.com" },
+        { "name": "AWS_DEFAULT_REGION", "value": "us-east-1" }
+      ],
+      "secrets": [
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "valueFrom": "arn:aws:ssm:us-east-1:<aws user id>:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:<aws user id>:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY"
+        },
+        {
+          "name": "CONNECTION_URL",
+          "valueFrom": "arn:aws:ssm:us-east-1:<aws user id>:parameter/cruddur/backend-flask/CONNECTION_URL"
+        },
+        {
+          "name": "ROLLBAR_ACCESS_TOKEN",
+          "valueFrom": "arn:aws:ssm:us-east-1:<aws user id>:parameter/cruddur/backend-flask/ROLLBAR_ACCESS_TOKEN"
+        },
+        {
+          "name": "OTEL_EXPORTER_OTLP_HEADERS",
+          "valueFrom": "arn:aws:ssm:us-east-1:<aws user id>:parameter/cruddur/backend-flask/OTEL_EXPORTER_OTLP_HEADERS"
+        }
+      ]
+    }
+  ]
+}
+```
+in the "task-definitions" folder under the AWS bootcamp project directory. The contents of this file define the task definition for the Fargate service.
 
 The "family" field is the name of your task definition family. It should be unique within your AWS account. The "executionRoleArn" and "taskRoleArn" fields specify the roles that the service and tasks should use. The "networkMode" field specifies the networking mode for your task. "awsvpc" means that your tasks will have an Amazon VPC elastic network interface (ENI) attached.
 
@@ -114,6 +214,48 @@ I installed the Session Manager plugin in Gitpod and Github Codespaces.
 This will allow you to connect to the running container in the ECS cluster using the AWS CLI.
 
 # service-backend-flask.json
+```
+{
+  "cluster": "cruddur",
+  "launchType": "FARGATE",
+  "desiredCount": 1,
+  "enableECSManagedTags": true,
+  "enableExecuteCommand": true,
+  "requiresCompatibilities": ["FARGATE"],
+  "loadBalancers": [
+    {
+      "targetGroupArn": "add arn for the load balancer backend target group",
+      "containerName": "backend-flask",
+      "containerPort": 4567
+    }
+  ],
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "securityGroups": ["add sg rule created"],
+      "subnets": [
+        "subnet-add subnet",
+        "subnet-add subnet",
+        "subnet-add subnet"
+      ]
+    }
+  },
+  "propagateTags": "SERVICE",
+  "serviceName": "backend-flask",
+  "taskDefinition": "backend-flask",
+  "serviceConnectConfiguration": {
+    "enabled": true,
+    "namespace": "cruddur",
+    "services": [
+      {
+        "portName": "backend-flask",
+        "discoveryName": "backend-flask",
+        "clientAliases": [{ "port": 4567 }]
+      }
+    ]
+  }
+}
+```
 
 The configuration file contains several parameters that define the desired state of a service called "backend-flask" that will be deployed using AWS Fargate, which is a serverless compute engine for containers.
 
@@ -131,17 +273,32 @@ Finally, the "serviceConnectConfiguration" parameter specifies the service disco
 deploying the Flask backend service in ECS.
 
 variable DEFAULT_VPC_ID with the value of the default VPC ID in the AWS account using the aws ec2 describe-vpcs command with a filter that specifies to return only the VPC that is marked as the default.
+```
+export DEFAULT_VPC_ID=$(aws ec2 describe-vpcs \
+--filters "Name=isDefault, Values=true" \
+--query "Vpcs[0].VpcId" \
+--output text)
+echo $DEFAULT_VPC_ID
+```
 
 variable DEFAULT_SUBNET_IDS with the value of comma-separated subnet IDs in the default VPC. The command uses aws ec2 describe-subnets with a filter that specifies to return only the subnets that belong to the default VPC.
+```
+export DEFAULT_SUBNET_IDS=$(aws ec2 describe-subnets  \
+ --filters Name=vpc-id,Values=$DEFAULT_VPC_ID \
+ --query 'Subnets[*].SubnetId' \
+ --output json | jq -r 'join(",")')
+echo $DEFAULT_SUBNET_IDS
+```
 
 create an ECS service for the Flask backend using the aws ecs create-service command and passing in a JSON file with the configuration. The JSON file contains details such as the task definition to use, the number of desired tasks, the launch type, and the network configuration. The network configuration specifies the VPC, subnets, and security group to use for the service.
 
 # Created a bash script to execute the AWS ECS execute-command to connect to the backend-flask container
-
 The script takes a TASK ID argument and checks if it is supplied or not. If it is not supplied, it exits with an error message. Then it sets the TASK_ID and CONTAINER_NAME variables and uses the AWS CLI to execute the ECS execute-command with the required parameters.
 
 # Configure security group inbound rules for crud-srv-sg:
 added an inbound rule to the security group 'crud-srv-sg' to allow access to port 4567 from anywhere.
+
+![image week6 fargate](assets/week6aws/crud-srv-sg.png)
 
 # Get the ip4 public address and open in the browser:
 retrieved the IPv4 public address of your EC2 instance and opened it in the browser. Then you have added the endpoint ':4567/api/health-check' to check the health of the Flask backend.
@@ -152,8 +309,12 @@ added an inbound rule to the default security group of your RDS instance to allo
 now run ./bin/db/test:
 run the './bin/db/test' script, which tests the database connection. If it fails, you need to change the 'connection_url' variable in the script to the production database connection URL.
 
+![image week6 fargate](assets/week6aws/connection_successfull.png)
+
 # Get the IPv4 public address and open in the browser:
 You have retrieved the IPv4 public address of your EC2 instance and opened it in the browser. Then you have added the endpoint ':4567/api/activities/home' to access the activities homepage of the Flask application.
+
+![image week6 fargate](assets/week6aws/fargate_api_activities_home.png)
 
 
 # setting up an Application Load Balancer (ALB) in AWS to distribute traffic across multiple instances of the Flask and React applications.
@@ -174,6 +335,8 @@ adding the new target group to the ALB listener and routing HTTP traffic on port
 
 THIS completes the process of creating the load balancer in AWS.
 
+![image week6 fargate](assets/week6aws/load_balancer_done.png)
+
 # service-backend-flask.json is created inside the aws-bootcamp-cruddur-2023/aws/json directory. 
 This JSON file defines the configuration for creating an ECS service for the backend Flask application.
 
@@ -186,6 +349,104 @@ the ECS cluster is checked in the ECS dashboard to ensure that the service for t
 Finally, the DNS name of the load balancer is copied and pasted into a web browser along with the endpoint :4567/api/health-check to confirm that the backend Flask application is working as expected through the load balancer.
 
 # AWS ECS task definition and service for a frontend-react-js application.
+task definition
+```
+{
+  "family": "frontend-react-js",
+  "executionRoleArn": "arn for CruddurServiceExecutionRole",
+  "taskRoleArn": "arn for CruddurTaskRole",
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "requiresCompatibilities": ["FARGATE"],
+  "containerDefinitions": [
+    {
+      "name": "xray",
+      "image": "public.ecr.aws/xray/aws-xray-daemon",
+      "essential": true,
+      "user": "1337",
+      "portMappings": [
+        {
+          "name": "xray",
+          "containerPort": 2000,
+          "protocol": "udp"
+        }
+      ]
+    },
+    {
+      "name": "frontend-react-js",
+      "image": "add fornt end prod image",
+      "essential": true,
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3
+      },
+      "portMappings": [
+        {
+          "name": "frontend-react-js",
+          "containerPort": 3000,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "cruddur",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "frontend-react"
+        }
+      }
+    }
+  ]
+}
+```
+
+service json file for frontend
+```
+{
+  "cluster": "cruddur",
+  "launchType": "FARGATE",
+  "desiredCount": 1,
+  "enableECSManagedTags": true,
+  "enableExecuteCommand": true,
+  "loadBalancers": [
+    {
+      "targetGroupArn": "",
+      "containerName": "frontend-react-js",
+      "containerPort": 3000
+    }
+  ],
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "securityGroups": [""],
+      "subnets": [
+        "subnet-",
+        "subnet-",
+        "subnet-",
+      ]
+    }
+  },
+  "propagateTags": "SERVICE",
+  "serviceName": "frontend-react-js",
+  "taskDefinition": "frontend-react-js",
+  "serviceConnectConfiguration": {
+    "enabled": true,
+    "namespace": "cruddur",
+    "services": [
+      {
+        "portName": "frontend-react-js",
+        "discoveryName": "frontend-react-js",
+        "clientAliases": [{ "port": 3000 }]
+      }
+    ]
+  }
+}
+```
 
 created the task definition in JSON format, which specifies how the Docker container(s) will run in the ECS cluster. Here's an explanation of the fields in this JSON:
 
@@ -444,8 +705,10 @@ const res = await fetch(backend_url, {
 8. connect to the data base and add the user
 ./bin/db/connect prod
 INSERT INTO public.users (display_name, email, handle, cognito_user_id) VALUES ('Andrew Bayko','EMAIL ADD' , 'bayko' ,'MOCK');
-  
-  
+ 
+# Connected to my domain name and fixed the messages error
+![image week6 fargate](assets/week6aws/mesaages_fix.png)
+
 # Improve the docker networking
 updated docker file and created a new network cruddur-net
 new bash script created for the network busybox
@@ -493,8 +756,15 @@ created for frontend(frontend-react-js.env.erb) and for backend(backend-flask.en
 ./bin/frontend/build
 ./bin/frontend/push
 ./bin/frontend/deploy
-
-6. activate cloudwatch logs for container insights
   
+# Connected locally by using bash script to generate environment variables 
+![image week6 fargate](assets/week6aws/working_with_generate_env_vars.png)
+
+# Activate cloudwatch logs for container insights
+![image week6 fargate](assets/week6aws/x-ray-fargate.png)
+![image week6 fargate](assets/week6aws/x_ray_containermap.png)
+![image week6 fargate](assets/week6aws/x_ray_cpu_utilization.png)
+![image week6 fargate](assets/week6aws/x_ray_task_performance.png)
+![image week6 fargate](assets/week6aws/cloudwatch_x-ray_logs.png)
   
 
