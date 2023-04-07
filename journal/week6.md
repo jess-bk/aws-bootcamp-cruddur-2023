@@ -439,8 +439,18 @@ File.write(filename, content)
 
 3. created a new folder erb in ruby and the bash script will create the env variable file by getting all the environment varibales from the files below:
 created for frontend(frontend-react-js.env.erb) and for backend(backend-flask.env.erb)
-  
 4. updated all the paths in the bash script to take effect.
+5. now run all the bash scripts for frontend and backend:
+./bin/backend/register
+./bin/frontend/register
+
+./bin/backend/build
+./bin/backned/push
+./bin/backend/deploy
+  
+./bin/frontend/build
+./bin/frontend/push
+./bin/frontend/deploy
 
 
   
