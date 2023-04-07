@@ -274,3 +274,175 @@ CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567", "--no-d
 --no-debugger: This flag disables the Werkzeug debugger, which is also a built-in debugger in Flask. Werkzeug is a WSGI (Web Server Gateway Interface) toolkit that Flask uses internally to handle requests and responses. The Werkzeug debugger can provide detailed information about the application's internal state and the request and response data. However, it can also reveal sensitive information, so it's recommended to disable it in production.
 
 --no-reload: This flag disables the Flask automatic reloader, which is a feature that reloads the application automatically whenever a change is made to the source code. While this feature can be helpful during development, it can cause performance issues and security risks in production. Therefore, it is recommended to disable it in production.
+
+# Created a bash script to login
+once logged in then i run build to build the image
+
+# Docker run for prod
+This docker run command is creating and starting a new container based on the backend-flask-prod image. The options passed with this command are as follows:
+
+-rm: removes the container after it stops running.
+-p 4567:4567: maps the container's port 4567 to the host machine's port 4567.
+-e: sets environment variables used by the application running inside the container.
+AWS_ENDPOINT_URL: specifies the URL for the DynamoDB instance used by the application.
+CONNECTION_URL: specifies the URL for the PostgreSQL database used by the application.
+FRONTEND_URL: specifies the URL for the frontend application.
+BACKEND_URL: specifies the URL for the backend application.
+CODESPACES_FRONTEND_URL: specifies the URL for the frontend application in GitHub Codespaces.
+CODESPACES_BACKEND_URL: specifies the URL for the backend application in GitHub Codespaces.
+OTEL_SERVICE_NAME: sets the name of the application to 'backend-flask' for OpenTelemetry tracing.
+OTEL_EXPORTER_OTLP_ENDPOINT: specifies the URL for the OpenTelemetry collector.
+OTEL_EXPORTER_OTLP_HEADERS: sets the headers for the OpenTelemetry collector.
+AWS_XRAY_URL: specifies the URL for the AWS X-Ray service.
+AWS_XRAY_DAEMON_ADDRESS: specifies the address for the AWS X-Ray daemon.
+AWS_DEFAULT_REGION: specifies the AWS region used by the application.
+AWS_ACCESS_KEY_ID: specifies the AWS access key used by the application.
+AWS_SECRET_ACCESS_KEY: specifies the AWS secret access key used by the application.
+ROLLBAR_ACCESS_TOKEN: specifies the access token for the Rollbar service.
+AWS_COGNITO_USER_POOL_ID: specifies the ID of the AWS Cognito user pool used by the application.
+AWS_COGNITO_USER_POOL_CLIENT_ID: specifies the client ID of the AWS Cognito user pool used by the application.
+-it: runs the container in interactive mode with a TTY.
+backend-flask-prod: specifies the name of the image to use to create the container.
+  
+this command paste into the cli. (make sure all the env's are set)
+
+# Docker build for prod
+created a bash script to run the prod build command for frontend and backend
+```
+docker build \
+--build-arg REACT_APP_BACKEND_URL="https://4567-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST" \
+--build-arg REACT_APP_BACKEND_URL_CODE_SPACES="https://${CODESPACE_NAME}-4567.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}" \
+--build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_USER_POOLS_ID="us-east-1_FpcgxtNfc" \
+--build-arg REACT_APP_CLIENT_ID="6jbj9dn4cf8oldfrvmm5cg34t9" \
+-t frontend-react-js \
+-f Dockerfile.prod \
+.
+```
+  
+this is updated later to
+```
+docker build \
+--build-arg REACT_APP_BACKEND_URL="http://<load balanacer DNS name>" \
+--build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_USER_POOLS_ID="<enter aws pool id>" \
+--build-arg REACT_APP_CLIENT_ID="<enter aws client id>" \
+-t frontend-react-js \
+-f Dockerfile.prod \
+.
+```
+
+# Frontend build updated build bash script.
+```
+docker build \
+--build-arg REACT_APP_BACKEND_URL="https://api.<add domian name>" \
+--build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_USER_POOLS_ID="enter user pool id" \
+--build-arg REACT_APP_CLIENT_ID="enter user id" \
+-t frontend-react-js \
+-f Dockerfile.prod \
+.
+
+```
+  
+# Fixing Messaging in Prodction and Fixed Cognito Expiring Token
+1. update checkAuth.js
+```
+import { Auth } from "aws-amplify";
+import { resolvePath } from "react-router-dom";
+
+export async function getAccessToken() {
+  Auth.currentSession()
+    .then((cognito_user_session) => {
+      const access_token = cognito_user_session.accessToken.jwtToken;
+      localStorage.setItem("access_token", access_token);
+    })
+    .catch((err) => console.log(err));
+}
+
+export async function checkAuth(setUser) {
+  Auth.currentAuthenticatedUser({
+    // Optional, By default is false.
+    // If set to true, this call will send a
+    // request to Cognito to get the latest user data
+    bypassCache: false,
+  })
+    .then((cognito_user) => {
+      console.log("cognito_user", cognito_user);
+      setUser({
+        display_name: cognito_user.attributes.name,
+        handle: cognito_user.attributes.preferred_username,
+      });
+      return Auth.currentSession();
+    })
+    .then((cognito_user_session) => {
+      console.log("cognito_user_session", cognito_user_session);
+      localStorage.setItem(
+        "access_token",
+        cognito_user_session.accessToken.jwtToken
+      );
+    })
+    .catch((err) => console.log(err));
+}
+
+2. updated the following components and pages in frontend
+components MessageForm.js
+pages HomeFeedPage, MessageGroupNewPage, MessageGroupsPage, MessageGroupPage
+```
+import { checkAuth, getAccessToken } from "../lib/CheckAuth";
+
+# updated load data
+  
+await getAccessToken();
+const access_token = localStorage.getItem("access_token");
+const res = await fetch(backend_url, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    Authorization: `Bearer ${access_token}`,
+  },
+```  
+  
+3. rebuild the frontend and backend images and deploy them.
+4. updated db.py self.pool.connection had no return statement.
+5. created a new bash script to kill the db session.
+6. update the ddb bash scripts paths
+7. run bash scripts:
+./bin/db/setup
+./bin/db/seed.sql
+./bin/ddb/schema-load
+./bin/ddb/seed
+./bin/backend/build
+./bin/backend/push
+./bin/backend/deploy
+8. connect to the data base and add the user
+./bin/db/connect prod
+INSERT INTO public.users (display_name, email, handle, cognito_user_id) VALUES ('Andrew Bayko','EMAIL ADD' , 'bayko' ,'MOCK');
+
+# Generated out env vars by scripts, improve the docker networking
+1. moved the bin folder to the root of the application and created created new bin scripts for frontend and backend:
+build, connect, deploy, push, register and run
+
+2. created a new bash scripts to generate the env variables and deleted the env's from the docker file.
+```
+#!/usr/bin/env ruby
+
+require 'erb'
+
+template = File.read 'erb/backend-flask.env.erb'
+content = ERB.new(template).result(binding)
+filename = "backend-flask.env"
+File.write(filename, content)
+```  
+
+3. created a new folder erb in ruby and the bash script will create the env variable file by getting all the environment varibales from the files below:
+created for frontend(frontend-react-js.env.erb) and for backend(backend-flask.env.erb)
+  
+4. updated all the paths in the bash script to take effect.
+
+
+  
+  
+
