@@ -410,6 +410,7 @@ const res = await fetch(backend_url, {
 5. created a new bash script to kill the db session.
 6. update the ddb bash scripts paths
 7. run bash scripts:
+  
 ./bin/db/setup
 ./bin/db/seed.sql
 ./bin/ddb/schema-load
@@ -420,8 +421,25 @@ const res = await fetch(backend_url, {
 8. connect to the data base and add the user
 ./bin/db/connect prod
 INSERT INTO public.users (display_name, email, handle, cognito_user_id) VALUES ('Andrew Bayko','EMAIL ADD' , 'bayko' ,'MOCK');
+  
+  
+# Improve the docker networking
+updated docker file and created a new network cruddur-net
+new bash script created for the network busybox
+```
+#!/usr/bin/bash
 
-# Generated out env vars by scripts, improve the docker networking
+# Start a Docker container in interactive mode and remove it when it exits.
+docker run --rm \
+  # Connect the container to the "cruddur-net" network.
+  --network cruddur-net \
+  # Publish port 4567 on the container to port 4567 on the host machine.
+  --publish 4567:4567 \
+  # Use the "busybox" image for the container.
+  -it busybox
+```  
+
+# Generated out env vars by scripts.
 1. moved the bin folder to the root of the application and created created new bin scripts for frontend and backend:
 build, connect, deploy, push, register and run
 
@@ -441,6 +459,7 @@ File.write(filename, content)
 created for frontend(frontend-react-js.env.erb) and for backend(backend-flask.env.erb)
 4. updated all the paths in the bash script to take effect.
 5. now run all the bash scripts for frontend and backend:
+
 ./bin/backend/register
 ./bin/frontend/register
 
@@ -452,7 +471,7 @@ created for frontend(frontend-react-js.env.erb) and for backend(backend-flask.en
 ./bin/frontend/push
 ./bin/frontend/deploy
 
-
+6. activate cloudwatch logs for container insights
   
   
 
