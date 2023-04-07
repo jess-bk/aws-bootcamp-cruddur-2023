@@ -1,5 +1,27 @@
 # Week 6 — Deploying Containers
 
+# Amazon ECS Security Best Practices
+Use IAM Roles for Tasks: When running tasks on Amazon ECS, it is recommended to use IAM roles to grant permissions to access AWS services and resources instead of using access keys or long-term credentials.
+
+Use Security Groups: Security groups act as a virtual firewall that controls inbound and outbound traffic to your containers. It is recommended to create a separate security group for each task or service and restrict traffic to only what is needed.
+
+Encrypt Data in Transit: All traffic between containers and services should be encrypted. Use SSL/TLS to encrypt traffic between containers and external services.
+
+Use Task IAM Roles to Manage Secrets: Avoid storing sensitive information such as passwords and API keys in environment variables or files. Instead, use AWS Secrets Manager or AWS Systems Manager Parameter Store to store and manage secrets, and use IAM roles to grant access to secrets.
+
+Enable Container Image Scanning: Use a container image scanning tool to scan container images for vulnerabilities and potential security risks.
+
+Use Amazon ECS-Optimized AMI: Use Amazon ECS-optimized Amazon Machine Image (AMI) to launch your Amazon ECS instances. The AMI comes with security best practices preconfigured.
+
+Enable CloudTrail: AWS CloudTrail is a service that provides a record of API calls made in your AWS account. Enable CloudTrail to track changes to your Amazon ECS resources and identify potential security threats.
+
+Implement Role-Based Access Control: Use AWS Identity and Access Management (IAM) to grant access to resources and services based on the least privilege principle. Only grant permissions that are necessary for a user or role to perform their job.
+
+Use Amazon ECR for Image Storage: Use Amazon Elastic Container Registry (ECR) to store and manage container images. ECR integrates with Amazon ECS, making it easier to manage and secure your container images.
+
+Enable Container Insights: Amazon ECS Container Insights provides visibility into the performance and health of your Amazon ECS clusters, tasks, and services. It helps you identify potential security threats and troubleshoot issues before they impact your applications.
+
+
 # RDS Connecetion
 
 Test RDS Connection:
