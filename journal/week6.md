@@ -409,14 +409,14 @@ export async function checkAuth(setUser) {
     })
     .catch((err) => console.log(err));
 }
+```
 
 2. updated the following components and pages in frontend
 components MessageForm.js
 pages HomeFeedPage, MessageGroupNewPage, MessageGroupsPage, MessageGroupPage
+# updated load data function 
 ```
 import { checkAuth, getAccessToken } from "../lib/CheckAuth";
-
-# updated load data
   
 await getAccessToken();
 const access_token = localStorage.getItem("access_token");
@@ -440,6 +440,7 @@ const res = await fetch(backend_url, {
 ./bin/backend/build
 ./bin/backend/push
 ./bin/backend/deploy
+  
 8. connect to the data base and add the user
 ./bin/db/connect prod
 INSERT INTO public.users (display_name, email, handle, cognito_user_id) VALUES ('Andrew Bayko','EMAIL ADD' , 'bayko' ,'MOCK');
@@ -451,16 +452,16 @@ new bash script created for the network busybox
 ```
 #!/usr/bin/bash
 
-# Start a Docker container in interactive mode and remove it when it exits.
-docker run --rm \
-  # Connect the container to the "cruddur-net" network.
+  docker run --rm \
   --network cruddur-net \
-  # Publish port 4567 on the container to port 4567 on the host machine.
   --publish 4567:4567 \
-  # Use the "busybox" image for the container.
   -it busybox
-```  
-
+``` 
+Start a Docker container in interactive mode and remove it when it exits. --> docker run --rm \
+Connect the container to the "cruddur-net" network. -->  --network cruddur-net \
+Publish port 4567 on the container to port 4567 on the host machine. -->  --publish 4567:4567 \
+Use the "busybox" image for the container. --> -it busybox
+  
 # Generated out env vars by scripts.
 1. moved the bin folder to the root of the application and created created new bin scripts for frontend and backend:
 build, connect, deploy, push, register and run
