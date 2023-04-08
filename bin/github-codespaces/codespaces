@@ -37,3 +37,9 @@ printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/backend-flask
 source  bin/backend/generate-env
 pip install -r requirements.txt
+
+# INSTALL AWS CDK
+LABEL="INSTALL AWS CDK"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+cd /workspaces/aws-bootcamp-cruddur-2023
+npm install aws-cdk-lib -g
