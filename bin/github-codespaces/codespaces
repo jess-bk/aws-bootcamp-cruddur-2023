@@ -28,8 +28,14 @@ source bin/github-rds/rds-update-sg-rule
 LABEL="INSTALL FRONTEND REACT DEPENDENCIES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/frontend-react-js
-source bin/frontend/generate-env
 npm install
+
+# INSTALL FRONTEND REACT ENV'S
+LABEL="INSTALL FRONTEND REACT ENV'S"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+cd /workspaces/aws-bootcamp-cruddur-2023
+ruby bin/frontend/generate-env.rb
+
 
 # INSTALL BACKEND FLASK REQUIREMENTS
 LABEL="INSTALL BACKEND FLASK REQUIREMENTS"
@@ -37,6 +43,12 @@ printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/backend-flask
 source  bin/backend/generate-env
 pip install -r requirements.txt
+
+# INSTALL BACKEND FLASK ENV'S'
+LABEL="INSTALL BACKEND FLASK ENV'S"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+cd /workspaces/aws-bootcamp-cruddur-2023
+ruby bin/backend/generate-env.rb
 
 # INSTALL AWS CDK
 LABEL="INSTALL AWS CDK"
