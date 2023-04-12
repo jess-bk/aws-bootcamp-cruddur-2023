@@ -16,8 +16,6 @@ const height = parseInt(process.env.PROCESS_HEIGHT);
 client = getClient();
 
 exports.handler = async (event) => {
-  console.log("event", event);
-
   const srcBucket = event.Records[0].s3.bucket.name;
   const srcKey = decodeURIComponent(
     event.Records[0].s3.object.key.replace(/\+/g, " ")
