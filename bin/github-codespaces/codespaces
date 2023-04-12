@@ -53,5 +53,11 @@ ruby bin/backend/generate-env.rb
 # INSTALL AWS CDK
 LABEL="INSTALL AWS CDK"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
-cd /workspaces/aws-bootcamp-cruddur-2023
-npm install aws-cdk-lib -g
+cd /workspaces/aws-bootcamp-cruddur-2023/thumbing-serverless-cdk
+npm install aws-cdk -g
+
+# INSTALL AWS PACKAGE.JSON FILE DEPENDENCIES
+LABEL="INSTALL AWS PACKAGE.JSON FILE DEPENDENCIES"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+cd /workspaces/aws-bootcamp-cruddur-2023/thumbing-serverless-cdk
+npm i
