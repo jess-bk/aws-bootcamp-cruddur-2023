@@ -23,7 +23,8 @@
 				"dzhavat.bracket-pair-toggler",
 				"tinkertrain.theme-panda",
 				"EliverLara.andromeda",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"bierner.markdown-preview-github-styles"
 			]
 		}
 	}

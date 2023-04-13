@@ -11,7 +11,7 @@ export default function ActivityContent(props) {
       <div className="expires_at" title={props.activity.expires_at}>
         <BombIcon className="icon" />
         <span className="ago">
-          {format_time_expires_at(props.activity.expires_at)}
+          {format_datetime(props.activity.expires_at)}
         </span>
       </div>
     );
