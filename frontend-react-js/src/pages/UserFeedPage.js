@@ -22,11 +22,15 @@ export default function UserFeedPage() {
   const dataFetchedRef = React.useRef(false);
 
   const params = useParams();
+  console.log("params", params);
   // const title = `@${params.handle}`;
+
+  console.log(window.location.href);
 
   const loadData = async () => {
     try {
       // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/${title}`;
+      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@jess-bk`;
       const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${params.handle}`;
       await getAccessToken();
       const access_token = localStorage.getItem("access_token");
@@ -41,6 +45,7 @@ export default function UserFeedPage() {
         // setActivities(resJson);
         setProfile(resJson.profile);
         setActivities(resJson.activities);
+        console.log(resJson.profile);
       } else {
         console.log(res);
       }
