@@ -83,3 +83,8 @@
 .profile-dialog button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+
+.profile_heading .bio {
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
