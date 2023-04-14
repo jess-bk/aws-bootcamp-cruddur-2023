@@ -38,16 +38,16 @@ const router = createBrowserRouter([
     element: <HomeFeedPage />,
   },
   {
+    path: "/@jess-bk",
+    element: <UserFeedPage />,
+  },
+  {
     path: "/notifications",
     element: <NotificationsFeedPage />,
   },
   {
     path: "/activities/:handle",
     element: <ActivitiesWrapper />,
-  },
-  {
-    path: "/@:handle",
-    element: <UserFeedPage />,
   },
   {
     path: "/messages",
