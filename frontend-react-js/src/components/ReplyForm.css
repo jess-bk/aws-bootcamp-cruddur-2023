@@ -1,24 +1,3 @@
-.popup_form_wrap {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding-top: 48px;
-  background: rgba(255,255,255,0.1)
-}
-
-.popup_form {
-  background: #000;
-  box-shadow: 0px 0px 6px rgba(190, 9, 190, 0.6);
-  border-radius: 16px;
-  width: 600px;
-}
-
 form.replies_form {
   padding: 16px;
   display: flex;
@@ -41,13 +20,13 @@ form.replies_form textarea {
   width: 100%;
   height: 140px;
   padding: 16px;
-  border: solid 1px rgba(149,0,255,0.1);
-  background: rgba(149,0,255,0.1);
+  border: solid 1px rgba(149, 0, 255, 0.1);
+  background: rgba(149, 0, 255, 0.1);
   color: #fff;
 }
 
 form.replies_form textarea:focus {
-  border: solid 1px rgb(149,0,255,1);
+  border: solid 1px rgb(149, 0, 255, 1);
 }
 
 form.replies_form .submit {
@@ -59,7 +38,7 @@ form.replies_form .submit {
   font-weight: 600;
 }
 
-form.replies_form button[type='submit'] {
+form.replies_form button[type="submit"] {
   font-weight: 800;
   outline: none;
   border: none;
@@ -70,23 +49,23 @@ form.replies_form button[type='submit'] {
   padding: 10px 20px;
   font-size: 16px;
   margin-left: 12px;
-  background: rgba(149,0,255,1);
+  background: rgba(149, 0, 255, 1);
   color: #fff;
 }
 
 form.replies_form .count {
-  color: rgba(255,255,255,0.3)
+  color: rgba(255, 255, 255, 0.3);
 }
 
 form.replies_form .count.err {
-  color: rgb(255, 0, 0)
+  color: rgb(255, 0, 0);
 }
 
 form.replies_form .expires_at_field {
   display: flex;
   gap: 12px;
   position: relative;
-  border-left: solid 1px rgba(149,0,255,0.7);
+  border-left: solid 1px rgba(149, 0, 255, 0.7);
 }
 
 form.replies_form .expires_at_field .icon {
