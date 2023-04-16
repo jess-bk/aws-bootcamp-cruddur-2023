@@ -129,7 +129,7 @@ export default function ProfileForm(props) {
           <div className="popup_content">
             <input type="file" name="avatarupload" onChange={s3upload} />
 
-            {preview_image_url && <img src={preview_image_url} alt="Preview" />}
+            {/* {preview_image_url && <img src={preview_image_url} alt="Preview" />} */}
 
             <div className="field display_name">
               <label>Display Name</label>

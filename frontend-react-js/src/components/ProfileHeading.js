@@ -9,13 +9,17 @@ export default function ProfileHeading(props) {
     backgroundSize: "cover",
     backgroundPosition: "center",
   };
+  console.log(props.profile.bio);
   return (
     <div className="activity_feed_heading profile_heading">
       <div className="title">{props.profile.display_name}</div>
       <div className="cruds_count">{props.profile.cruds_count} Cruds</div>
       <div className="banner" style={styles}>
         <div className="avatar">
-          <img src="https://assets.jessbkcloudcampus.com/avatars/bain_batman.jpg"></img>
+          <img
+            src="https://assets.jessbkcloudcampus.com/avatars/bain_batman.jpg"
+            alt="empty"
+          ></img>
         </div>
       </div>
       <div className="info">
