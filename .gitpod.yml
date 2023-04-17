@@ -23,12 +23,12 @@ tasks:
       source "$THEIA_WORKSPACE_ROOT/bin/rds/db-rds-update-sg-rule"
   - name: react-js
     command: |
-      ruby  "$THEIA_WORKSPACE_ROOT/bin/frontend/generate-env.rb"
+      ruby  "$THEIA_WORKSPACE_ROOT/bin/frontend/generate-env"
       cd frontend-react-js
       npm i
   - name: flask
     command: |
-      ruby  "$THEIA_WORKSPACE_ROOT/bin/backend/generate-env.rb"
+      ruby  "$THEIA_WORKSPACE_ROOT/bin/backend/generate-env"
       cd backend-flask
       pip install -r requirements.txt
   - name: fargate
