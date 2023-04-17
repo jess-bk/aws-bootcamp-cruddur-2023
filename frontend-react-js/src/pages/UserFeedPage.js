@@ -14,7 +14,7 @@ import ProfileForm from "components/ProfileForm";
 
 import { checkAuth, getAccessToken } from "lib/CheckAuth";
 
-export default function UserFeedPage() {
+export default function UserFeedPage(props) {
   const [activities, setActivities] = React.useState([]);
   const [profile, setProfile] = React.useState([]);
   const [popped, setPopped] = React.useState([]);
@@ -32,7 +32,7 @@ export default function UserFeedPage() {
     try {
       // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/${title}`;
       const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@jess-bk`;
-      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${params.handle}`;
+      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${props.user.handle}`;
       await getAccessToken();
       const access_token = localStorage.getItem("access_token");
       const res = await fetch(backend_url, {

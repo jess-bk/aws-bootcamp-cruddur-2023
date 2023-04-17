@@ -15,7 +15,7 @@ export default function ProfileForm(props) {
   const s3uploadkey = async (extension) => {
     console.log("ext", extension);
     try {
-      const gateway_url = `https://a9vgge6f33.execute-api.us-east-1.amazonaws.com/avatars/key_upload`;
+      const gateway_url = `${process.env.REACT_APP_API_GATEWAY_ENDPOINT_URL}/avatars/key_upload`;
       await getAccessToken();
       const access_token = localStorage.getItem("access_token");
       const json = {
@@ -48,7 +48,7 @@ export default function ProfileForm(props) {
     const size = file.size;
     const type = file.type;
     const preview_image_url = URL.createObjectURL(file);
-    console.log(filename, size, type, preview_image_url);
+    console.log(filename, size, type);
     const fileparts = filename.split(".");
     const extension = fileparts[fileparts.length - 1];
     const presignedurl = await s3uploadkey(extension);
@@ -95,7 +95,6 @@ export default function ProfileForm(props) {
         props.setPopped(false);
       } else {
         console.log(res);
-        console.log("data", data);
       }
     } catch (err) {
       console.log(err);
@@ -128,8 +127,6 @@ export default function ProfileForm(props) {
           </div>
           <div className="popup_content">
             <input type="file" name="avatarupload" onChange={s3upload} />
-
-            {/* {preview_image_url && <img src={preview_image_url} alt="Preview" />} */}
 
             <div className="field display_name">
               <label>Display Name</label>
