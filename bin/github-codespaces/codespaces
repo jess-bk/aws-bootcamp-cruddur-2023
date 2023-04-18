@@ -34,7 +34,7 @@ npm install
 LABEL="INSTALL FRONTEND REACT ENV'S"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023
-ruby bin/frontend/generate-env.rb
+ruby bin/frontend/generate-env
 
 
 # INSTALL BACKEND FLASK REQUIREMENTS
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 LABEL="INSTALL BACKEND FLASK ENV'S"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023
-ruby bin/backend/generate-env.rb
+ruby bin/backend/generate-env
 
 # INSTALL AWS CDK
 LABEL="INSTALL AWS CDK"
@@ -61,3 +61,9 @@ LABEL="INSTALL AWS PACKAGE.JSON FILE DEPENDENCIES"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/thumbing-serverless-cdk
 npm i
+
+# UPDATE RDS SECURITY RULES
+LABEL="UPDATING RDS RULES"
+printf "${CYAN}${LABEL}${NO_COLOR}\n"
+cd /workspaces/aws-bootcamp-cruddur-2023
+source bin/ecr/login
