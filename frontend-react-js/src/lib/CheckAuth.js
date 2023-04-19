@@ -1,5 +1,4 @@
 import { Auth } from "aws-amplify";
-import { resolvePath } from "react-router-dom";
 
 export async function getAccessToken() {
   Auth.currentSession()
@@ -20,6 +19,7 @@ export async function checkAuth(setUser) {
     .then((cognito_user) => {
       console.log("cognito_user", cognito_user);
       setUser({
+        cognito_user_uuid: cognito_user.attributes.sub,
         display_name: cognito_user.attributes.name,
         handle: cognito_user.attributes.preferred_username,
       });

@@ -11,10 +11,8 @@ import MessageGroupsPage from "./pages/MessageGroupsPage";
 import MessageGroupPage from "./pages/MessageGroupPage";
 import MessageGroupNewPage from "./pages/MessageGroupNewPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
-import Activities from "./components/Activities";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useParams } from "react-router-dom";
 
 import { Amplify } from "aws-amplify";
 
@@ -47,10 +45,6 @@ const router = createBrowserRouter([
     element: <NotificationsFeedPage />,
   },
   {
-    path: "/activities/:handle",
-    element: <ActivitiesWrapper />,
-  },
-  {
     path: "/messages",
     element: <MessageGroupsPage />,
   },
@@ -79,11 +73,6 @@ const router = createBrowserRouter([
     element: <RecoverPage />,
   },
 ]);
-
-function ActivitiesWrapper() {
-  const { handle } = useParams();
-  return <Activities handle={handle} />;
-}
 
 function App() {
   return (
