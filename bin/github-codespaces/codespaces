@@ -41,7 +41,6 @@ ruby bin/frontend/generate-env
 LABEL="INSTALL BACKEND FLASK REQUIREMENTS"
 printf "${CYAN}${LABEL}${NO_COLOR}\n"
 cd /workspaces/aws-bootcamp-cruddur-2023/backend-flask
-source  bin/backend/generate-env
 pip install -r requirements.txt
 
 # INSTALL BACKEND FLASK ENV'S'
