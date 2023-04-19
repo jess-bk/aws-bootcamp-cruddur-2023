@@ -24,15 +24,14 @@ export default function UserFeedPage(props) {
 
   const params = useParams();
   console.log("params", params);
-  // const title = `@${params.handle}`;
 
   console.log(window.location.href);
 
   const loadData = async () => {
     try {
       // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/${title}`;
-      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@jess-bk`;
-      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${props.user.handle}`;
+      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@jess-bk`;
+      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${params.handle}`;
       await getAccessToken();
       const access_token = localStorage.getItem("access_token");
       const res = await fetch(backend_url, {
