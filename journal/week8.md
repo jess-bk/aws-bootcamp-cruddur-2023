@@ -444,3 +444,203 @@ cdk synth
 ```
 cdk deploy
 ```
+
+# Serving Avatars via CloudFront
+implement CloudFront and serve S3 content faster with more control and flexibility, follow these steps:
+1. Obtain a certificate in the us-east-1 zone for *.<your_domain_name> via AWS Certificate Manager, and click "Create records in Route 53" after the certificate is issued.
+2. Create a CloudFront distribution:
+* Go to the AWS Management Console and select the CloudFront service.
+* Click the "Create Distribution" button to start the distribution creation process.
+* In the "Web" section of the "Create Distribution" page, select "Get Started" under the "Create a new origin" section.
+* In the "Origin Domain Name" field, enter the endpoint for your S3 bucket, which should be in the format <your_bucket_name>.s3.amazonaws.com.
+* Leave the "Origin Path" field blank.
+* Under the "Origin ID" section, you can leave the default value or customize it.
+* In the "Viewer Protocol Policy" section, select "Redirect HTTP to HTTPS" to enforce HTTPS for all viewer requests.
+* In the "Allowed HTTP Methods" section, choose the HTTP methods that you want to allow.
+* Under the "Cache Key and Origin Requests" section, choose "CachingOptimized" for the "Origin Request Policy" and "SimpleCORS" for the "Response Headers Policy". Choose "None" for the "Object Caching" setting.
+* Under the "Custom SSL Certificate" section, select the ACM SSL certificate that you created earlier for your domain.
+* Under the "Distribution Settings" section, choose "Web" as the distribution type.
+* In the "Alternate Domain Names (CNAMEs)" section, enter the domain name that you want to use for your distribution, which should be in the format assets.<your_domain_name>.
+* Leave the "Default Root Object" field blank.
+* Click the "Create Distribution" button to create your CloudFront distribution.
+* Once your distribution is created, navigate to your S3 bucket and update its bucket policy to allow access from your CloudFront distribution. Specifically, add a statement to your bucket policy that allows access from the CloudFront origin access identity (OAI) associated with your distribution.
+
+3. Create a record via Route 53:
+* Set record name as assets.<your_domain_name>.
+* Turn on alias and route traffic to alias to CloudFront distribution.
+* In your case, you can see your profile at https://assets.<your_domain_name>/avatars/data.jpg.
+
+4. To ensure that CloudFront always serves the latest avatar uploaded by the user, invalidate files by creating an invalidation:
+* Go to the distribution created.
+* Under the Invalidations tab, click create.
+* Add object path /avatars/*.
+
+# Implementing User Profile Page (Frontend and Backend Updates)
+BACKEND
+1. To get info about a user, we need to update the aws-bootcamp-cruddur-2023/backend-flask/db/sql/users/show.sql file:
+* Add a new query that selects the user's information based on their ID or username.
+* This query should return the user's ID, username, email, avatar URL, bio, and any other information you want to display.
+```
+SELECT 
+  (SELECT COALESCE(row_to_json(object_row),'{}'::json) FROM (
+    SELECT
+      users.uuid,
+      users.cognito_user_id as cognito_user_uuid,
+      users.handle,
+      users.display_name,
+      users.bio,
+      (
+       SELECT 
+        count(true) 
+       FROM public.activities
+       WHERE
+        activities.user_uuid = users.uuid
+       ) as cruds_count
+  ) object_row) as profile,
+  (SELECT COALESCE(array_to_json(array_agg(row_to_json(array_row))),'[]'::json) FROM (
+    SELECT
+      activities.uuid,
+      users.display_name,
+      users.handle,
+      activities.message,
+      activities.created_at,
+      activities.expires_at
+    FROM public.activities
+    WHERE
+      activities.user_uuid = users.uuid
+    ORDER BY activities.created_at DESC 
+    LIMIT 40
+  ) array_row) as activities
+FROM public.users
+WHERE
+  users.handle = %(handle)s
+```
+
+2. To update a user's bio, we need to update the backend-flask/db/sql/users/update.sql file:
+* Add a new query that updates the user's bio based on their ID or username.
+* This query should set the value of the bio column in the users table to the new bio value provided in the request.
+```
+UPDATE public.users 
+SET 
+  bio = %(bio)s,
+  display_name= %(display_name)s
+WHERE 
+  users.cognito_user_id = %(cognito_user_id)s
+RETURNING handle;
+```
+
+3. We also need to update the backend-flask/services/user_activities.py file:
+* Add a new function that retrieves a user's information based on their ID or username.
+* This function should execute the query from show.sql and return the user's information as a dictionary.
+```
+from lib.db import db
+
+class UserActivities:
+  def run(user_handle):
+      model = {
+        'errors': None,
+        'data': None
+      }
+      if user_handle == None or len(user_handle) < 1:
+        model['errors'] = ['blank_user_handle']
+      else:
+        print("else:")
+        sql = db.template('users','show')
+        results = db.query_object_json(sql,{'handle': user_handle})
+        model['data'] = results
+        
+      return model
+```
+
+4. We need to update the backend-flask/services/update_profile.py file:
+* Add a new function that updates a user's bio based on their ID or username.
+* This function should execute the query from update.sql and commit the changes to the database.
+```
+from lib.db import db
+
+class UpdateProfile:
+  def run(cognito_user_id,bio,display_name):
+    model = {
+      'errors': None,
+      'data': None
+    }
+
+    if display_name == None or len(display_name) < 1:
+      model['errors'] = ['display_name_blank']
+
+    if model['errors']:
+      model['data'] = {
+        'bio': bio,
+        'display_name': display_name
+      }
+    else:
+      handle = UpdateProfile.update_profile(bio,display_name,cognito_user_id)
+      data = UpdateProfile.query_users_short(handle)
+      model['data'] = data
+    return model
+
+  def update_profile(bio,display_name,cognito_user_id):
+    if bio == None:    
+      bio = ''
+
+    sql = db.template('users','update')
+    handle = db.query_commit(sql,{
+      'cognito_user_id': cognito_user_id,
+      'bio': bio,
+      'display_name': display_name
+    })
+  def query_users_short(handle):
+    sql = db.template('users','short')
+    data = db.query_object_json(sql,{
+      'handle': handle
+    })
+    return data
+```
+
+5. We need to update the backend-flask/app.py file:
+* Add a new route that retrieves a user's information based on their ID or username.
+* This route should call the get_user_info() function from user_activities.py and return the user's information as a JSON response.
+* Add a new route that updates a user's bio based on their ID or username.
+* This route should call the update_user_bio() function from update_profile.py and return a success message as a JSON response.
+```
+from services.update_profile import *
+
+@app.route("/api/profile/update", methods=['POST','OPTIONS'])
+@cross_origin()
+def data_update_profile():
+  bio          = request.json.get('bio',None)
+  display_name = request.json.get('display_name',None)
+  access_token = extract_access_token(request.headers)
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    cognito_user_id = claims['sub']
+    model = UpdateProfile.run(
+      cognito_user_id=cognito_user_id,
+      bio=bio,
+      display_name=display_name
+    )
+    if model['errors'] is not None:
+      return model['errors'], 422
+    else:
+      return model['data'], 200
+  except TokenVerifyError as e:
+    # unauthenicatied request
+    app.logger.debug(e)
+    return {}, 401
+
+```
+
+FRONTEND
+1. Created new component EditProfileButton.js and created a css file.
+2. Updated frontend-react-js/src/components/CrudButton.js.
+3. Updated frontend-react-js/src/pages/UserFeedPage.js to fetch data and imported EditProfileButton.js
+4. Updated frontend-react-js/src/components/ActivityFeed.js.
+5. Updated frontend-react-js/src/pages/HomeFeedPage.js
+6. Upadted frontend-react-js/src/pages/NotificationsFeedPage.js
+7. Added user to pass in dynamically in frontend-react-js/src/components/DesktopNavigation.js.
+8. Created Created new component frontend-react-js/src/components/ProfileHeading.js and created a css file. --> display profile image of user.
+9. create a folder inside aws bucket assets.<bucketname> and create a folder name banners, inside the ProfileHeading.js add your bucket address.
+```
+ const backgroundImage =
+    'url("https://assets.<bucket name>")';
+```
