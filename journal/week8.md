@@ -698,7 +698,12 @@ Here's what the script does:
 * The script stops rolling back migrations when it finds a migration file whose timestamp is greater than the last_successful_run timestamp. This is because the migrations are applied in order of increasing timestamp, so all previous migrations would have already been rolled back.
 
 # Implement Avatar Uploading
+  
+Created a new component ProfileForm.js and css file to upload image to the s3 Bucket --> aws-bootcamp-cruddur-2023/frontend-react-js/src/components/ProfileForm.js.
+ProfileForm.js component which renders a popup form for editing user profile information, including the display name and bio, and uploading an avatar image. The component uses React hooks to manage state and effect, and also interacts with a backend API and AWS S3 for uploading the avatar image. The component is conditionally rendered based on a boolean "popped" prop passed to it.
+  
 This is a set of instructions for setting up an API endpoint to upload an image to an S3 bucket using AWS services. Here's a breakdown of each step:
+  
 1. Create an API endpoint: The first step is to create an API endpoint that will invoke a presigned URL to give access to the S3 bucket and deliver the uploaded image to the bucket. The presigned URL can be accessed using a URL like https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com.
 2. Create a Lambda function for decoding the URL and the request: Create a Lambda function named CruddurAvatarUpload that will decode the URL and the request. This function will be used to manipulate the /avatars/key_upload resource using the POST method.
 3. implement authorization: To control the data that is allowed to be transmitted from the gitpod workspace using the APIs, implement authorization using another Lambda function named CruddurApiGatewayLambdaAuthorizer.
