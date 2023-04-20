@@ -644,3 +644,5 @@ FRONTEND
  const backgroundImage =
     'url("https://assets.<bucket name>")';
 ```
+
+# Implementing Migration Backend Endpoint and ProfileForm.js
