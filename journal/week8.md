@@ -597,7 +597,7 @@ class UpdateProfile:
     return data
 ```
 
-5. We need to update the backend-flask/app.py file:
+5. Update the backend-flask/app.py file:
 * Add a new route that retrieves a user's information based on their ID or username.
 * This route should call the get_user_info() function from user_activities.py and return the user's information as a JSON response.
 * Add a new route that updates a user's bio based on their ID or username.
@@ -646,3 +646,67 @@ FRONTEND
 ```
 
 # Implementing Migration Backend Endpoint and ProfileForm.js
+Backend
+The code updates i have made add a new table called schema_information with two columns id and last_successful_run. It also inserts a new row into this table with the id value of 1 and a last_successful_run value of 0, but only if there is no row with the same id already present in the table. This table is used to store information about the database schema and its updates.
+
+In db.py file, i have added an if verbose: condition to the db() function. This is used to toggle verbose logging when the db() function is called.
+
+I have also added a new class called AddBioColumnMigration that defines two methods, migrate_sql() and rollback_sql(). These methods contain SQL commands that add and remove the bio column in the users table, respectively.
+
+The migrate() and rollback() methods use the query_commit() function from the db module to execute the SQL commands defined in migrate_sql() and rollback_sql(), respectively. These methods are used to apply or roll back the migration in case of errors or changes to the schema.
+
+Finally, i have defined a new instance of the AddBioColumnMigration class called migration, which can be used to execute the migration by calling migration.migrate() or roll back the migration by calling migration.rollback().
+
+Frontend
+I have added configuration file jsconfig.json, which is used by the JavaScript language service to provide IntelliSense and other language features for your project in Visual Studio Code.
+
+The changes you made are updating the compilerOptions property to include a baseUrl property set to "src", which means that any imports with a relative path will be resolved relative to the src directory.
+
+The include property is also updated to include "src", which tells the language service to only include files under the src directory.
+  
+Create a new bash script migrations --> aws-bootcamp-cruddur-2023/bin/generate/migration.
+  
+1. It first checks if an argument has been provided. If no argument is provided, it prints a message and exits the script.
+2. It then generates a timestamp string by getting the current time and replacing the dot with an empty string. This is used as part of the filename to ensure that each generated file has a unique name.
+3. It then constructs the filename by concatenating the timestamp, the provided argument (converted to snake case), and the ".py" extension.
+4. Next, it converts the provided argument from snake case to title case and removes any underscores to generate a class name for the migration.
+5. It then constructs the contents of the Python script by inserting the generated class name into a template string. The template string includes empty SQL strings for the migration and rollback methods, as well as methods for executing the migration and rollback SQL statements.
+6. Then removes any leading or trailing new lines from the generated file content.
+7. Then it constructs the absolute path to the new migration file and writes the generated content to that file.
+
+Created 2 more bash scripts in aws-bootcamp-cruddur-2023/bin/db/ --> migrate and rollback
+migrate script
+  
+This is a Python script that executes database migrations based on timestamp. It first imports the necessary modules and sets the path for the migration files. It then gets the timestamp of the last successful migration from the schema_information table in the database.
+
+It uses the glob module to get a list of all the migration files in the migrations folder and iterates through them. For each file, it extracts the timestamp from the filename and checks if the timestamp is greater than the last successful run timestamp. If it is, it imports the module, runs the migration, and updates the last successful run timestamp in the schema_information table.
+
+This script is designed to be used with a Flask application and the migration files are stored in the "backend-flask/db/migrations" folder. and each migration file has a timestamp in its filename, followed by an underscore and a description of the migration (e.g. "1234567890_add_bio_column.py").
+
+rollback script
+
+This script is a Python script that rolls back a database migration if the last_successful_run timestamp in the public.schema_information table is greater than the timestamp of the migration file.
+
+Here's what the script does:
+* Import necessary modules
+* Define a function to get the last_successful_run timestamp from the public.schema_information table in the database
+* Define a function to update the last_successful_run timestamp in the public.schema_information table in the database
+* Get the last_successful_run timestamp from the database
+* Get the list of migration files in the backend-flask/db/migrations directory
+* Iterate through each migration file and check if the timestamp of the file is less than or equal to the last_successful_run timestamp
+* If the timestamp of the file is less than or equal to the last_successful_run timestamp, then the script rolls back the migration by importing the migration file as  a module and calling its rollback() method. The script also sets the last_successful_run timestamp to the timestamp of the migration file.
+* The script stops rolling back migrations when it finds a migration file whose timestamp is greater than the last_successful_run timestamp. This is because the migrations are applied in order of increasing timestamp, so all previous migrations would have already been rolled back.
+
+# Implement Avatar Uploading
+This is a set of instructions for setting up an API endpoint to upload an image to an S3 bucket using AWS services. Here's a breakdown of each step:
+1. Create an API endpoint: The first step is to create an API endpoint that will invoke a presigned URL to give access to the S3 bucket and deliver the uploaded image to the bucket. The presigned URL can be accessed using a URL like https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com.
+2. Create a Lambda function for decoding the URL and the request: Create a Lambda function named CruddurAvatarUpload that will decode the URL and the request. This function will be used to manipulate the /avatars/key_upload resource using the POST method.
+3. implement authorization: To control the data that is allowed to be transmitted from the gitpod workspace using the APIs, implement authorization using another Lambda function named CruddurApiGatewayLambdaAuthorizer.
+4. Create a basic function.rb file: In aws/lambdas/cruddur-upload-avatar/, create a basic function.rb file and run bundle init. Edit the generated Gemfile and run bundle install and bundle exec ruby function.rb. This will generate a presigned URL for local testing.
+5. Create a Lambda function for authorization: In aws/lambdas/lambda-authorizer/, create index.js and run npm install aws-jwt-verify --save, this file will be used to authorize the user when creating and uploading images to the S3 Bucket. Download everything in this folder into a zip file and upload it into CruddurApiGatewayLambdaAuthorizer.
+6. Create two Lambda functions: At AWS Lambda, create two Lambda functions - CruddurAvatarUpload and CruddurApiGatewayLambdaAuthorizer.
+7. Update permissions of the S3 bucket: At AWS S3, update the permissions of the cruddur-uploaded-avatars-jessbkcloudcampus bucket by editing the CORS configuration.
+8. Create API Gateway: At AWS API Gateway, create api.<domain_name> (example -->  https://d9zllf6d77.execute-api.us-east-1.amazonaws.com) 
+9. Create two routes - POST /avatars/key_upload with authorizer CruddurJWTAuthorizer and OPTIONS /{proxy+} without authorizer. Theese two routes will be for integration with CruddurAvatarUpload S3 Bucket.
+
+# Images Of Implementation
