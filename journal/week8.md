@@ -206,7 +206,7 @@ export class ThumbingServerlessCdkStack extends cdk.Stack {
 * Create IAM policies using the createPolicyBucketAccess method, passing in the bucket ARN.
 * Attach the policies to the Lambda function using the addToRolePolicy method.
 
-7. Set the environment varibales, create a .env.file and create a .env.example.env
+7. Set the environment varibales, create a .env.file and create a .env.example
 ```
 UPLOADS_BUCKET_NAME="cruddur-uploaded-avatars-jessbkcloudcampus"
 ASSETS_BUCKET_NAME="assets.jessbkcloudcampus.com"
@@ -299,16 +299,11 @@ module.exports = {
 };
 ```
 * This code defines several functions to handle image processing in AWS S3. The functions use the Sharp library to resize images, the AWS SDK to interact with S3, and Promises and async/await for handling asynchronous operations.
-
-The getClient() function creates a new S3 client.
-
-The getOriginalImage() function retrieves an image from S3, reads its data as a buffer, and returns it.
-
-The processImage() function resizes the input image using Sharp and returns the resulting image buffer.
-
-The uploadProcessedImage() function uploads the processed image to a destination S3 bucket, given a key and content type.
-
-Finally, all the functions are exported as an object with the same names as the functions, allowing them to be used by other parts of the application.
+* The getClient() function creates a new S3 client.
+* The getOriginalImage() function retrieves an image from S3, reads its data as a buffer, and returns it.
+* The processImage() function resizes the input image using Sharp and returns the resulting image buffer.
+* The uploadProcessedImage() function uploads the processed image to a destination S3 bucket, given a key and content type.
+* Finally, all the functions are exported as an object with the same names as the functions, allowing them to be used by other parts of the application.
 
 9. cd into the aws-bootcamp-cruddur-2023/aws/lambdas/process-images and install sharp.js
 ```
@@ -468,7 +463,7 @@ implement CloudFront and serve S3 content faster with more control and flexibili
 3. Create a record via Route 53:
 * Set record name as assets.<your_domain_name>.
 * Turn on alias and route traffic to alias to CloudFront distribution.
-* In your case, you can see your profile at https://assets.<your_domain_name>/avatars/data.jpg.
+* In your case, you can see your profile at https://assets.<your_domain_name>/avatars/bain_batman.jpg.
 
 4. To ensure that CloudFront always serves the latest avatar uploaded by the user, invalidate files by creating an invalidation:
 * Go to the distribution created.
@@ -647,7 +642,7 @@ FRONTEND
 
 # Implementing Migration Backend Endpoint and ProfileForm.js
 Backend
-The code updates i have made add a new table called schema_information with two columns id and last_successful_run. It also inserts a new row into this table with the id value of 1 and a last_successful_run value of 0, but only if there is no row with the same id already present in the table. This table is used to store information about the database schema and its updates.
+The code updates i have made adds a new table called schema_information with two columns id and last_successful_run. It also inserts a new row into this table with the id value of 1 and a last_successful_run value of 0, but only if there is no row with the same id already present in the table. This table is used to store information about the database schema and its updates.
 
 In db.py file, i have added an if verbose: condition to the db() function. This is used to toggle verbose logging when the db() function is called.
 
@@ -715,3 +710,17 @@ This is a set of instructions for setting up an API endpoint to upload an image 
 9. Create two routes - POST /avatars/key_upload with authorizer CruddurJWTAuthorizer and OPTIONS /{proxy+} without authorizer. Theese two routes will be for integration with CruddurAvatarUpload S3 Bucket.
 
 # Images Of Implementation
+
+![image of week 8](assets/week8aws/testing_migrations.png)
+
+![image of week 8](assets/week8aws/migration_backend.png)
+
+![image of week 8](assets/week8aws/migration_frontend.png)
+
+![image of week 8](assets/week8aws/migration_frontend_2.png)
+
+![image of week 8](assets/week8aws/avatar_upload.png)
+  
+![image of week 8](assets/week8aws/avatar_upload_options.png)
+  
+![image of week 8](assets/week8aws/s3bucket_key_upload.png)
