@@ -10,6 +10,34 @@ CodeDeploy is a fully managed deployment service that automates software deploym
 
 By using these three services together, you can set up a fully automated CI/CD pipeline that can build, test, and deploy your code changes with just a few clicks, while ensuring that your application is always available and up-to-date.
 
+# CI CD Pipeline Security Best Practices 
+
+1. Use the principle of least privilege to grant only necessary permissions to AWS services, roles, and users.
+2. Use version control tools such as GitHub to store and manage the code repository.
+3. Implement secure build practices by using CodeBuild, which ensures the integrity and security of the build process.
+4. Use Amazon ECR as the container registry, which encrypts and stores Docker images securely.
+5. Configure AWS ECS task definitions to enable Fargate launch type, which ensures isolation and security of the containerized applications.
+6. Implement automated testing and vulnerability scanning of Docker images before deployment to production.
+7. Implement network security measures such as using a VPC, security groups, and access control lists to protect the AWS ECS resources from unauthorized access.
+
+By implementing these measures, you can ensure the security of your CI/CD pipeline for AWS ECS and mitigate the risks of security breaches and data theft.
+
+# The OWASP Top 10 list of the most common and critical web application security risks
+
+OWASP stands for "Open Web Application Security Project". It is a nonprofit organization that aims to improve the security of software and web applications. OWASP provides a wide range of resources and tools related to application security, including guidelines, best practices, and testing frameworks. One of the most well-known OWASP resources is the "OWASP Top Ten", which is a list of the most critical web application security risks. This list is regularly updated to reflect new threats and vulnerabilities.
+
+1. Injection attacks
+2. Broken authentication and session management
+3. Cross-site scripting (XSS)
+4. Broken access control
+5. Security misconfigurations
+6. Insecure cryptographic storage
+7. Insufficient logging and monitoring
+8. Insecure communication
+9. Using components with known vulnerabilities
+10. Insufficient data validation and sanitization
+
+
 # CREATING CODEPIPELINE
 
 1. Choose Pipeline Settings:
