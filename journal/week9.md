@@ -193,3 +193,16 @@ artifacts:
 ![image week9 aws](assets/week9aws/codebuild.png)
 
 ![image week9 aws](assets/week9aws/codebuild_completed.png)
+
+# Health Check Route Updated To Test CI/CD Pipeline and Build.
+
+I updated the health check API route to test the integration and the test was successful.
+
+```
+@app.route('/api/health-check')
+def health_check():
+  # return {'success': True,}, 200 // this was the original api end point and the updated one is below
+  return {'success': True, 'ver': 1}, 200
+```
+
+![image week9 aws](assets/week9aws/api_health_check.png)
