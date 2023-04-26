@@ -156,10 +156,12 @@ artifacts:
 
 *Initially, I encountered an error from Docker stating that my credentials were incorrect. I tried to resolve this issue by adding an inline policy to the role, but it did not fix the problem. In the end, I had to recreate both the pipeline and CodeBuild, and delete the original ones.
 
-![image week9 aws](assets/assets/week9aws/error_build.png)
+![image week9 aws](assets/week9aws/error_build.png)
 
-![image week9 aws](assets/assets/week9aws/code_pipline.png)
+*After deleteing the original pipeline and codebuild, the pipeline and CodeBuild project began working correctly and the Docker error was no longer present.
 
-![image week9 aws](assets/assets/week9aws/codebuild.png)
+![image week9 aws](assets/week9aws/code_pipline.png)
 
-![image week9 aws](assets/assets/week9aws/codebuild_completed.png)
+![image week9 aws](assets/week9aws/codebuild.png)
+
+![image week9 aws](assets/week9aws/codebuild_completed.png)
