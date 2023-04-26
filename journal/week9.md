@@ -151,3 +151,15 @@ artifacts:
 5. Check Build Logs:
 
 * Check the build logs in the CodeBuild console to see if the build was successful.
+
+# Images Of CodePipline and CodeBuild Integration
+
+*Initially, I encountered an error from Docker stating that my credentials were incorrect. I tried to resolve this issue by adding an inline policy to the role, but it did not fix the problem. In the end, I had to recreate both the pipeline and CodeBuild, and delete the original ones.
+
+![image week9 aws](assets/assets/week9aws/error_build.png)
+
+![image week9 aws](assets/assets/week9aws/code_pipline.png)
+
+![image week9 aws](assets/assets/week9aws/codebuild.png)
+
+![image week9 aws](assets/assets/week9aws/codebuild_completed.png)
