@@ -323,3 +323,18 @@ chmod u+x bin/cfn/networking-deploy
 # Execute the script
 ./bin/cfn/networking-deploy
 ```  
+  
+# Proof Of Implementation
+  
+![image week10 aws](assets/week10aws/cfn_layer_cli.png)
+
+![image week10 aws](assets/week10aws/cfn_layer_output.png)
+
+![image week10 aws](assets/week10aws/cfn_layer_overview.png)
+
+![image week10 aws](assets/week10aws/cfn_layer_resources.png)
+  
+![image week10 aws](assets/week10aws/cluster_created.png)
+
+![image week10 aws](assets/week10aws/s3bucket_stored_template.png)
+
