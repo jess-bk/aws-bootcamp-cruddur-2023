@@ -3,11 +3,11 @@ set -e # stop the execution of the script if it fails
 
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
-LABEL="Cloudformation Deploy Networking"
+LABEL="Cloudformation Deploy Service"
 printf "${CYAN}==== ${LABEL}${NO_COLOR}\n"
 
-CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/networking/template.yaml"
-CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/networking/config.toml"
+CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/service/template.yaml"
+CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/service/config.toml"
 echo $CFN_PATH
 
 cfn-lint $CFN_PATH
@@ -15,6 +15,7 @@ cfn-lint $CFN_PATH
 BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_PATH)
 REGION=$(cfn-toml key deploy.region -t $CONFIG_PATH)
 STACK_NAME=$(cfn-toml key deploy.stack_name -t $CONFIG_PATH)
+#PARAMETERS=$(cfn-toml params v2 -t $CONFIG_PATH)
 
 aws cloudformation deploy \
   --stack-name $STACK_NAME \
@@ -22,5 +23,6 @@ aws cloudformation deploy \
   --region $REGION \
   --template-file "$CFN_PATH" \
   --no-execute-changeset \
-  --tags group=cruddur-networking \
+  --tags group=cruddur-backend-flask \
   --capabilities CAPABILITY_NAMED_IAM
+  #--parameter-overrides $PARAMETERS \
