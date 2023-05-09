@@ -95,11 +95,11 @@ Resources:
       DesiredCount: 1
       EnableECSManagedTags: true
       EnableExecuteCommand: true
-      HealthCheckGracePeriodSeconds: 0
+      HealthCheckGracePeriodSeconds: 100
       LaunchType: FARGATE
       LoadBalancers:
-        # TODO - UPDATE THIS
-        - TargetGroupArn: "arn:aws:elasticloadbalancing:us-east-1:517899574827:targetgroup/cruddur-backend-flask-tg/9844366be652066a"
+        - TargetGroupArn:
+            Fn::ImportValue: !Sub "${ClusterStack}BackendTGArn"
           ContainerName: "backend-flask"
           ContainerPort: !Ref ContainerPort
       NetworkConfiguration:
@@ -113,11 +113,21 @@ Resources:
               - Fn::ImportValue: !Sub "${NetworkingStack}PublicSubnetIds"
       PlatformVersion: LATEST
       PropagateTags: SERVICE
-      ServiceRegistries:
-        - RegistryArn: !Sub "arn:aws:servicediscovery:${AWS::Region}:${AWS::AccountId}:service/srv-cruddur-backend-flask"
-          Port: !Ref ContainerPort
-          ContainerName: "backend-flask"
-          ContainerPort: !Ref ContainerPort
+      ServiceConnectConfiguration:
+        Enabled: true
+        Namespace: "cruddur"
+        # TODO - If you want to log
+        # LogConfiguration
+        Services:
+          - DiscoveryName: backend-flask
+            PortName: backend-flask
+            ClientAliases:
+              - Port: !Ref ContainerPort
+      #ServiceRegistries:
+      #  - RegistryArn: !Sub 'arn:aws:servicediscovery:${AWS::Region}:${AWS::AccountId}:service/srv-cruddur-backend-flask'
+      #    Port: !Ref ContainerPort
+      #    ContainerName: 'backend-flask'
+      #    ContainerPort: !Ref ContainerPort
       ServiceName: !Ref ServiceName
       TaskDefinition: !Ref TaskDefinition
 
