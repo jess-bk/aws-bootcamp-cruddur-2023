@@ -24,7 +24,8 @@
 				"tinkertrain.theme-panda",
 				"EliverLara.andromeda",
 				"ms-python.black-formatter",
-				"bierner.markdown-preview-github-styles"
+				"bierner.markdown-preview-github-styles",
+				"amazonwebservices.aws-toolkit-vscode"
 			]
 		}
 	}

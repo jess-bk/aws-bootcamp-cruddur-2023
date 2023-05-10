@@ -1,3 +1,7 @@
 {
-  "recommendations": ["ms-azuretools.vscode-docker", "eliverlara.andromeda"]
+  "recommendations": [
+    "ms-azuretools.vscode-docker",
+    "eliverlara.andromeda",
+    "amazonwebservices.aws-toolkit-vscode"
+  ]
 }
