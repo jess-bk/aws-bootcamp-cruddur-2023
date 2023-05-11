@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+set -e # stop the execution of the script if it fails
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+LABEL="DDB PACKAGE WITH SAM AWS"
+printf "${CYAN}== ${LABEL}${NO_COLOR}\n"
+
+ARTIFACT_BUCKET="jessbk-cfn-artifacts"
+TEMPLATE_PATH="/workspace/aws-bootcamp-cruddur-2023/.aws-sam/build/template.yaml"
+OUTPUT_TEMPLATE_PATH="/workspace/aws-bootcamp-cruddur-2023/.aws-sam/build/packaged.yaml"
+CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/ddb/config.toml"
+
+echo "== package"
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-package.html
+sam package \
+  --s3-bucket $ARTIFACT_BUCKET \
+  --config-file $CONFIG_PATH \
+  --output-template-file $OUTPUT_TEMPLATE_PATH \
+  --template-file $TEMPLATE_PATH \
+  --s3-prefix "ddb"

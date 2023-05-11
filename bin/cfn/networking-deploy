@@ -23,4 +23,5 @@ aws cloudformation deploy \
   --template-file "$CFN_PATH" \
   --no-execute-changeset \
   --tags group=cruddur-networking \
+  --s3-prefix networking \
   --capabilities CAPABILITY_NAMED_IAM

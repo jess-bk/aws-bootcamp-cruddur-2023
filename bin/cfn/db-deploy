@@ -7,7 +7,7 @@ LABEL="CFN DB DEPLOY"
 printf "${CYAN}== ${LABEL}${NO_COLOR}\n"
 
 CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/db/template.yaml"
-CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/db/config.toml"
+CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/db/config.toml"
 echo $CFN_PATH
 
 cfn-lint $CFN_PATH
@@ -23,6 +23,7 @@ aws cloudformation deploy \
   --region $REGION \
   --template-file "$CFN_PATH" \
   --no-execute-changeset \
-  --tags group=cruddur-cluster \
+  --tags group=cruddur-db \
+  --s3-prefix db \
   --parameter-overrides $PARAMETERS MasterUserPassword=$DB_PASSWORD \
   --capabilities CAPABILITY_NAMED_IAM
