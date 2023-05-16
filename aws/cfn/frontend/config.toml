@@ -1,0 +1,9 @@
+[deploy]
+bucket = 'jessbk-cfn-artifacts'
+region = 'us-east-1'
+stack_name = 'CrdFrontend'
+
+[parameters]
+CertificateArn = 'arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8'
+WwwBucketName = 'www.jessbkcloudcampus.com'
+RootBucketName = 'jessbkcloudcampus.com'
