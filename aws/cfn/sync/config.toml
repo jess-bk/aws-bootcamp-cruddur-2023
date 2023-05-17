@@ -1,0 +1,9 @@
+[deploy]
+bucket = 'jessbk-cfn-artifacts'
+region = 'us-east-1'
+stack_name = 'CrdSyncRole'
+
+[parameters]
+GitHubOrg = 'jess-bk'
+RepositoryName = 'aws-bootcamp-cruddur-2023'
+OIDCProviderArn = ''
