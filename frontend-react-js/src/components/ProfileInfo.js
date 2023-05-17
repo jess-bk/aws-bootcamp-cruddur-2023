@@ -4,8 +4,6 @@ import React from "react";
 import { Auth } from "aws-amplify";
 import ProfileAvatar from "components/ProfileAvatar";
 
-// [TODO] Authenication
-
 export default function ProfileInfo(props) {
   const [popped, setPopped] = React.useState(false);
 

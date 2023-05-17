@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import { Link } from "react-router-dom";
 import { ReactComponent as HomeIcon } from "./svg/home.svg";
 import { ReactComponent as NotificationsIcon } from "./svg/notifications.svg";
@@ -30,6 +31,8 @@ export default function DesktopNavigationLink(props) {
         break;
       case "messages":
         return <MessagesIcon className="icon" />;
+        break;
+      default:
         break;
     }
   };
