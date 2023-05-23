@@ -3,3 +3,6 @@ frontend-react-js/build/*
 *.env
 *session-manager-plugin.deb
 node_modules
+.aws-sam
+build.toml
+tmp/*

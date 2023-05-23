@@ -1,0 +1,24 @@
+#! /usr/bin/bash
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+LABEL="Backend-Cluster & Service-Name & Task-Definition"
+printf "${CYAN}==== ${LABEL}${NO_COLOR}====\n"
+
+CLUSTER_NAME="CrdClusterFargateCluster"
+SERVICE_NAME="backend-flask"
+TASK_DEFINTION_FAMILY="backend-flask"
+
+
+LATEST_TASK_DEFINITION_ARN=$(aws ecs describe-task-definition \
+--task-definition $TASK_DEFINTION_FAMILY \
+--query 'taskDefinition.taskDefinitionArn' \
+--output text)
+
+echo "TASK DEF ARN:"
+echo $LATEST_TASK_DEFINITION_ARN
+
+aws ecs create-service \
+--cluster $CLUSTER_NAME \
+--service-name $SERVICE_NAME \
+--task-definition $LATEST_TASK_DEFINITION_ARN
