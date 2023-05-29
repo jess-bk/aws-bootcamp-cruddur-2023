@@ -9,12 +9,10 @@ import ActivityForm from "components/ActivityForm";
 import ProfileHeading from "components/ProfileHeading";
 import ProfileForm from "components/ProfileForm";
 
-// [TODO] Authenication
-// import Cookies from 'js-cookie'
+import { get } from "lib/Requests";
+import { checkAuth } from "lib/CheckAuth";
 
-import { checkAuth, getAccessToken } from "lib/CheckAuth";
-
-export default function UserFeedPage(props) {
+export default function UserFeedPage() {
   const [activities, setActivities] = React.useState([]);
   const [profile, setProfile] = React.useState([]);
   const [popped, setPopped] = React.useState([]);
@@ -23,47 +21,15 @@ export default function UserFeedPage(props) {
   const dataFetchedRef = React.useRef(false);
 
   const params = useParams();
-  console.log("params", params);
-
-  console.log(window.location.href);
 
   const loadData = async () => {
-    try {
-      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/${title}`;
-      // const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@jess-bk`;
-      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${params.handle}`;
-      await getAccessToken();
-      const access_token = localStorage.getItem("access_token");
-      const res = await fetch(backend_url, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-        method: "GET",
-      });
-      let resJson = await res.json();
-      if (res.status === 200) {
-        console.log("setprofile", resJson.profile);
-        setProfile(resJson.profile);
-        setActivities(resJson.activities);
-        console.log(resJson.profile);
-      } else {
-        console.log(res);
-      }
-    } catch (err) {
-      console.log(err);
-    }
+    const url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/@${params.handle}`;
+    get(url, null, function (data) {
+      console.log("setprofile", data.profile);
+      setProfile(data.profile);
+      setActivities(data.activities);
+    });
   };
-
-  // const checkAuth = async () => {
-  //   console.log("checkAuth");
-  //   // [TODO] Authenication
-  //   if (Cookies.get("user.logged_in")) {
-  //     setUser({
-  //       display_name: Cookies.get("user.name"),
-  //       handle: Cookies.get("user.username"),
-  //     });
-  //   }
-  // };
 
   React.useEffect(() => {
     //prevents double call
@@ -71,7 +37,6 @@ export default function UserFeedPage(props) {
     dataFetchedRef.current = true;
 
     loadData();
-    checkAuth();
     checkAuth(setUser);
   }, []);
 
