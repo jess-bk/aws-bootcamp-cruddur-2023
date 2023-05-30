@@ -15,6 +15,7 @@
   width: 60px;
   border-radius: 999px;
   flex-shrink: 0;
+  display: block;
 }
 
 .activity_content .activity_meta {
@@ -66,6 +67,7 @@
   display: flex;
   gap: 2px;
 }
+
 .activity_content .activity_times .expires_at svg.icon {
   fill: rgb(149, 0, 255);
   width: 14px;

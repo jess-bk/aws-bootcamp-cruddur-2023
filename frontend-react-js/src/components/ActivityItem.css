@@ -3,12 +3,30 @@
   flex-direction: column;
   border-bottom: solid 1px rgb(60, 54, 79);
   overflow: hidden;
-  padding: 16px;
-  background: var(--field-bg);
 }
+
+.activity_item.clickable:hover {
+  cursor: pointer;
+}
+
+.activity_item.clickable:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.replies {
+  padding-left: 24px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.replies .activity_item {
+  background: var(--fg);
+}
+
+.acitivty_main {
+  padding: 16px;
+}
+
 .activity_item:last-child {
   border-bottom: none;
-  margin-bottom: 10px;
 }
 
 .activity_item .activity_actions {
@@ -47,21 +65,20 @@
   fill: rgb(149, 0, 255);
 }
 
-.replies {
-  padding-left: 24px;
-  background: rgba(255, 255, 255, 0.15);
+.activity_item.expanded .activity_content {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 6px;
+  gap: 12px;
 }
-.replies .activity_item {
-  background: var(--fg);
-}
-
-.acitivty_main {
-  padding: 16px;
+.activity_item.expanded .activity_content .activity_identity {
+  flex-grow: 1;
 }
 
-a.activity_item {
-  text-decoration: none;
-}
-a.activity_item:hover {
-  background: rgba(255, 255, 255, 0.15);
+.created_at {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: 6px;
+  gap: 12px;
+  color: gray;
 }
