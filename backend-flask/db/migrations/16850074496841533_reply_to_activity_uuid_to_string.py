@@ -4,16 +4,16 @@ class ReplyToActivityUuidToStringMigration:
     @staticmethod
     def migrate_sql():
         data = """
-        ALTER TABLE activities
-        ALTER COLUMN reply_to_activity_uuid TYPE uuid USING reply_to_activity_uuid::text::uuid;
+        ALTER TABLE activities DROP COLUMN reply_to_activity_uuid;
+        ALTER TABLE activities ADD COLUMN reply_to_activity_uuid uuid;
         """
         return data
 
     @staticmethod
     def rollback_sql():
         data = """
-        ALTER TABLE activities
-        ALTER COLUMN reply_to_activity_uuid TYPE integer USING NULLIF(reply_to_activity_uuid::uuid::text, '')::integer;
+        ALTER TABLE activities DROP COLUMN reply_to_activity_uuid;
+        ALTER TABLE activities ADD COLUMN reply_to_activity_uuid integer;
         """
         return data
 

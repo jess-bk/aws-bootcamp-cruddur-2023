@@ -58,3 +58,10 @@
 .acitivty_main {
   padding: 16px;
 }
+
+a.activity_item {
+  text-decoration: none;
+}
+a.activity_item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
