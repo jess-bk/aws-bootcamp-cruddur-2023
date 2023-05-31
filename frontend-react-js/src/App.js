@@ -11,6 +11,7 @@ import MessageGroupsPage from "./pages/MessageGroupsPage";
 import MessageGroupPage from "./pages/MessageGroupPage";
 import MessageGroupNewPage from "./pages/MessageGroupNewPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
+import ActivityShowPage from "./pages/ActivityShowPage";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
   {
     path: "/messages/new/:handle",
     element: <MessageGroupNewPage />,
+  },
+  {
+    path: "/@:handle/status/:activity_uuid",
+    element: <ActivityShowPage />,
   },
   {
     path: "/signup",

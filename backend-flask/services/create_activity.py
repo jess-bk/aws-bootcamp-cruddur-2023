@@ -34,7 +34,7 @@ class CreateActivity:
     if message == None or len(message) < 1:
       model['errors'] = ['message_blank'] 
     elif len(message) > 280:
-      model['errors'] = ['message_exceed_max_chars'] 
+      model['errors'] = ['message_exceed_max_chars_1024'] 
 
     if model['errors']:
       model['data'] = {
