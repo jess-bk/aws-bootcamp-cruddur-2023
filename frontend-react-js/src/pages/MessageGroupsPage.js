@@ -30,7 +30,6 @@ export default function MessageGroupsPage() {
     loadData();
     checkAuth(setUser);
   }, []);
-
   return (
     <article>
       <DesktopNavigation user={user} active={"home"} setPopped={setPopped} />
