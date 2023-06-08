@@ -360,7 +360,7 @@ chmod u+x bin/cfn/networking-deploy
 
 ![image week10 aws](assets/week10aws/s3bucket_stored_template.png)
 
-# CLOUDFORMATION FOR CLUSTER LAYER
+# CLOUDFORMATION FOR CLUSTER LAYER PART 2
   
 **This AWS CloudFormation template is used to create and configure networking and cluster resources to support Fargate containers.**
 
@@ -438,7 +438,7 @@ This TOML file provides configuration settings related to the deployment of a Cl
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cluster)
 
-# CLOUDFORMATION FOR SERVICE LAYER (FLASK-BACKEND)
+# CLOUDFORMATION FOR SERVICE LAYER (FLASK-BACKEND) PART 3
 
 **This AWS CloudFormation template provided is used to define and deploy a stack for a Fargate service running on Amazon ECS (Elastic Container Service). Let's go through the different sections and their functionalities:**
 
@@ -559,7 +559,7 @@ This TOML file provides configuration settings related to the deployment of a Cl
 * **Description:** This output provides the ARN (Amazon Resource Name) of the target group associated with the ECS service.
 * **Value:** It uses the Fn::ImportValue function to import the target group ARN from the ${ClusterStack}BackendTGArn exported value.
 
-**Here is the link to the Cloudformation template file.** [Link to CFN service template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/template.yaml)
+**Here is the link to the Cloudformation template file.** [Link to CFN service template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/template.yaml)
 
 **CONFIG TOML FILE FOR SERVICE**
 The is a configuration file, TOML format, used for deploying a backend Flask service in AWS. Let's break down its contents:
@@ -575,13 +575,13 @@ This section defines deployment-specific configurations.
 **EnvBackendUrl:** Specifies the URL of the backend service itself. The default value is 'https://api.jessbkcloudcampus.com'.
 **DDBMessageTable:** Specifies the name of a DynamoDB table that will be used for storing messages. The default value is 'CrdDdb-DynamoDBTable-8VFSE0DDW6OR'.
   
-**Here is the link to the TOML file.** [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml)
+**Here is the link to the TOML file.** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml)
   
 **BASH SCRIPT** To run the cloudformation service(backend-flask) template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
   
-# CLOUDFORMATION FOR DATABASE RDS (POSTGRESQL)
+# CLOUDFORMATION FOR DATABASE RDS (POSTGRESQL) PART 4
 The template primarily focuses on creating an RDS database instance, its associated security group, and subnet group. The parameters allow customization of various settings, making the template adaptable to different deployment scenarios.
 
 The CloudFormation template is used to define and deploy AWS resources for a primary PostgreSQL RDS database. Let's break down its structure and components:
@@ -603,7 +603,7 @@ Allows inbound traffic on port 5432, which is the default port for PostgreSQL.
 
 **Outputs (commented out in the provided template):** Defines outputs that can be exported and used by other CloudFormation stacks. In this case, an output named ServiceSecurityGroupId is defined, which represents the security group ID of the service. However, it is currently commented out and not active in the template.
   
-**Here is the link to the Cloudformation template file.** [Link to CFN DATABASE template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/template.yaml)
+**Here is the link to the Cloudformation template file.** [Link to CFN DATABASE template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/template.yaml)
   
 **CONFIG TOML FILE FOR DATABASE**
 The provided TOML file is a configuration file used for deploying a CloudFormation stack. Let's break down its structure and components:
@@ -619,14 +619,16 @@ The provided TOML file is a configuration file used for deploying a CloudFormati
 **MasterUsername parameter:** Specifies the username for the master user of the deployed resources. It appears to be a specific username chosen for this deployment.
 
 **TOML FILE** 
-Here is the link to the TOML file.** [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/config.toml)
+**Here is the link to the TOML file.** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/config.toml)
   
-**BASH SCRIPT** 
+**BASH SCRIPT** **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
+  
 To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
 
-**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
+
   
-# CLOUDFORMATION FOR FRONTEND REACT TEMPLATE.
+# CLOUDFORMATION FOR FRONTEND REACT TEMPLATE PART 5
+  
 The provided CloudFormation template creates the necessary AWS resources to set up a static website with CloudFront, S3 buckets, and Route 53 records. Here's an explanation of what the template does:
   
 **AWSTemplateFormatVersion:** 2010-09-09: Specifies the CloudFormation template version.
@@ -653,7 +655,8 @@ The provided CloudFormation template creates the necessary AWS resources to set 
 
 **Distribution:** Creates a CloudFront distribution for the static website. It specifies the aliases, origins (using the root S3 bucket), default cache behavior, SSL certificate, and error responses.
 
-**Here is the link to the Cloudformation template file.** [Link to CFN frontend template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/template.yaml)
+**Here is the link to the Cloudformation template file.** [Link to CFN frontend template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/template.yaml)
+  
 The template sets up the infrastructure required for hosting a static website, including the CloudFront distribution for content delivery, S3 buckets for storing the website files, and Route 53 record sets for DNS resolution.
   
 **CONFIG TOML FILE FOR FRONTEND**
@@ -669,11 +672,91 @@ The TOML configuration file contains settings for deploying a CloudFormation sta
 **WwwBucketName** = 'www.jessbkcloudcampus.com': Specifies the name of the S3 bucket for the "www" subdomain. The value is set to 'www.jessbkcloudcampus.com'.
 **RootBucketName** = 'jessbkcloudcampus.com': Specifies the name of the S3 bucket for the root/naked domain. The value is set to 'jessbkcloudcampus.com'.
   
-**TOML FILE** 
-Here is the link to the TOML file. [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/config.toml)
+**TOML FILE** Here is the link to the TOML file. [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/config.toml)
 
 **BASH SCRIPT** 
 To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, The Bash script is responsible for deploying a CloudFormation stack CrdFrontend for the frontend application, this script sets up the necessary variables, performs linting on the CloudFormation template, retrieves deployment settings from the TOML configuration file, and then deploys the CloudFormation stack using the AWS CLI. It provides a streamlined way to deploy the frontend.
   
-**Here is the link to the bash script.** 
-[Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/frontend)
+**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/frontend)
+  
+# CLOUDFORMATION FOR CICD TEMPLATE PART 5
+This AWS CloudFormation template describes the infrastructure and resources required to set up a CI/CD pipeline using CodeStar Connections, CodePipeline, CodeBuild, and ECS (Elastic Container Service). Let's go through the different sections and what they do:
+  
+**AWSTemplateFormatVersion and Description:** These sections specify the version of AWS CloudFormation being used and provide a description of the template.
+
+**Parameters:** This section defines input parameters that can be provided when deploying the CloudFormation stack. These parameters include GitHubBranch, GithubRepo, ClusterStack, ServiceStack, ArtifactBucketName, and BuildSpec, each with their own types and default values. These parameters allow customization and flexibility when deploying the stack.
+
+**Resources:** This section defines the AWS resources that will be provisioned. Here are the main resources:
+* **Codebuild:** This resource provisions a nested CloudFormation stack using the AWS::CloudFormation::Stack type. It references a template located at **nested/codebuild.yaml** and passes in parameters **ArtifactBucketName** and **BuildSpec**. This nested stack sets up a CodeBuild project.
+* **CodeStarConnection:** This resource provisions a CodeStar Connection for GitHub using the **AWS::CodeStarConnections::Connection type.** It specifies a connection name and sets the provider type to GitHub.
+
+**Pipeline:** This resource provisions a CodePipeline using the AWS::CodePipeline::Pipeline type. It defines the pipeline's artifact store location, role, and stages. The stages include "Source," "Build," and "Deploy," each with their own actions and configurations. The source stage uses CodeStar Source Connection to retrieve source code from the specified GitHub repository. The build stage uses CodeBuild to build container images. The deploy stage uses ECS (Elastic Container Service) to deploy the built image to a cluster and service.
+
+**CodePipelineRole:** This resource provisions an IAM role for CodePipeline. It defines policies that allow access to S3 buckets, CloudFormation, IAM, CodeStar Connections, and CodeBuild resources.
+
+This CloudFormation template sets up a CodePipeline that fetches source code from a GitHub repository, builds it using CodeBuild, and deploys the built image to an ECS cluster and service. The template provides flexibility through input parameters and ensures proper access control through IAM roles and policies.(you will need to allow access to github by allowing access to the repo in aws, you can do this once you have build the cfn template).
+
+The nested CloudFormation template located at aws/cfn/cicd/nested/codebuild.yaml sets up a CodeBuild project for building container images. Here's a breakdown of its contents:
+
+**Parameters:**
+  * LogGroupPath: A string parameter that specifies the path for the CloudWatch Logs log group associated with CodeBuild.
+  * LogStreamName: A string parameter that specifies the name of the CloudWatch Logs log stream associated with CodeBuild.
+  * CodeBuildImage: A string parameter that specifies the Docker image to be used for the CodeBuild project.
+  * CodeBuildComputeType: A string parameter that specifies the compute type for CodeBuild.
+  * CodeBuildTimeoutMins: A number parameter that specifies the timeout duration for the CodeBuild project.
+  * BuildSpec: A string parameter that specifies the build specification file to be used by CodeBuild.
+  * ArtifactBucketName: A string parameter that specifies the name of the bucket where artifacts will be stored during the build process.
+
+**Resources:**
+  * CodeBuild: Creates an AWS CodeBuild project using the AWS::CodeBuild::Project resource type. It configures various properties including the project timeout, service role, build artifacts (set as CODEPIPELINE   type), environment settings (compute type, Docker image, privileged mode), logs configuration, and source type (set as CODEPIPELINE). It also references the BuildSpec parameter for the build specification       file.
+  * CodeBuildRole: Creates an IAM role (AWS::IAM::Role) for the CodeBuild project. It defines an assume role policy, granting permissions for CodeBuild service. The role has several policies attached to it,       allowing access to S3 artifacts, ECR (Elastic Container Registry), VPC (Virtual Private Cloud) resources, and CloudWatch Logs.
+
+**Outputs:**
+  * CodeBuildProjectName: Exposes the CodeBuild project name as an output.
+
+The nested CloudFormation template provides the infrastructure and configuration needed to set up a CodeBuild project for building container images, with the necessary permissions and resource access.
+
+**Here is the link to the Cloudformation template file.** [Link to CFN CICD template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/template.yaml)
+  
+**Here is the link to the Cloudformation template file.** [Link to CFN CICD NESTED template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cicd/nested/codebuild.yaml)
+  
+**CONFIG TOML FILE FOR CICD** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/config.toml)
+
+The provided configuration represent a deployment process using AWS CloudFormation and CodePipeline for a project called "CrdCicd". Here's a breakdown of the steps involved:
+
+1. The deployment is triggered, and the deployment process starts.
+2. The CodePipeline process begins by retrieving the source code from the GitHub repository specified in the GithubRepo parameter (jess-bk/aws-bootcamp-cruddur-2023) using the specified branch (prod).
+3. The source code is downloaded and packaged into a ZIP file, which is stored in the S3 bucket specified in the ArtifactBucketName parameter (jessbk-codepipeline-cruddur-artifacts).
+4. The CodePipeline then invokes a CodeBuild project to build the container image for the application. The CodeBuild project is defined in the aws/cfn/cicd/nested/codebuild.yaml nested CloudFormation template.
+5. The CodeBuild project uses the provided build specification file located at backend-flask/buildspec.yml (assuming the file exists) as specified by the BuildSpec parameter. This build specification file  defines the necessary steps and commands to build the container image.
+6. Once the container image is successfully built, it is pushed to an Elastic Container Registry (ECR) repository.
+7. The final stage in the CodePipeline process is the deployment stage. It deploys the container image to an ECS (Elastic Container Service) cluster specified by the ClusterStack parameter (CrdCluster) and the service specified by the ServiceStack parameter (CrdSrvBackendFlask).
+8. The deployed service runs the application using the container image from the ECR repository.
+
+In summary, the provided configuration sets up a continuous deployment pipeline using CodePipeline and CodeBuild. It retrieves the source code from GitHub, builds a container image using CodeBuild, and deploys the image to an ECS cluster using CloudFormation stacks (ClusterStack and ServiceStack).
+  
+**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
+  
+This script automates the packaging and deployment of the CloudFormation template using AWS CLI commands, based on the provided configuration file. It helps streamline the deployment process and ensures that the template is properly packaged and deployed to the designated stack.
+  
+
+  
+# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 6 
+The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
+
+1. **CruddurMachineUser:** This resource creates an IAM user named "cruddur_machine_user". IAM users are identities that can be used to interact with AWS services and resources. This user can be used to authenticate and authorize access to various AWS services.
+
+2. **DynamoDBFullAccessPolicy:** This resource creates an IAM policy named "DynamoDBFullAccessPolicy" that grants full access permissions to DynamoDB actions for the specified IAM user (CruddurMachineUser). The policy allows the user to perform actions such as putting items, getting items, scanning, querying, updating items, deleting items, and performing batch writes on any DynamoDB resource (Resource: "*").
+
+This CloudFormation template creates an IAM user named "cruddur_machine_user" and attaches an IAM policy that provides full access to DynamoDB actions. The user can then use the assigned credentials to interact with DynamoDB resources within the AWS environment.
+ 
+**Here is the link to the Cloudformation template file.** [Link to MACHINE USER template](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/machine-user/template.yaml)
+  
+**CONFIG TOML FILE FOR MACHINE USER** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/machine-user/config.toml)
+ 
+When running the deployment process using these parameter values, it will likely involve creating or updating a CloudFormation stack named 'CrdMachineUser' in the 'us-east-1' region. The artifacts related to this stack will be stored in the 'jessbk-cfn-artifacts' S3 bucket.
+  
+**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
+  
+The script performs linting on the CloudFormation template, extracts necessary configuration values, and deploys the stack using the AWS CLI and CloudFormation, with specific options and parameters.
+  
