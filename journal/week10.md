@@ -48,7 +48,7 @@ cargo install cfn-guard
 
 # Cloud Formation Implementation In Project
 
-***CLOUDFORMATION FOR NETWORK LAYER***
+#CLOUDFORMATION FOR NETWORK LAYER
 
 **First** create a S3 Bucket <add a name that will store all the cloudformation artifacts> and leave the rest as default.
 **Second** create a new folder in bin/cfn/networking and create a new file in the folder template.yaml.
@@ -694,7 +694,8 @@ This AWS CloudFormation template describes the infrastructure and resources requ
 
 **CodePipelineRole:** This resource provisions an IAM role for CodePipeline. It defines policies that allow access to S3 buckets, CloudFormation, IAM, CodeStar Connections, and CodeBuild resources.
 
-This CloudFormation template sets up a CodePipeline that fetches source code from a GitHub repository, builds it using CodeBuild, and deploys the built image to an ECS cluster and service. The template provides flexibility through input parameters and ensures proper access control through IAM roles and policies.(you will need to allow access to github by allowing access to the repo in aws, you can do this once you have build the cfn template).
+This CloudFormation template sets up a CodePipeline that fetches source code from a GitHub repository, builds it using CodeBuild, and deploys the built image to an ECS cluster and service. The template provides flexibility through input parameters and ensures proper access control through IAM roles and policies.(you will need to allow access to github by allowing access to the repo in aws, you can do this once you have build the cfn template, AWS PIPELINE GOTO SETTINGS AND INTO CONNECTIONS AND SELECT THE THE NEW CONNECTION CREATED BY CFN AND CLICK ON UPDATE PENDING CONNECTION AND IN THE 
+POP UP WINDOW SELECT THE GITHUB REPO CONNECTION).
 
 The nested CloudFormation template located at aws/cfn/cicd/nested/codebuild.yaml sets up a CodeBuild project for building container images. Here's a breakdown of its contents:
 
@@ -739,9 +740,138 @@ In summary, the provided configuration sets up a continuous deployment pipeline 
   
 This script automates the packaging and deployment of the CloudFormation template using AWS CLI commands, based on the provided configuration file. It helps streamline the deployment process and ensures that the template is properly packaged and deployed to the designated stack.
   
+# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 6
+The YAML template is written in AWS CloudFormation syntax and defines a serverless application consisting of a DynamoDB table, a Lambda function, and associated resources. Let's break down the template and understand its components:
+  
+**AWSTemplateFormatVersion:** "2010-09-09": Specifies the CloudFormation template version.
+**Transform:** AWS::Serverless-2016-10-31: Indicates that the template uses the AWS Serverless Application Model (SAM) for defining serverless resources.
+**Description: |:** Provides a description of the template.
+**Parameters::** Defines input parameters that can be customized when deploying the stack.
+**Resources::**Defines the AWS resources that make up the application.
+
+**Let's focus on the key resources defined in the template:**
+  
+**DynamoDBTable:**
+**Type:** AWS::DynamoDB::Table
+**Properties:** Configures a DynamoDB table.
+**AttributeDefinitions:** Defines the attributes of the table.
+**KeySchema:** Specifies the primary key attributes.
+**ProvisionedThroughput:** Sets the provisioned capacity for read and write operations.
+**BillingMode:** Sets the billing mode for the table.
+**GlobalSecondaryIndexes:** Configures global secondary indexes for the table.
+**StreamSpecification:** Enables DynamoDB Streams for the table.
+**ProcessDynamoDBStream:** Type: AWS::Serverless::Function
+**Properties:** Defines a Lambda function.
+**CodeUri:** Specifies the location of the function code.
+**Handler:** Specifies the entry point for the function.
+**Runtime:** Sets the runtime environment for the function.
+**Role:** Specifies the IAM role used by the function.
+**MemorySize:** Sets the memory allocation for the function.
+**Timeout:** Sets the maximum execution time for the function.
+**Events:** Configures event sources for the function.
+**Stream:** Defines a DynamoDB stream as the event source.
+**LambdaLogGroup:** Type: AWS::Logs::LogGroup
+**Properties:** Creates a log group for the Lambda function.
+**LambdaLogStream:** Type: AWS::Logs::LogStream
+**Properties:** Creates a log stream within the LambdaLogGroup.
+**ExecutionRole:** Type: AWS::IAM::Role
+**Properties:** Defines an IAM role for the Lambda function.
+**AssumeRolePolicyDocument:** Specifies the trust policy allowing Lambda to assume this role.
+**Policies:** Defines the permissions policies associated with the role.
+
+The template sets up a DynamoDB table with a primary key, global secondary index, and DynamoDB Streams enabled. It also provisions a Lambda function that processes the DynamoDB stream. The IAM role and necessary permissions are defined for the Lambda function, along with log group and log stream configurations.
+
+By deploying this CloudFormation template, you can create the specified DynamoDB table, Lambda function, IAM role, and associated resources required for processing the DynamoDB stream.
+  
+**Here is the link to the template file.** [Link to template yaml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/ddb/template.yaml)
+  
+**LAMBDA FUNCTION** [Link to lambda function](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/ddb/function/lambda_function.py)
+
+This Lambda function is designed to process DynamoDB stream events, specifically targeting events related to message groups. It extracts relevant information from the event, queries the DynamoDB table based on that information, and then re-creates the message group rows with a new sk value.
+  
+1. **Importing necessary libraries and initializing the DynamoDB resource:**
+  * The json and boto3 libraries are imported.
+  * The boto3 library is used to create a DynamoDB resource object.
+  * The resource object is configured with the region and endpoint URL of the DynamoDB service.
+ 
+2. **lambda_handler function:**
+  * This is the entry point for the Lambda function. It is triggered by events from the DynamoDB stream.
+  * The function receives the event and context parameters.
+  * The function extracts the primary key (pk) and sort key (sk) values from the incoming DynamoDB stream event.
+  * If the pk starts with 'MSG#', it indicates a specific message group.
+  * The group_uuid is derived from the pk by removing the 'MSG#' prefix.
+  * The message value is extracted from the NewImage attribute of the event.
+  * The extracted group_uuid and message values are printed.
+ 
+ 3. **Querying DynamoDB table based on the group_uuid:**
+  * The function defines the table name and index name to perform the query.
+  * The DynamoDB table object is created using the configured resource.
+  * A query is executed on the table using the query method.
+  * The query specifies the index name and the condition to match the message_group_uuid with the extracted group_uuid.
+  * The query result (data) is printed.
+  
+4. **Recreating message group rows with a new sk value:**
+  * The function loops over the items (data['Items']) returned from the query.
+  * For each item, it performs the following operations:
+  * Deletes the existing item from the table using the delete_item method.
+  * Prints the result of the deletion operation.
+  * Creates a new item in the table using the put_item method.
+  * The new item contains the updated sk value and other attributes from the original item.
+  * Prints the result of the creation operation.
+  
+**CONFIG TOML FILE FOR DDB**
+  
+The [default.build.parameters], [default.package.parameters], and [default.deploy.parameters] sections provide a way to specify region-specific parameters for each stage of the deployment process. By setting the region parameter to "us-east-1" in each section, it ensures consistency and specifies that all stages should be performed in the US East (N. Virginia) region.
+
+The version=0.1 statement at the beginning of the configuration file suggests that this file follows a specific version or format, potentially for compatibility or versioning purposes.
+  
+**CONFIG TOML FILE FOR DDB** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/ddb/config.toml)
+  
+**BASH SCRIPT RUNNING Serverless Application Model (SAM) to create package** [Link to ddb bash script to package ](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/ddb/package)
+  
+The script essentially packages the SAM application by executing the sam package command with the provided options and arguments, resulting in a packaged template file that is uploaded to the specified S3 bucket. The output of the script includes formatted output indicating the progress or completion of the packaging operation.
+
+**BASH SCRIPT RUNNING Serverless Application Model (SAM) to deploy** [Link to ddb bash script to deploy ](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/ddb/deploy)
+  
+The script essentially deploys the SAM application by executing the sam deploy command with the provided options and arguments. It deploys the packaged template file, creates or updates the CloudFormation stack, and applies the specified tags and capabilities. The output of the script includes formatted output indicating the progress or completion of the deployment operation
+  
+**BASH SCRIPT RUNNING Serverless Application Model (SAM) to create a build** [Link to ddb bash script to run build ](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/ddb/build)
+ 
+The bash script is performing a build operation using the AWS Serverless Application Model (SAM) CLI. Let's break down what the script is doing:
+
+1. **Shebang and set -e:**
+  * The shebang #! /usr/bin/env bash specifies that the script should be executed using the Bash shell.
+  *set -e is a Bash option that ensures the script stops executing if any command within it fails.
+
+2. **Variable declaration:**
+    * The script defines three variables:
+    * CYAN='\033[1;36m' and NO_COLOR='\033[0m' are escape sequences used to format the output with colored text.
+    * LABEL is set to "DDB BUILD WITH SAM AWS" and will be used for display purposes.
+
+3. **Output formatting:**
+  *The script uses printf to display the formatted output with the LABEL variable enclosed in cyan color.
+
+4. **Variable assignment:**
+  * FUNC_DIR is set to "/workspace/aws-bootcamp-cruddur-2023/ddb/function", specifying the directory where the SAM function code is located.
+  * TEMPLATE_PATH is set to "/workspace/aws-bootcamp-cruddur-2023/ddb/template.yaml", indicating the path to the SAM template file.
+  * CONFIG_PATH is set to "/workspace/aws-bootcamp-cruddur-2023/ddb/config.toml", specifying the path to the configuration file used by SAM.
+
+5. **Validation:**
+  * The script executes the sam validate command to validate the SAM template.
+  * The -t option is used to specify the path to the SAM template file.
+
+6. **Build operation:**
+  * The script executes the sam build command to build the SAM application.
+  * The specified options and arguments are as follows:**
+  * --use-container: This option is used to build the Lambda function inside a container, using the specified runtime.
+  * --config-file $CONFIG_PATH: Specifies the configuration file to use for the build operation.
+  * --template $TEMPLATE_PATH: Specifies the path to the SAM template file.
+  * --base-dir $FUNC_DIR: Specifies the base directory where the function code is located.
 
   
-# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 6 
+The script essentially performs a build operation for the SAM application by executing the sam build command. It validates the SAM template using the sam validate command and then builds the application using the specified options and arguments. The output of the script includes formatted output indicating the progress or completion of the build operation.
+  
+# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 7 
 The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
 
 1. **CruddurMachineUser:** This resource creates an IAM user named "cruddur_machine_user". IAM users are identities that can be used to interact with AWS services and resources. This user can be used to authenticate and authorize access to various AWS services.
