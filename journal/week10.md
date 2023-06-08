@@ -740,7 +740,7 @@ In summary, the provided configuration sets up a continuous deployment pipeline 
   
 This script automates the packaging and deployment of the CloudFormation template using AWS CLI commands, based on the provided configuration file. It helps streamline the deployment process and ensures that the template is properly packaged and deployed to the designated stack.
   
-# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 6
+# CLOUDFORMATION SAM TEMPLATE PART 6
 The YAML template is written in AWS CloudFormation syntax and defines a serverless application consisting of a DynamoDB table, a Lambda function, and associated resources. Let's break down the template and understand its components:
   
 **AWSTemplateFormatVersion:** "2010-09-09": Specifies the CloudFormation template version.
@@ -871,7 +871,7 @@ The bash script is performing a build operation using the AWS Serverless Applica
   
 The script essentially performs a build operation for the SAM application by executing the sam build command. It validates the SAM template using the sam validate command and then builds the application using the specified options and arguments. The output of the script includes formatted output indicating the progress or completion of the build operation.
   
-# CLOUDFORMATION FOR MACINE USER TEMPLATE PART 7 
+# CLOUDFORMATION FOR MACHINE USER TEMPLATE PART 7 
 The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
 
 1. **CruddurMachineUser:** This resource creates an IAM user named "cruddur_machine_user". IAM users are identities that can be used to interact with AWS services and resources. This user can be used to authenticate and authorize access to various AWS services.
