@@ -415,7 +415,7 @@ The TOML file is defining a section called [deploy] with three key-value pairs i
 This TOML file provides configuration settings related to the deployment of a CloudFormation stack, including the S3 bucket name, AWS region, and stack name. These settings can be referenced and used by deployment scripts or tools to deploy the stack with the specified parameters.The CertificateArn and NetworkingStack values may be used as parameters within the CloudFormation template to configure resources or define dependencies on other stacks.
 
   
-***BASH SCRIPT*** To run the cloudformation template i have created a bash script, The script you provided performs the following actions:
+**BASH SCRIPT** To run the cloudformation template i have created a bash script, The script performs the following actions:
 * set -e: This command sets the script to exit immediately if any command within it fails (returns a non-zero exit status). This is often used to ensure the script stops execution if an error occurs.
   
 * CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/cluster/template.yaml": This line assigns the file path of the CloudFormation template (template.yaml) to the CFN_PATH variable.
@@ -442,142 +442,121 @@ This TOML file provides configuration settings related to the deployment of a Cl
 
 **This AWS CloudFormation template provided is used to define and deploy a stack for a Fargate service running on Amazon ECS (Elastic Container Service). Let's go through the different sections and their functionalities:**
 
-1. ***AWSTemplateFormatVersion:*** Specifies the version of the AWS CloudFormation template.
+1. **AWSTemplateFormatVersion:** Specifies the version of the AWS CloudFormation template.
 
-2. ***Description:*** Provides a brief description of the template.
+2. **Description:** Provides a brief description of the template.
 
-3. ***Parameters:***
+3. **Parameters:** Defines the input parameters for the template. Users can provide values for these parameters during stack creation or use default values.
   
-* Defines the input parameters for the template. Users can provide values for these parameters during stack creation or use default values.
-* **NetworkingStack:**
-  * Type: String
-  * Description: This parameter represents the base layer of networking components, such as VPC and subnets. It allows you to specify the networking stack name. The default value is set to "CrdNet".
-* **ClusterStack:**
-   * Type: String
-   * Description: This parameter represents the cluster layer, which includes ECS cluster and ALB (Application Load Balancer). It allows you to specify the cluster stack name. The default value is set to       "CrdCluster".
-* **ContainerPort:**
-   * Type: Number
-   * Description: This parameter specifies the port number on which the container within the Fargate service will listen. The default value is set to 4567.
-* **ServiceCpu:**
-   * Type: String
-   * Description: This parameter defines the CPU units to be allocated to the Fargate service. The default value is set to "256".
-* **ServiceMemory:**
-   * Type: String
-   * Description: This parameter specifies the amount of memory (in MiB) to be allocated to the Fargate service. The default value is set to "512".
-* **ServiceName:**
-   * Type: String
-   * Description: This parameter represents the name of the Fargate service. It allows you to specify a custom service name. The default value is set to "backend-flask".
-* **ContainerName:**
-   * Type: String
-   * Description: This parameter represents the name of the container within the Fargate service. It allows you to specify a custom container name. The default value is set to "backend-flask".
-* **TaskFamily:**
-   * Type: String
-   * Description: This parameter specifies the family name for the ECS task definition. It allows you to group multiple versions of the same task definition under a single family name. The default value is set to "backend-flask".
-* **EcrImage:**
-   * Type: String
-   *Description: This parameter represents the ECR (Elastic Container Registry) image URL for the container to be used in the Fargate service. It allows you to specify the image URL for your container. The        default value is set to "517899574827.dkr.ecr.us-east-1.amazonaws.com/backend-flask".
-* **EnvOtelServiceName:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "OTEL_SERVICE_NAME" to be set in the container. It is used for configuring OpenTelemetry service name. The default value is set to "backend-flask".
-* **EnvOtelExporterOtlpEndpoint:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "OTEL_EXPORTER_OTLP_ENDPOINT" to be set in the container. It is used for configuring the OpenTelemetry exporter OTLP (OpenTelemetry Protocol) endpoint. The default value is set to "https://api.honeycomb.io".
-* **EnvAWSCognitoUserPoolId:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "AWS_COGNITO_USER_POOL_ID" to be set in the container. It is used for configuring the AWS Cognito User Pool ID. The default value is set to "us-east-1_FpcgxtNfc".
-* **EnvCognitoUserPoolClientId:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "AWS_COGNITO_USER_POOL_CLIENT_ID" to be set in the container. It is used for configuring the AWS Cognito User Pool Client ID. The default value is set to "6jbj9dn4cf8oldfrvmm5cg34t9".
-* **EnvFrontendUrl:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "FRONTEND_URL" to be set in the container. It is used for configuring the URL of the frontend application. The default value is set to "*".
-* **EnvBackendUrl:**
-   * Type: String
-   * Description: This parameter represents the value of the environment variable "BACKEND_URL" to be set in the container. It is used for configuring the URL of the backend application. The default value is set to "*".
-* **SecretsAWSAccessKeyId:**
-   * Type: String
-   * Description: This parameter represents the AWS SSM (Systems Manager) parameter ARN for the secret value "AWS_ACCESS_KEY_ID". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID".
-* **SecretsSecretAccessKey:**
-   * Type: String
-   * Description: This parameter represents the AWS SSM parameter ARN for the secret value "AWS_SECRET_ACCESS_KEY". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY".
-* **SecretsConnectionUrl:**
-   * Type: String
-   * Description: This parameter represents the AWS SSM parameter ARN for the secret value "CONNECTION_URL". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/CONNECTION_URL".
-* **SecretsRollbarAccessToken:**
-   * Type: String
-   * Description: This parameter represents the AWS SSM parameter ARN for the secret value "ROLLBAR_ACCESS_TOKEN". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/ROLLBAR_ACCESS_TOKEN".
+* **NetworkingStack:** This parameter represents the base layer of networking components, such as VPC and subnets. It allows you to specify the networking stack name. The default value is set to "CrdNet".
   
-4. ***Resources:***
+* **ClusterStack:** This parameter represents the cluster layer, which includes ECS cluster and ALB (Application Load Balancer). It allows you to specify the cluster stack name. The default value is set to       "CrdCluster".
   
-**FargateService:**
-  * Type: AWS::ECS::Service
-  * Description: This resource defines an Amazon Elastic Container Service (ECS) service running on AWS Fargate. It represents the deployment of containers and manages their lifecycle.
-  * Properties:
-      * Cluster: Specifies the ECS cluster where the service is deployed. It uses the Fn::ImportValue function to import the value from the ${ClusterStack}ClusterName exported value.
-      * DeploymentController: Specifies the deployment controller type for the service, which is set to "ECS" (default).
-      * DesiredCount: Specifies the desired number of tasks (containers) to run in the service, which is set to 1 (default).
-      * EnableECSManagedTags: Enables or disables automatic generation of AWS managed tags for the service, which is set to true (default).
-      * EnableExecuteCommand: Enables or disables the ECS ExecuteCommand feature, which allows running commands in a container, set to true (default).
-      * HealthCheckGracePeriodSeconds: Specifies the time (in seconds) to ignore the health check status during a service deployment, set to 0 (default).
-      * LaunchType: Specifies the launch type for the service, which is set to "FARGATE".
-      * LoadBalancers: Specifies the load balancer configuration for the service. It uses the Fn::ImportValue function to import the value of the target group ARN from the ${ClusterStack}BackendTGArn exported           value.
-      * NetworkConfiguration: Specifies the network configuration for the service. It uses the Fn::ImportValue function to import the value of the security group and subnet IDs from the                                   ${NetworkingStack}PublicSubnetIds exported value.
-      * PlatformVersion: Specifies the platform version for the Fargate task, which is set to "LATEST" (default).
-      * PropagateTags: Specifies how to propagate tags from the service to the tasks, set to "SERVICE" (default).
-      * ServiceConnectConfiguration: Specifies the AWS Cloud Map service discovery configuration for the service.
-      * ServiceName: Specifies the name of the service, which is obtained from the FargateService resource's name.
-      * TaskDefinition: Specifies the task definition to use for the service, obtained from the TaskDefinition resource.
+* **ContainerPort:** This parameter specifies the port number on which the container within the Fargate service will listen. The default value is set to 4567.
+  
+* **ServiceCpu:** This parameter defines the CPU units to be allocated to the Fargate service. The default value is set to "256".
+  
+* **ServiceMemory:** This parameter specifies the amount of memory (in MiB) to be allocated to the Fargate service. The default value is set to "512".
+  
+* **ServiceName:** This parameter represents the name of the Fargate service. It allows you to specify a custom service name. The default value is set to "backend-flask".
+  
+* **ContainerName:** This parameter represents the name of the container within the Fargate service. It allows you to specify a custom container name. The default value is set to "backend-flask".
+  
+* **TaskFamily:** This parameter specifies the family name for the ECS task definition. It allows you to group multiple versions of the same task definition under a single family name. The default value is set to "backend-flask".
+  
+* **EcrImage:** This parameter represents the ECR (Elastic Container Registry) image URL for the container to be used in the Fargate service. It allows you to specify the image URL for your container. The        default value is set to "517899574827.dkr.ecr.us-east-1.amazonaws.com/backend-flask".
+  
+* **EnvOtelServiceName:** This parameter represents the value of the environment variable "OTEL_SERVICE_NAME" to be set in the container. It is used for configuring OpenTelemetry service name. The default value is set to "backend-flask".
+  
+* **EnvOtelExporterOtlpEndpoint:** This parameter represents the value of the environment variable "OTEL_EXPORTER_OTLP_ENDPOINT" to be set in the container. It is used for configuring the OpenTelemetry exporter OTLP (OpenTelemetry Protocol) endpoint. The default value is set to "https://api.honeycomb.io".
+  
+* **EnvAWSCognitoUserPoolId:** This parameter represents the value of the environment variable "AWS_COGNITO_USER_POOL_ID" to be set in the container. It is used for configuring the AWS Cognito User Pool ID. The default value is set to "us-east-1_FpcgxtNfc".
+  
+* **EnvCognitoUserPoolClientId:** This parameter represents the value of the environment variable "AWS_COGNITO_USER_POOL_CLIENT_ID" to be set in the container. It is used for configuring the AWS Cognito User Pool Client ID. The default value is set to "6jbj9dn4cf8oldfrvmm5cg34t9".
+  
+* **EnvFrontendUrl:** This parameter represents the value of the environment variable "FRONTEND_URL" to be set in the container. It is used for configuring the URL of the frontend application. The default value is set to "*".
+  
+* **EnvBackendUrl:** This parameter represents the value of the environment variable "BACKEND_URL" to be set in the container. It is used for configuring the URL of the backend application. The default value is set to "*".
+  
+* **SecretsAWSAccessKeyId:** This parameter represents the AWS SSM (Systems Manager) parameter ARN for the secret value "AWS_ACCESS_KEY_ID". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID".
+  
+* **SecretsSecretAccessKey:** This parameter represents the AWS SSM parameter ARN for the secret value "AWS_SECRET_ACCESS_KEY". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY".
+  
+* **SecretsConnectionUrl:** This parameter represents the AWS SSM parameter ARN for the secret value "CONNECTION_URL". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/CONNECTION_URL".
+  
+* **SecretsRollbarAccessToken:** This parameter represents the AWS SSM parameter ARN for the secret value "ROLLBAR_ACCESS_TOKEN". It is used for accessing sensitive information securely. The default value is set to "arn:aws:ssm:us-east-1:517899574827:parameter/cruddur/backend-flask/ROLLBAR_ACCESS_TOKEN".
+  
+  
+4. **Resources:**
+  **FargateService:**
+  **Type:** AWS::ECS::Service
+  **Description:** This resource defines an Amazon Elastic Container Service (ECS) service running on AWS Fargate. It represents the deployment of containers and manages their lifecycle.
+  * **Properties:**
+    * **Cluster:** Specifies the ECS cluster where the service is deployed. It uses the Fn::ImportValue function to import the value from the ${ClusterStack}ClusterName exported value.
+    * **DeploymentController:** Specifies the deployment controller type for the service, which is set to "ECS" (default).
+    * **DesiredCount:** Specifies the desired number of tasks (containers) to run in the service, which is set to 1 (default).
+    * **EnableECSManagedTags:** Enables or disables automatic generation of AWS managed tags for the service, which is set to true (default).
+    * **EnableExecuteCommand:** Enables or disables the ECS ExecuteCommand feature, which allows running commands in a container, set to true (default).
+    * **HealthCheckGracePeriodSeconds:** Specifies the time (in seconds) to ignore the health check status during a service deployment, set to 0 (default).
+    * **LaunchType:** Specifies the launch type for the service, which is set to "FARGATE".
+    * **LoadBalancers:** Specifies the load balancer configuration for the service. It uses the Fn::ImportValue function to import the value of the target group ARN from the ${ClusterStack}BackendTGArn exported       value.
+    * **NetworkConfiguration:** Specifies the network configuration for the service. It uses the Fn::ImportValue function to import the value of the security group and subnet IDs from the                               ${NetworkingStack}PublicSubnetIds exported value.
+    * **PlatformVersion:** Specifies the platform version for the Fargate task, which is set to "LATEST" (default).
+    * **PropagateTags:** Specifies how to propagate tags from the service to the tasks, set to "SERVICE" (default).
+    * **ServiceConnectConfiguration:** Specifies the AWS Cloud Map service discovery configuration for the service.
+    * **ServiceName:** Specifies the name of the service, which is obtained from the FargateService resource's name.
+    * **TaskDefinition:** Specifies the task definition to use for the service, obtained from the TaskDefinition resource.
 
-**TaskDefinition:**
+  **TaskDefinition:**
   * Type: AWS::ECS::TaskDefinition
   * Description: This resource defines an ECS task definition that describes how a container should be launched and configured.
   * Properties:
-      * Family: Specifies the family name of the task definition, obtained from the TaskFamily parameter.
-      * ExecutionRoleArn: Specifies the ARN of the task execution role, obtained from the ExecutionRole resource.
-      * TaskRoleArn: Specifies the ARN of the task role, obtained from the TaskRole resource.
-      * NetworkMode: Specifies the network mode for the task, which is set to "awsvpc".
-      * Cpu: Specifies the CPU units to allocate to the task, obtained from the ServiceCpu parameter.
-      * Memory: Specifies the memory to allocate to the task, obtained from the ServiceMemory parameter.
-      * RequiresCompatibilities: Specifies the compatibility requirements for the task, which is set to "FARGATE".
-      * ContainerDefinitions: Specifies the list of containers and their configurations within the task:
-        * Name: Specifies the name of the container.
-        * Image: Specifies the Docker image to use for the container, obtained from the EcrImage parameter.
-        * Essential: Specifies whether the container is essential for the task.
-        * HealthCheck: Specifies the health check configuration for the container.
-        * PortMappings: Specifies the port mappings for the container.
-        * LogConfiguration: Specifies the log configuration for the container.
-        * Environment: Specifies the environment variables for the container, including values obtained from the parameter references.
-        * Secrets: Specifies the secrets for the container, including values obtained from the parameter references.
-  
-**ExecutionRole:**
-  * Type: AWS::IAM::Role
-  * Description: This resource defines an IAM role used by the ECS service to execute tasks.
-  * Properties:
-      * RoleName: Specifies the name of the IAM role.
-      * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
-      * Policies: Specifies the list of policies attached to the role, including permissions for ECR, CloudWatch Logs, and SSM.
-      * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
-  
-**TaskRole:**
-  * Type: AWS::IAM::Role
-  * Description: This resource defines an IAM role used by the ECS task to access SSM for parameter retrieval and SSM Session Manager.
-  * Properties:
-      * RoleName: Specifies the name of the IAM role.
-      * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
-      * Policies: Specifies the list of policies attached to the role, including permissions for SSM messaging.
-      * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
-  
+    * Family: Specifies the family name of the task definition, obtained from the TaskFamily parameter.
+    * ExecutionRoleArn: Specifies the ARN of the task execution role, obtained from the ExecutionRole resource.
+    * TaskRoleArn: Specifies the ARN of the task role, obtained from the TaskRole resource.
+    * NetworkMode: Specifies the network mode for the task, which is set to "awsvpc".
+    * Cpu: Specifies the CPU units to allocate to the task, obtained from the ServiceCpu parameter.
+    * Memory: Specifies the memory to allocate to the task, obtained from the ServiceMemory parameter.
+    * RequiresCompatibilities: Specifies the compatibility requirements for the task, which is set to "FARGATE".
+    * ContainerDefinitions: Specifies the list of containers and their configurations within the task:
+      * Name: Specifies the name of the container.
+      * Image: Specifies the Docker image to use for the container, obtained from the EcrImage parameter.
+      * Essential: Specifies whether the container is essential for the task.
+      * HealthCheck: Specifies the health check configuration for the container.
+      * PortMappings: Specifies the port mappings for the container.
+      * LogConfiguration: Specifies the log configuration for the container.
+      * Environment: Specifies the environment variables for the container, including values obtained from the parameter references.
+      * Secrets: Specifies the secrets for the container, including values obtained from the parameter references.
+
+  **ExecutionRole:**
+  * **Type:** AWS::IAM::Role
+  * **Description:** This resource defines an IAM role used by the ECS service to execute tasks.
+  * **Properties:**
+    * RoleName: Specifies the name of the IAM role.
+    * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
+    * Policies: Specifies the list of policies attached to the role, including permissions for ECR, CloudWatch Logs, and SSM.
+    * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
+
+  **TaskRole:**
+  * **Type: AWS::IAM::Role**
+  * **Description:** This resource defines an IAM role used by the ECS task to access SSM for parameter retrieval and SSM Session Manager.
+  * **Properties:**
+    * RoleName: Specifies the name of the IAM role.
+    * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
+    * Policies: Specifies the list of policies attached to the role, including permissions for SSM messaging.
+    * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
+
 5. **Outputs:**
-   **ServiceUrl:**
-   * Description: This resource defines an IAM role used by the ECS service to execute tasks.
-   * Value: It uses the Fn::Sub function to substitute the desired path with the exported value ${AWS::Region} to construct the URL.
+**ServiceUrl:**
+* Description: This resource defines an IAM role used by the ECS service to execute tasks.
+* Value: It uses the Fn::Sub function to substitute the desired path with the exported value ${AWS::Region} to construct the URL.
   
-  **ClusterName:**
-  * Description: This output provides the name of the ECS cluster where the service is deployed.
-  * Value: It uses the Ref function to reference the FargateService resource and extract the cluster name.
+**ClusterName:**
+* **Description:** This output provides the name of the ECS cluster where the service is deployed.
+* **Value:** It uses the Ref function to reference the FargateService resource and extract the cluster name.
   
-  **BackendTGArn:**
-  * Description: This output provides the ARN (Amazon Resource Name) of the target group associated with the ECS service.
-  * Value: It uses the Fn::ImportValue function to import the target group ARN from the ${ClusterStack}BackendTGArn exported value.
+**BackendTGArn:**
+* **Description:** This output provides the ARN (Amazon Resource Name) of the target group associated with the ECS service.
+* **Value:** It uses the Fn::ImportValue function to import the target group ARN from the ${ClusterStack}BackendTGArn exported value.
 
 **Here is the link to the Cloudformation template file.** [Link to CFN service template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/template.yaml)
