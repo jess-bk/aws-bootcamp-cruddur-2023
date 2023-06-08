@@ -396,7 +396,7 @@ These resources and configurations are defined in the template to set up network
 
 **Here is the link to the cloudformation template file.** [Link to Template File](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cluster/template.yaml)
 
-***CONFIG TOML FILE***
+***CONFIG TOML FILE FOR CLUSTER***
   
 The TOML file is defining a section called [deploy] with three key-value pairs inside it. TOML (Tom's Obvious, Minimal Language) is a configuration file format that is often used for specifying settings and parameters in various application.
   
@@ -560,3 +560,120 @@ This TOML file provides configuration settings related to the deployment of a Cl
 * **Value:** It uses the Fn::ImportValue function to import the target group ARN from the ${ClusterStack}BackendTGArn exported value.
 
 **Here is the link to the Cloudformation template file.** [Link to CFN service template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/template.yaml)
+
+**CONFIG TOML FILE FOR SERVICE**
+The is a configuration file, TOML format, used for deploying a backend Flask service in AWS. Let's break down its contents:
+
+[deploy] section:
+This section defines deployment-specific configurations.
+**bucket:** Specifies the name of the S3 bucket where deployment artifacts will be stored. In this case, the bucket name is set to 'jessbk-cfn-artifacts'.
+**region:** Specifies the AWS region where the deployment will take place. The region is set to 'us-east-1'.
+**stack_name:** Specifies the name of the CloudFormation stack that will be created or updated. The stack name is set to 'CrdSrvBackendFlask'.
+
+**[parameters] section:** This section defines various parameters that can be customized during the deployment process.
+**EnvFrontendUrl:** Specifies the URL of the frontend application associated with the backend service. The default value is 'https://jessbkcloudcampus.com'.
+**EnvBackendUrl:** Specifies the URL of the backend service itself. The default value is 'https://api.jessbkcloudcampus.com'.
+**DDBMessageTable:** Specifies the name of a DynamoDB table that will be used for storing messages. The default value is 'CrdDdb-DynamoDBTable-8VFSE0DDW6OR'.
+  
+**Here is the link to the TOML file.** [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml)
+  
+**BASH SCRIPT** To run the cloudformation service(backend-flask) template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
+  
+**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
+  
+# CLOUDFORMATION FOR DATABASE RDS (POSTGRESQL)
+The template primarily focuses on creating an RDS database instance, its associated security group, and subnet group. The parameters allow customization of various settings, making the template adaptable to different deployment scenarios.
+
+The CloudFormation template is used to define and deploy AWS resources for a primary PostgreSQL RDS database. Let's break down its structure and components:
+**AWSTemplateFormatVersion:** Specifies the version of the AWS CloudFormation template format being used.
+
+**Description:** Provides a description of the CloudFormation template and its purpose.
+
+**Parameters:** Defines input parameters that can be customized when deploying the CloudFormation stack.
+Parameters include networking stack, cluster stack, backup retention period, RDS instance class, database instance identifier, database name, deletion protection, engine version, master username, and master user password.
+
+**Resources:** Describes the AWS resources to be created and managed by the CloudFormation stack.
+
+**RDSPostgresSG:** Defines an EC2 security group for the RDS database. Specifies the group name, description, VPC ID, and inbound rule allowing traffic from a security group associated with the cluster stack.
+Allows inbound traffic on port 5432, which is the default port for PostgreSQL.
+
+**DBSubnetGroup:** Creates an RDS subnet group for the RDS instance. Specifies the subnet group name, description, and a list of subnet IDs. The subnet IDs are imported from the networking stack's exported value of public subnet IDs.
+
+**Database:** Creates an RDS DB instance using the specified engine (PostgreSQL). Configures various properties such as allocated storage, backup retention period, instance class, instance identifier, database name, subnet group, deletion protection, and more. The security group created earlier (RDSPostgresSG) is associated with the DB instance.
+
+**Outputs (commented out in the provided template):** Defines outputs that can be exported and used by other CloudFormation stacks. In this case, an output named ServiceSecurityGroupId is defined, which represents the security group ID of the service. However, it is currently commented out and not active in the template.
+  
+**Here is the link to the Cloudformation template file.** [Link to CFN DATABASE template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/template.yaml)
+  
+**CONFIG TOML FILE FOR DATABASE**
+The provided TOML file is a configuration file used for deploying a CloudFormation stack. Let's break down its structure and components:
+
+**[deploy] section:** Specifies the deployment settings for the CloudFormation stack.
+**bucket parameter:** Specifies the S3 bucket where CloudFormation artifacts will be stored.
+**region parameter:** Specifies the AWS region where the stack will be deployed.
+**stack_name parameter:** Specifies the name of the CloudFormation stack.
+
+**[parameters] section:** Defines additional parameters used during the stack deployment.
+**NetworkingStack parameter:** Specifies the name of the networking stack to be used. This value is likely used to reference the networking stack within the CloudFormation template.
+**ClusterStack parameter:** Specifies the name of the cluster stack to be used. This value is likely used to reference the cluster stack within the CloudFormation template.
+**MasterUsername parameter:** Specifies the username for the master user of the deployed resources. It appears to be a specific username chosen for this deployment.
+
+**TOML FILE** 
+Here is the link to the TOML file.** [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/config.toml)
+  
+**BASH SCRIPT** 
+To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
+
+**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
+  
+# CLOUDFORMATION FOR FRONTEND REACT TEMPLATE.
+The provided CloudFormation template creates the necessary AWS resources to set up a static website with CloudFront, S3 buckets, and Route 53 records. Here's an explanation of what the template does:
+  
+**AWSTemplateFormatVersion:** 2010-09-09: Specifies the CloudFormation template version.
+
+**Description:** |: Provides a description of the resources being created.
+
+**Parameters:** Defines the input parameters that can be passed to the CloudFormation stack during deployment. The template expects the following parameters:
+
+**CertificateArn:** A string parameter representing the ARN (Amazon Resource Name) of an ACM certificate.
+
+**WwwBucketName:** A string parameter representing the name of the S3 bucket for the "www" subdomain.
+
+**RootBucketName:** A string parameter representing the name of the S3 bucket for the root/naked domain.
+
+**Resources:** Defines the AWS resources that will be created within the stack.
+
+**RootBucketPolicy:** Creates an S3 bucket policy for the root bucket. The policy allows public read access to objects in the bucket.
+
+**WWWBucket:** Creates an S3 bucket for the "www" subdomain and configures it as a website that redirects all requests to the root domain.
+
+**RootBucket:** Creates an S3 bucket for the root/naked domain. It is configured as a website and specifies the index and error documents.
+
+**RootBucketDomain and WwwBucketDomain:** Create Route 53 record sets for the root and "www" subdomain, respectively. These record sets use alias targets pointing to the CloudFront distribution.
+
+**Distribution:** Creates a CloudFront distribution for the static website. It specifies the aliases, origins (using the root S3 bucket), default cache behavior, SSL certificate, and error responses.
+
+**Here is the link to the Cloudformation template file.** [Link to CFN frontend template] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/template.yaml)
+The template sets up the infrastructure required for hosting a static website, including the CloudFront distribution for content delivery, S3 buckets for storing the website files, and Route 53 record sets for DNS resolution.
+  
+**CONFIG TOML FILE FOR FRONTEND**
+The TOML configuration file contains settings for deploying a CloudFormation stack named 'CrdFrontend'. Here's an explanation of the configuration:
+
+**[deploy]:** Represents a section in the TOML file for deployment-specific settings.
+**bucket** = 'jessbk-cfn-artifacts': Specifies the name of the S3 bucket where CloudFormation artifacts will be stored. In this case, the bucket name is 'jessbk-cfn-artifacts'.
+**region** = 'us-east-1': Specifies the AWS region where the CloudFormation stack will be deployed. The region is set to 'us-east-1' (US East - N. Virginia).
+**stack_name** = 'CrdFrontend': Specifies the name of the CloudFormation stack that will be created. The stack name is set to 'CrdFrontend'.
+
+**[parameters]:** Represents a section in the TOML file for defining parameters used during stack deployment.
+**CertificateArn** = 'arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8': Specifies the ARN (Amazon Resource Name) of an ACM certificate. The certificate is used for enabling HTTPS on the CloudFront distribution.
+**WwwBucketName** = 'www.jessbkcloudcampus.com': Specifies the name of the S3 bucket for the "www" subdomain. The value is set to 'www.jessbkcloudcampus.com'.
+**RootBucketName** = 'jessbkcloudcampus.com': Specifies the name of the S3 bucket for the root/naked domain. The value is set to 'jessbkcloudcampus.com'.
+  
+**TOML FILE** 
+Here is the link to the TOML file. [Link to TOML file] (https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/config.toml)
+
+**BASH SCRIPT** 
+To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, The Bash script is responsible for deploying a CloudFormation stack CrdFrontend for the frontend application, this script sets up the necessary variables, performs linting on the CloudFormation template, retrieves deployment settings from the TOML configuration file, and then deploys the CloudFormation stack using the AWS CLI. It provides a streamlined way to deploy the frontend.
+  
+**Here is the link to the bash script.** 
+[Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/frontend)
