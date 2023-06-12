@@ -400,15 +400,15 @@ These resources and configurations are defined in the template to set up network
   
 The TOML file is defining a section called [deploy] with three key-value pairs inside it. TOML (Tom's Obvious, Minimal Language) is a configuration file format that is often used for specifying settings and parameters in various application.
   
-1. bucket = 'jessbk-cfn-artifacts': This line assigns the value 'jessbk-cfn-artifacts' to the key bucket inside the [deploy] section. It indicates the name of the S3 bucket where CloudFormation artifacts (such as templates and related files) will be stored or retrieved from during the deployment process.
+1. **bucket** = 'jessbk-cfn-artifacts': This line assigns the value 'jessbk-cfn-artifacts' to the key bucket inside the [deploy] section. It indicates the name of the S3 bucket where CloudFormation artifacts (such as templates and related files) will be stored or retrieved from during the deployment process.
   
-2. region = 'us-east-1': This line assigns the value 'us-east-1' to the key region inside the [deploy] section. It specifies the AWS region where the CloudFormation stack will be deployed. In this case, the stack will be deployed in the US East (N. Virginia) region.
+2. **region** = 'us-east-1': This line assigns the value 'us-east-1' to the key region inside the [deploy] section. It specifies the AWS region where the CloudFormation stack will be deployed. In this case, the stack will be deployed in the US East (N. Virginia) region.
   
-3. stack_name = 'CrdNet': This line assigns the value 'CrdCluster' to the key stack_name inside the [deploy] section. It indicates the desired name for the CloudFormation stack that will be created or updated during the deployment process. In this case, the stack will be named 'CrdCluster'.]
+3. **stack_name** = 'CrdNet': This line assigns the value 'CrdCluster' to the key stack_name inside the [deploy] section. It indicates the desired name for the CloudFormation stack that will be created or updated during the deployment process. In this case, the stack will be named 'CrdCluster'.]
   
-4. CertificateArn: Specifies the ARN (Amazon Resource Name) of an ACM (AWS Certificate Manager) certificate (arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8).
+4. **CertificateArn:** Specifies the ARN (Amazon Resource Name) of an ACM (AWS Certificate Manager) certificate (arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8).
   
-5. NetworkingStack: Specifies the name of the networking stack (CrdNet) that this CloudFormation stack depends on.
+5. **NetworkingStack:** Specifies the name of the networking stack (CrdNet) that this CloudFormation stack depends on.
   
 **Here is the link to the cloudformation toml file.** [Link to TOML File](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cluster/config.toml)
   
@@ -416,25 +416,25 @@ This TOML file provides configuration settings related to the deployment of a Cl
 
   
 **BASH SCRIPT** To run the cloudformation template i have created a bash script, The script performs the following actions:
-* set -e: This command sets the script to exit immediately if any command within it fails (returns a non-zero exit status). This is often used to ensure the script stops execution if an error occurs.
+* **set -e:** This command sets the script to exit immediately if any command within it fails (returns a non-zero exit status). This is often used to ensure the script stops execution if an error occurs.
   
-* CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/cluster/template.yaml": This line assigns the file path of the CloudFormation template (template.yaml) to the CFN_PATH variable.
+* **CFN_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/cluster/template.yaml":** This line assigns the file path of the CloudFormation template (template.yaml) to the CFN_PATH variable.
   
-* CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/cluster/config.toml": This line assigns the file path of the configuration file (config.toml) to the CONFIG_PATH variable.
+* **CONFIG_PATH="/workspace/aws-bootcamp-cruddur-2023/aws/cfn/cluster/config.toml":** This line assigns the file path of the configuration file (config.toml) to the CONFIG_PATH variable.
 
-* echo $CFN_PATH: This line prints the value of the CFN_PATH variable to the console.
+* **echo $CFN_PATH:** This line prints the value of the CFN_PATH variable to the console.
 
-* cfn-lint $CFN_PATH: This command runs the cfn-lint tool to check the CloudFormation template file for any potential issues or errors.
+* **cfn-lint $CFN_PATH:** This command runs the cfn-lint tool to check the CloudFormation template file for any potential issues or errors.
 
-* BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_PATH): This line retrieves the value of the deploy.bucket key from the config.toml file using the cfn-toml tool and assigns it to the BUCKET variable.
+* **BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_PATH):** This line retrieves the value of the deploy.bucket key from the config.toml file using the cfn-toml tool and assigns it to the BUCKET variable.
 
-* REGION=$(cfn-toml key deploy.region -t $CONFIG_PATH): This line retrieves the value of the deploy.region key from the config.toml file using the cfn-toml tool and assigns it to the REGION variable.
+* **REGION=$(cfn-toml key deploy.region -t $CONFIG_PATH):** This line retrieves the value of the deploy.region key from the config.toml file using the cfn-toml tool and assigns it to the REGION variable.
 
-* STACK_NAME=$(cfn-toml key deploy.stack_name -t $CONFIG_PATH): This line retrieves the value of the deploy.stack_name key from the config.toml file using the cfn-toml tool and assigns it to the STACK_NAME variable.
+* **STACK_NAME=$(cfn-toml key deploy.stack_name -t $CONFIG_PATH):** This line retrieves the value of the deploy.stack_name key from the config.toml file using the cfn-toml tool and assigns it to the STACK_NAME variable.
   
-* PARAMETERS=$(cfn-toml params v2 -t $CONFIG_PATH): This line retrieves the CloudFormation parameters from the config.toml file using the cfn-toml tool and assigns them to the PARAMETERS variable.
+* **PARAMETERS=$(cfn-toml params v2 -t $CONFIG_PATH):** This line retrieves the CloudFormation parameters from the config.toml file using the cfn-toml tool and assigns them to the PARAMETERS variable.
 
-* aws cloudformation deploy ...: This command deploys the CloudFormation stack using the AWS CLI (aws cloudformation deploy). It specifies the stack name, S3 bucket, AWS region, CloudFormation template file, and other deployment options such as tags, prefix, parameter overrides, and capabilities.
+* **aws cloudformation deploy ...:** This command deploys the CloudFormation stack using the AWS CLI (aws cloudformation deploy). It specifies the stack name, S3 bucket, AWS region, CloudFormation template file, and other deployment options such as tags, prefix, parameter overrides, and capabilities.
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cluster)
 
@@ -508,48 +508,48 @@ This TOML file provides configuration settings related to the deployment of a Cl
     * **TaskDefinition:** Specifies the task definition to use for the service, obtained from the TaskDefinition resource.
 
   **TaskDefinition:**
-  * Type: AWS::ECS::TaskDefinition
-  * Description: This resource defines an ECS task definition that describes how a container should be launched and configured.
-  * Properties:
-    * Family: Specifies the family name of the task definition, obtained from the TaskFamily parameter.
-    * ExecutionRoleArn: Specifies the ARN of the task execution role, obtained from the ExecutionRole resource.
-    * TaskRoleArn: Specifies the ARN of the task role, obtained from the TaskRole resource.
-    * NetworkMode: Specifies the network mode for the task, which is set to "awsvpc".
-    * Cpu: Specifies the CPU units to allocate to the task, obtained from the ServiceCpu parameter.
-    * Memory: Specifies the memory to allocate to the task, obtained from the ServiceMemory parameter.
-    * RequiresCompatibilities: Specifies the compatibility requirements for the task, which is set to "FARGATE".
-    * ContainerDefinitions: Specifies the list of containers and their configurations within the task:
-      * Name: Specifies the name of the container.
-      * Image: Specifies the Docker image to use for the container, obtained from the EcrImage parameter.
-      * Essential: Specifies whether the container is essential for the task.
-      * HealthCheck: Specifies the health check configuration for the container.
-      * PortMappings: Specifies the port mappings for the container.
-      * LogConfiguration: Specifies the log configuration for the container.
-      * Environment: Specifies the environment variables for the container, including values obtained from the parameter references.
-      * Secrets: Specifies the secrets for the container, including values obtained from the parameter references.
+  * **Type:** AWS::ECS::TaskDefinition
+  * **Description:** This resource defines an ECS task definition that describes how a container should be launched and configured.
+  * **Properties:**
+    * **Family:** Specifies the family name of the task definition, obtained from the TaskFamily parameter.
+    * **ExecutionRoleArn:** Specifies the ARN of the task execution role, obtained from the ExecutionRole resource.
+    * **TaskRoleArn:** Specifies the ARN of the task role, obtained from the TaskRole resource.
+    * **NetworkMode:** Specifies the network mode for the task, which is set to "awsvpc".
+    * **Cpu:** Specifies the CPU units to allocate to the task, obtained from the ServiceCpu parameter.
+    * **Memory:** Specifies the memory to allocate to the task, obtained from the ServiceMemory parameter.
+    * **RequiresCompatibilities:** Specifies the compatibility requirements for the task, which is set to "FARGATE".
+    * **ContainerDefinitions:** Specifies the list of containers and their configurations within the task:
+      * **Name:** Specifies the name of the container.
+      * **Image:** Specifies the Docker image to use for the container, obtained from the EcrImage parameter.
+      * **Essential:** Specifies whether the container is essential for the task.
+      * **HealthCheck:** Specifies the health check configuration for the container.
+      * **PortMappings:** Specifies the port mappings for the container.
+      * **LogConfiguration:** Specifies the log configuration for the container.
+      * **Environment:** Specifies the environment variables for the container, including values obtained from the parameter references.
+      * **Secrets:** Specifies the secrets for the container, including values obtained from the parameter references.
 
   **ExecutionRole:**
   * **Type:** AWS::IAM::Role
   * **Description:** This resource defines an IAM role used by the ECS service to execute tasks.
   * **Properties:**
-    * RoleName: Specifies the name of the IAM role.
-    * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
-    * Policies: Specifies the list of policies attached to the role, including permissions for ECR, CloudWatch Logs, and SSM.
-    * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
+    * **RoleName:** Specifies the name of the IAM role.
+    * **AssumeRolePolicyDocument:** Specifies the permissions policy that grants ECS tasks the permission to assume this role.
+    * **Policies:** Specifies the list of policies attached to the role, including permissions for ECR, CloudWatch Logs, and SSM.
+    * **ManagedPolicyArns:** Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
 
   **TaskRole:**
   * **Type: AWS::IAM::Role**
   * **Description:** This resource defines an IAM role used by the ECS task to access SSM for parameter retrieval and SSM Session Manager.
   * **Properties:**
-    * RoleName: Specifies the name of the IAM role.
-    * AssumeRolePolicyDocument: Specifies the permissions policy that grants ECS tasks the permission to assume this role.
-    * Policies: Specifies the list of policies attached to the role, including permissions for SSM messaging.
-    * ManagedPolicyArns: Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
+    * **RoleName:** Specifies the name of the IAM role.
+    * **AssumeRolePolicyDocument:** Specifies the permissions policy that grants ECS tasks the permission to assume this role.
+    * **Policies:** Specifies the list of policies attached to the role, including permissions for SSM messaging.
+    * **ManagedPolicyArns:** Specifies the ARNs of the managed policies attached to the role, including CloudWatch Logs and X-Ray access.
 
 5. **Outputs:**
 **ServiceUrl:**
-* Description: This resource defines an IAM role used by the ECS service to execute tasks.
-* Value: It uses the Fn::Sub function to substitute the desired path with the exported value ${AWS::Region} to construct the URL.
+* **Description:** This resource defines an IAM role used by the ECS service to execute tasks.
+* **Value:** It uses the Fn::Sub function to substitute the desired path with the exported value ${AWS::Region} to construct the URL.
   
 **ClusterName:**
 * **Description:** This output provides the name of the ECS cluster where the service is deployed.
@@ -564,16 +564,16 @@ This TOML file provides configuration settings related to the deployment of a Cl
 **CONFIG TOML FILE FOR SERVICE**
 The is a configuration file, TOML format, used for deploying a backend Flask service in AWS. Let's break down its contents:
 
-[deploy] section:
+**[deploy] section:**
 This section defines deployment-specific configurations.
-**bucket:** Specifies the name of the S3 bucket where deployment artifacts will be stored. In this case, the bucket name is set to 'jessbk-cfn-artifacts'.
-**region:** Specifies the AWS region where the deployment will take place. The region is set to 'us-east-1'.
-**stack_name:** Specifies the name of the CloudFormation stack that will be created or updated. The stack name is set to 'CrdSrvBackendFlask'.
+* **bucket:** Specifies the name of the S3 bucket where deployment artifacts will be stored. In this case, the bucket name is set to 'jessbk-cfn-artifacts'.
+* **region:** Specifies the AWS region where the deployment will take place. The region is set to 'us-east-1'.
+* **stack_name:** Specifies the name of the CloudFormation stack that will be created or updated. The stack name is set to 'CrdSrvBackendFlask'.
 
-**[parameters] section:** This section defines various parameters that can be customized during the deployment process.
-**EnvFrontendUrl:** Specifies the URL of the frontend application associated with the backend service. The default value is 'https://jessbkcloudcampus.com'.
-**EnvBackendUrl:** Specifies the URL of the backend service itself. The default value is 'https://api.jessbkcloudcampus.com'.
-**DDBMessageTable:** Specifies the name of a DynamoDB table that will be used for storing messages. The default value is 'CrdDdb-DynamoDBTable-8VFSE0DDW6OR'.
+* **[parameters] section:** This section defines various parameters that can be customized during the deployment process.
+* **EnvFrontendUrl:** Specifies the URL of the frontend application associated with the backend service. The default value is 'https://jessbkcloudcampus.com'.
+* **EnvBackendUrl:** Specifies the URL of the backend service itself. The default value is 'https://api.jessbkcloudcampus.com'.
+* **DDBMessageTable:** Specifies the name of a DynamoDB table that will be used for storing messages. The default value is 'CrdDdb-DynamoDBTable-8VFSE0DDW6OR'.
   
 **Here is the link to the TOML file.** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml)
   
@@ -608,15 +608,15 @@ Allows inbound traffic on port 5432, which is the default port for PostgreSQL.
 **CONFIG TOML FILE FOR DATABASE**
 The provided TOML file is a configuration file used for deploying a CloudFormation stack. Let's break down its structure and components:
 
-**[deploy] section:** Specifies the deployment settings for the CloudFormation stack.
-**bucket parameter:** Specifies the S3 bucket where CloudFormation artifacts will be stored.
-**region parameter:** Specifies the AWS region where the stack will be deployed.
-**stack_name parameter:** Specifies the name of the CloudFormation stack.
+* **[deploy] section:** Specifies the deployment settings for the CloudFormation stack.
+* **bucket parameter:** Specifies the S3 bucket where CloudFormation artifacts will be stored.
+* **region parameter:** Specifies the AWS region where the stack will be deployed.
+* **stack_name parameter:** Specifies the name of the CloudFormation stack.
 
-**[parameters] section:** Defines additional parameters used during the stack deployment.
-**NetworkingStack parameter:** Specifies the name of the networking stack to be used. This value is likely used to reference the networking stack within the CloudFormation template.
-**ClusterStack parameter:** Specifies the name of the cluster stack to be used. This value is likely used to reference the cluster stack within the CloudFormation template.
-**MasterUsername parameter:** Specifies the username for the master user of the deployed resources. It appears to be a specific username chosen for this deployment.
+* **[parameters] section:** Defines additional parameters used during the stack deployment.
+* **NetworkingStack parameter:** Specifies the name of the networking stack to be used. This value is likely used to reference the networking stack within the CloudFormation template.
+* **ClusterStack parameter:** Specifies the name of the cluster stack to be used. This value is likely used to reference the cluster stack within the CloudFormation template.
+* **MasterUsername parameter:** Specifies the username for the master user of the deployed resources. It appears to be a specific username chosen for this deployment.
 
 **TOML FILE** 
 **Here is the link to the TOML file.** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/db/config.toml)
@@ -662,15 +662,15 @@ The template sets up the infrastructure required for hosting a static website, i
 **CONFIG TOML FILE FOR FRONTEND**
 The TOML configuration file contains settings for deploying a CloudFormation stack named 'CrdFrontend'. Here's an explanation of the configuration:
 
-**[deploy]:** Represents a section in the TOML file for deployment-specific settings.
-**bucket** = 'jessbk-cfn-artifacts': Specifies the name of the S3 bucket where CloudFormation artifacts will be stored. In this case, the bucket name is 'jessbk-cfn-artifacts'.
-**region** = 'us-east-1': Specifies the AWS region where the CloudFormation stack will be deployed. The region is set to 'us-east-1' (US East - N. Virginia).
-**stack_name** = 'CrdFrontend': Specifies the name of the CloudFormation stack that will be created. The stack name is set to 'CrdFrontend'.
+* **[deploy]:** Represents a section in the TOML file for deployment-specific settings.
+* **bucket** = 'jessbk-cfn-artifacts': Specifies the name of the S3 bucket where CloudFormation artifacts will be stored. In this case, the bucket name is 'jessbk-cfn-artifacts'.
+* **region** = 'us-east-1': Specifies the AWS region where the CloudFormation stack will be deployed. The region is set to 'us-east-1' (US East - N. Virginia).
+* **stack_name** = 'CrdFrontend': Specifies the name of the CloudFormation stack that will be created. The stack name is set to 'CrdFrontend'.
 
-**[parameters]:** Represents a section in the TOML file for defining parameters used during stack deployment.
-**CertificateArn** = 'arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8': Specifies the ARN (Amazon Resource Name) of an ACM certificate. The certificate is used for enabling HTTPS on the CloudFront distribution.
-**WwwBucketName** = 'www.jessbkcloudcampus.com': Specifies the name of the S3 bucket for the "www" subdomain. The value is set to 'www.jessbkcloudcampus.com'.
-**RootBucketName** = 'jessbkcloudcampus.com': Specifies the name of the S3 bucket for the root/naked domain. The value is set to 'jessbkcloudcampus.com'.
+* **[parameters]:** Represents a section in the TOML file for defining parameters used during stack deployment.
+* **CertificateArn** = 'arn:aws:acm:us-east-1:517899574827:certificate/e9413679-adc8-4578-a3ae-47f94111bcd8': Specifies the ARN (Amazon Resource Name) of an ACM certificate. The certificate is used for enabling HTTPS on the CloudFront distribution.
+* ****WwwBucketName** = 'www.jessbkcloudcampus.com': Specifies the name of the S3 bucket for the "www" subdomain. The value is set to 'www.jessbkcloudcampus.com'.
+* ****RootBucketName** = 'jessbkcloudcampus.com': Specifies the name of the S3 bucket for the root/naked domain. The value is set to 'jessbkcloudcampus.com'.
   
 **TOML FILE** Here is the link to the TOML file. [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/frontend/config.toml)
 
@@ -700,20 +700,20 @@ POP UP WINDOW SELECT THE GITHUB REPO CONNECTION).
 The nested CloudFormation template located at aws/cfn/cicd/nested/codebuild.yaml sets up a CodeBuild project for building container images. Here's a breakdown of its contents:
 
 **Parameters:**
-  * LogGroupPath: A string parameter that specifies the path for the CloudWatch Logs log group associated with CodeBuild.
-  * LogStreamName: A string parameter that specifies the name of the CloudWatch Logs log stream associated with CodeBuild.
-  * CodeBuildImage: A string parameter that specifies the Docker image to be used for the CodeBuild project.
-  * CodeBuildComputeType: A string parameter that specifies the compute type for CodeBuild.
-  * CodeBuildTimeoutMins: A number parameter that specifies the timeout duration for the CodeBuild project.
-  * BuildSpec: A string parameter that specifies the build specification file to be used by CodeBuild.
-  * ArtifactBucketName: A string parameter that specifies the name of the bucket where artifacts will be stored during the build process.
+  * **LogGroupPath:** A string parameter that specifies the path for the CloudWatch Logs log group associated with CodeBuild.
+  * **LogStreamName:** A string parameter that specifies the name of the CloudWatch Logs log stream associated with CodeBuild.
+  * **CodeBuildImage:** A string parameter that specifies the Docker image to be used for the CodeBuild project.
+  * **CodeBuildComputeType:** A string parameter that specifies the compute type for CodeBuild.
+  * **CodeBuildTimeoutMins:** A number parameter that specifies the timeout duration for the CodeBuild project.
+  * **BuildSpec:** A string parameter that specifies the build specification file to be used by CodeBuild.
+  * **ArtifactBucketName:** A string parameter that specifies the name of the bucket where artifacts will be stored during the build process.
 
 **Resources:**
-  * CodeBuild: Creates an AWS CodeBuild project using the AWS::CodeBuild::Project resource type. It configures various properties including the project timeout, service role, build artifacts (set as CODEPIPELINE   type), environment settings (compute type, Docker image, privileged mode), logs configuration, and source type (set as CODEPIPELINE). It also references the BuildSpec parameter for the build specification       file.
-  * CodeBuildRole: Creates an IAM role (AWS::IAM::Role) for the CodeBuild project. It defines an assume role policy, granting permissions for CodeBuild service. The role has several policies attached to it,       allowing access to S3 artifacts, ECR (Elastic Container Registry), VPC (Virtual Private Cloud) resources, and CloudWatch Logs.
+  * **CodeBuild:** Creates an AWS CodeBuild project using the AWS::CodeBuild::Project resource type. It configures various properties including the project timeout, service role, build artifacts (set as               CODEPIPELINE   type), environment settings (compute type, Docker image, privileged mode), logs configuration, and source type (set as CODEPIPELINE). It also references the BuildSpec parameter for the build specification       file.
+  * **CodeBuildRole:** Creates an IAM role (AWS::IAM::Role) for the CodeBuild project. It defines an assume role policy, granting permissions for CodeBuild service. The role has several policies attached to it,       allowing access to S3 artifacts, ECR (Elastic Container Registry), VPC (Virtual Private Cloud) resources, and CloudWatch Logs.
 
 **Outputs:**
-  * CodeBuildProjectName: Exposes the CodeBuild project name as an output.
+  * **CodeBuildProjectName:** Exposes the CodeBuild project name as an output.
 
 The nested CloudFormation template provides the infrastructure and configuration needed to set up a CodeBuild project for building container images, with the necessary permissions and resource access.
 
@@ -736,7 +736,7 @@ The provided configuration represent a deployment process using AWS CloudFormati
 
 In summary, the provided configuration sets up a continuous deployment pipeline using CodePipeline and CodeBuild. It retrieves the source code from GitHub, builds a container image using CodeBuild, and deploys the image to an ECS cluster using CloudFormation stacks (ClusterStack and ServiceStack).
   
-**Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
+**Here is the link to the bash script that runs the stack.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
   
 This script automates the packaging and deployment of the CloudFormation template using AWS CLI commands, based on the provided configuration file. It helps streamline the deployment process and ensures that the template is properly packaged and deployed to the designated stack.
   
@@ -752,32 +752,32 @@ The YAML template is written in AWS CloudFormation syntax and defines a serverle
 **Let's focus on the key resources defined in the template:**
   
 **DynamoDBTable:**
-**Type:** AWS::DynamoDB::Table
-**Properties:** Configures a DynamoDB table.
-**AttributeDefinitions:** Defines the attributes of the table.
-**KeySchema:** Specifies the primary key attributes.
-**ProvisionedThroughput:** Sets the provisioned capacity for read and write operations.
-**BillingMode:** Sets the billing mode for the table.
-**GlobalSecondaryIndexes:** Configures global secondary indexes for the table.
-**StreamSpecification:** Enables DynamoDB Streams for the table.
-**ProcessDynamoDBStream:** Type: AWS::Serverless::Function
-**Properties:** Defines a Lambda function.
-**CodeUri:** Specifies the location of the function code.
-**Handler:** Specifies the entry point for the function.
-**Runtime:** Sets the runtime environment for the function.
-**Role:** Specifies the IAM role used by the function.
-**MemorySize:** Sets the memory allocation for the function.
-**Timeout:** Sets the maximum execution time for the function.
-**Events:** Configures event sources for the function.
-**Stream:** Defines a DynamoDB stream as the event source.
-**LambdaLogGroup:** Type: AWS::Logs::LogGroup
-**Properties:** Creates a log group for the Lambda function.
-**LambdaLogStream:** Type: AWS::Logs::LogStream
-**Properties:** Creates a log stream within the LambdaLogGroup.
-**ExecutionRole:** Type: AWS::IAM::Role
-**Properties:** Defines an IAM role for the Lambda function.
-**AssumeRolePolicyDocument:** Specifies the trust policy allowing Lambda to assume this role.
-**Policies:** Defines the permissions policies associated with the role.
+* **Type:** AWS::DynamoDB::Table
+* **Properties:** Configures a DynamoDB table.
+* **AttributeDefinitions:** Defines the attributes of the table.
+* **KeySchema:** Specifies the primary key attributes.
+* **ProvisionedThroughput:** Sets the provisioned capacity for read and write operations.
+* **BillingMode:** Sets the billing mode for the table.
+* **GlobalSecondaryIndexes:** Configures global secondary indexes for the table.
+* **StreamSpecification:** Enables DynamoDB Streams for the table.
+* **ProcessDynamoDBStream:** Type: AWS::Serverless::Function
+* **Properties:** Defines a Lambda function.
+* **CodeUri:** Specifies the location of the function code.
+* **Handler:** Specifies the entry point for the function.
+* **Runtime:** Sets the runtime environment for the function.
+* **Role:** Specifies the IAM role used by the function.
+* **MemorySize:** Sets the memory allocation for the function.
+* **Timeout:** Sets the maximum execution time for the function.
+* **Events:** Configures event sources for the function.
+* **Stream:** Defines a DynamoDB stream as the event source.
+* **LambdaLogGroup:** Type: AWS::Logs::LogGroup
+* **Properties:** Creates a log group for the Lambda function.
+* **LambdaLogStream:** Type: AWS::Logs::LogStream
+* **Properties:** Creates a log stream within the LambdaLogGroup.
+* **ExecutionRole:** Type: AWS::IAM::Role
+* **Properties:** Defines an IAM role for the Lambda function.
+* **AssumeRolePolicyDocument:** Specifies the trust policy allowing Lambda to assume this role.
+* **Policies:** Defines the permissions policies associated with the role.
 
 The template sets up a DynamoDB table with a primary key, global secondary index, and DynamoDB Streams enabled. It also provisions a Lambda function that processes the DynamoDB stream. The IAM role and necessary permissions are defined for the Lambda function, along with log group and log stream configurations.
 
