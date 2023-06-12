@@ -363,8 +363,6 @@ chmod u+x bin/cfn/networking-deploy
 ![image week10 aws](assets/week10aws/cfn_layer_overview.png)
 
 ![image week10 aws](assets/week10aws/cfn_layer_resources.png)
-  
-![image week10 aws](assets/week10aws/cluster_created.png)
 
 ![image week10 aws](assets/week10aws/s3bucket_stored_template.png)
 
@@ -445,6 +443,11 @@ This TOML file provides configuration settings related to the deployment of a Cl
 * **aws cloudformation deploy ...:** This command deploys the CloudFormation stack using the AWS CLI (aws cloudformation deploy). It specifies the stack name, S3 bucket, AWS region, CloudFormation template file, and other deployment options such as tags, prefix, parameter overrides, and capabilities.
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cluster)
+  
+# CLUSTER LAYER IMAGE
+  
+![image week10 aws](assets/week10aws/cluster_created.png)
+  
 
 # CLOUDFORMATION FOR SERVICE LAYER (FLASK-BACKEND) PART 3
 
@@ -589,6 +592,10 @@ This section defines deployment-specific configurations.
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
   
+# BACKEND SERVICES STACK IMAGE
+  
+![image week10 aws](assets/week10aws/backend_service_week_10.png)
+  
 # CLOUDFORMATION FOR DATABASE RDS (POSTGRESQL) PART 4
 The template primarily focuses on creating an RDS database instance, its associated security group, and subnet group. The parameters allow customization of various settings, making the template adaptable to different deployment scenarios.
 
@@ -632,7 +639,10 @@ The provided TOML file is a configuration file used for deploying a CloudFormati
 **BASH SCRIPT** **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/service)
   
 To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
-
+  
+# RDS STACK IMAGE
+  
+![image week10 aws](assets/week10aws/rds_week_10.png)
 
 # CLOUDFORMATION FOR FRONTEND REACT TEMPLATE PART 5
   
@@ -685,8 +695,16 @@ The TOML configuration file contains settings for deploying a CloudFormation sta
 To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, The Bash script is responsible for deploying a CloudFormation stack CrdFrontend for the frontend application, this script sets up the necessary variables, performs linting on the CloudFormation template, retrieves deployment settings from the TOML configuration file, and then deploys the CloudFormation stack using the AWS CLI. It provides a streamlined way to deploy the frontend.
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/frontend)
+
+# FRONTEND STACK IMAGE
   
-# CLOUDFORMATION FOR CICD TEMPLATE PART 5
+![image week10 aws](assets/week10aws/frontend_cfn.png)
+  
+![image week10 aws](assets/week10aws/frontend_cfn_week_10.png)
+  
+![image week10 aws](assets/week10aws/nested_cicd_week_10.png)
+  
+# CLOUDFORMATION FOR CICD TEMPLATE PART 6
 This AWS CloudFormation template describes the infrastructure and resources required to set up a CI/CD pipeline using CodeStar Connections, CodePipeline, CodeBuild, and ECS (Elastic Container Service). Let's go through the different sections and what they do:
   
 **AWSTemplateFormatVersion and Description:** These sections specify the version of AWS CloudFormation being used and provide a description of the template.
@@ -746,6 +764,15 @@ In summary, the provided configuration sets up a continuous deployment pipeline 
 **Here is the link to the bash script that runs the stack.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
   
 This script automates the packaging and deployment of the CloudFormation template using AWS CLI commands, based on the provided configuration file. It helps streamline the deployment process and ensures that the template is properly packaged and deployed to the designated stack.
+  
+  
+# CICD STACK IMAGE
+  
+![image week10 aws](assets/week10aws/cicd_stack_cfn_week_10.png)
+  
+![image week10 aws](assets/week10aws/cfn_cicd_pipelines.png)
+  
+![image week10 aws](assets/week10aws/nested_cicd_week_10.png)
   
 # CLOUDFORMATION SAM TEMPLATE PART 6
 The YAML template is written in AWS CloudFormation syntax and defines a serverless application consisting of a DynamoDB table, a Lambda function, and associated resources. Let's break down the template and understand its components:
@@ -877,6 +904,12 @@ The bash script is performing a build operation using the AWS Serverless Applica
 
   
 The script essentially performs a build operation for the SAM application by executing the sam build command. It validates the SAM template using the sam validate command and then builds the application using the specified options and arguments. The output of the script includes formatted output indicating the progress or completion of the build operation.
+
+# DDB STACK IMAGE AND SAM TEMPLATE DEPLOY IMAGE
+  
+![image week10 aws](assets/week10aws/sam_aws_ddb_cfn.png)
+  
+![image week10 aws](assets/week10aws/sam_ddb_cfn.png)
   
 # CLOUDFORMATION FOR MACHINE USER TEMPLATE PART 7 
 The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
@@ -896,4 +929,11 @@ When running the deployment process using these parameter values, it will create
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
   
 The script performs linting on the CloudFormation template, extracts necessary configuration values, and deploys the stack using the AWS CLI and CloudFormation, with specific options and parameters.
+
+# MACHINE USER STACK IMAGE
   
+![image week10 aws](assets/week10aws/machine_user_cfn_week_10.png)
+  
+# FRONTEND SUCCESSFULLY WORKING
+  
+![image week10 aws](assets/week10aws/rds_prod_webpage.png)
