@@ -29,11 +29,19 @@
 
 **Cfn-guard**, on the other hand, is a policy-as-code framework for CloudFormation templates. It allows you to define and enforce rules for your templates, ensuring that they meet the compliance and security requirements of your organization. Cfn-guard works by validating templates against a set of rules defined in a policy file, and it will fail templates that do not comply with the rules. This helps to ensure that your templates are secure and compliant with your organization's policies and best practices.
 
-# Installing Cfn-lint and Cfn-guard in Project
+**AWS SAM (Serverless Application Model)**, is an open-source framework provided by Amazon Web Services (AWS) for building serverless applications. It simplifies the development, deployment, and management of serverless applications by providing a simplified syntax for defining serverless resources such as functions, APIs, databases, and event sources. In this project we will be creating SAM Template, that uses a YAML or JSON-based template file called the SAM template to define the serverless application's resources. It extends AWS CloudFormation templates with additional serverless-specific resources and properties.
+
+# Installing Cfn-lint and Cfn-guard and AWS SAM in Project
 Added configuration to gitpod.yml file to install on launching gitpod.
 
 ```
 tasks:
+  - name: aws-sam
+    init: |
+      cd /workspace
+      wget https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+      unzip aws-sam-cli-linux-x86_64.zip -d sam-installation
+      sudo ./sam-installation/install
   - name: cfn
     before: |
       pip install cfn-lint
@@ -626,7 +634,6 @@ The provided TOML file is a configuration file used for deploying a CloudFormati
 To run the cloudformation DataBase template, i have created a bash script, this script performs linting on the CloudFormation template, reads the necessary configuration values from a TOML file, and deploys the CloudFormation stack using the AWS CLI command. The use of set -e ensures that the script stops execution if any command fails, helping to catch errors early in the deployment process.
 
 
-  
 # CLOUDFORMATION FOR FRONTEND REACT TEMPLATE PART 5
   
 The provided CloudFormation template creates the necessary AWS resources to set up a static website with CloudFront, S3 buckets, and Route 53 records. Here's an explanation of what the template does:
@@ -884,7 +891,7 @@ This CloudFormation template creates an IAM user named "cruddur_machine_user" an
   
 **CONFIG TOML FILE FOR MACHINE USER** [Link to TOML file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/machine-user/config.toml)
  
-When running the deployment process using these parameter values, it will likely involve creating or updating a CloudFormation stack named 'CrdMachineUser' in the 'us-east-1' region. The artifacts related to this stack will be stored in the 'jessbk-cfn-artifacts' S3 bucket.
+When running the deployment process using these parameter values, it will create a stack named 'CrdMachineUser' in the 'us-east-1' region. The artifacts related to this stack will be stored in the 'jessbk-cfn-artifacts' S3 bucket.(for this enable to work later on you will need to update the access key and secret key in the parameter store with the ones associated with machine user aws credentials)
   
 **Here is the link to the bash script.** [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/cfn/cicd)
   
