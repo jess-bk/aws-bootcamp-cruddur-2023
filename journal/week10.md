@@ -937,3 +937,10 @@ The script performs linting on the CloudFormation template, extracts necessary c
 # FRONTEND SUCCESSFULLY WORKING
   
 ![image week10 aws](assets/week10aws/rds_prod_webpage.png)
+  
+
+# CLOUDFORMATION ARCHITECTURAL DIAGRAM
+  
+  
+![image week10 aws](assets/cloudformation%20architectural%20diagram/cloudformation%20diagram.png)
+
