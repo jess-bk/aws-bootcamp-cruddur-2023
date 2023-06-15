@@ -211,13 +211,13 @@
   
 # Create Machine User For DDB  (Backend-Flask).
 
-    The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
+The CloudFormation template defines two resources: an IAM user (CruddurMachineUser) and an IAM policy (DynamoDBFullAccessPolicy).
 
-*   ## CruddurMachineUser: 
-    This resource creates an IAM user named "cruddur_machine_user". IAM users are identities that can be used to interact with AWS services and resources. This user can be used to authenticate and                   authorize access to various AWS services.
+## CruddurMachineUser: 
+This resource creates an IAM user named "cruddur_machine_user". IAM users are identities that can be used to interact with AWS services and resources. This user can be used to authenticate and                   authorize access to various AWS services.
 
-*   ## DynamoDBFullAccessPolicy: 
-    This resource creates an IAM policy named "DynamoDBFullAccessPolicy" that grants full access permissions to DynamoDB actions for the specified IAM user (CruddurMachineUser). The policy allows the user to         perform actions such as putting items, getting items, scanning, querying, updating items, deleting items, and performing batch writes on any DynamoDB resource (Resource: "*").
+## DynamoDBFullAccessPolicy: 
+This resource creates an IAM policy named "DynamoDBFullAccessPolicy" that grants full access permissions to DynamoDB actions for the specified IAM user (CruddurMachineUser). The policy allows the user to         perform actions such as putting items, getting items, scanning, querying, updating items, deleting items, and performing batch writes on any DynamoDB resource (Resource: "*").
 
 This CloudFormation template creates an IAM user named "cruddur_machine_user" and attaches an IAM policy that provides full access to DynamoDB actions. The user can then use the assigned credentials to interact with DynamoDB resources within the AWS environment.
  
@@ -291,6 +291,7 @@ The script performs linting on the CloudFormation template, extracts necessary c
 export CONNECTION_URL=$PROD_CONNECTION_URL
 ```
 This ensures that the migration script connects to the production database.
+
 2. Run the migration script by executing the following command:
    ./bin/db/migrate [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/migrate).
    This script will apply the necessary database migration to update the user bio.
