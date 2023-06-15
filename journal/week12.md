@@ -430,3 +430,34 @@ This ensures that the migration script connects to the production database.
   * Summary: This addition creates a new directory and file for AWS X-Ray integration in the backend Flask application.
   * Configured X-Ray recorder with the service name and dynamic naming.
   * Instrumented Flask middleware for X-Ray tracing.
+  
+# Refactor JWT  (Backend-Flask).  Refactor JWT 
+1. ### frontend-react-js/src/components/ReplyForm.js:
+   * Updated the close function to handle the click event on the popup form.
+   * If the clicked element has the class "reply_popup," it sets the "popped" state to false.
+2. ### backend-flask/lib/cognito_jwt_token.py:
+   * Defined a decorator function jwt_required that can be used to enforce JWT authentication on Flask routes.
+   * The decorator function wraps the original function and performs the following actions:
+    * Verifies the access token using CognitoJwtToken class.
+    * Stores the user_id in the global g object.
+    * Handles TokenVerifyError if the verification fails.
+    * Returns an error response if the request is unauthenticated.
+    * Executes the original function if the verification succeeds.
+3. ### backend-flask/app.py:
+  * Removed the unnecessary code related to cognito_jwt_token.
+  * Added jwt_required decorator to secure the following routes:
+   * "/api/message_groups" (GET)
+   * "/api/messages/string:message_group_uuid" (GET)
+   * "/api/messages" (POST, OPTIONS)
+   * "/api/activities/home" (GET)
+   * "/api/activities/notifications" (GET)
+   * "/api/activities" (POST, OPTIONS)
+   * "/api/activities/string:activity_uuid" (GET)
+   * "/api/profile/update" (POST, OPTIONS)
+  * The decorated routes now require JWT authentication and access the cognito_user_id from the global g object.
+  * Each route executes the corresponding logic, returning the appropriate response or error.
+4. ### default_home_feed function:
+   * Handles unauthenticated requests to the "/api/activities/home" route.
+   *Executes HomeActivities.run and returns the resulting data.
+  
+The code changes aim to refactor the existing JWT authentication implementation by introducing a decorator, jwt_required, to enforce authentication on specified routes. This approach simplifies the authentication logic by centralizing it within the decorator and allows for easy application to multiple routes. The decorator verifies the JWT access token using the CognitoJwtToken class, stores the user_id in the global g object, and handles authentication errors. The modified routes now use the jwt_required decorator, ensuring only authenticated users can access them.
