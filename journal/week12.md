@@ -2,7 +2,8 @@
 
 # THE FOLLOWING CONTENT IS THE FINAL UPDATES MADE TO THE APPLICATION
 
-# SQL Script (Backend-Flask) (seed data manually by running bash script).
+# SQL Script (Backend-Flask) 
+(seed data manually by running bash script).
 *  This script inserts user data into the users table and related activities into the activities table, establishing a relationship between the two tables using the UUID of each user.
 *  [Link to Seed SQL Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/seed.sql)
 *  [Link to Bash Script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/seed)
@@ -649,3 +650,40 @@ Updated mades to handle errors and create a new component for making http reques
  * loadData: A function that fetches the user's activities and profile data from the backend API using an HTTP GET request.
  * dataFetchedRef: A reference object used to prevent duplicate data fetching.
  * The component uses the useEffect hook to load the data and check the user authentication status when the component mounts. It prevents duplicate data fetching by checking the dataFetchedRef value.
+
+# Activity Show Page.
+ * Changes made to the Week-X Activity Show Page:
+
+ * The reply_to_activity_uuid column in the activities table was changed from an integer to a string. This was done to allow for more flexibility in the way that replies are handled.
+ * The show.sql query in the activities database was updated to reflect the change to the reply_to_activity_uuid column.
+ * The data_show_activity route in the users.py file was updated to return the updated show.sql query.
+ * The ActivityShowPage component in the frontend-react-js project was updated to handle the updated show.sql query.
+ * The ActivityActionLike, ActivityActionReply, ActivityActionRepost, and ActivityActionShare components in the frontend-react-js project were updated to handle the updated show.sql query.
+ * The ActivityContent.css file in the frontend-react-js project was updated to reflect the changes to the ActivityShowPage component.
+ * The ActivityContent.js file in the frontend-react-js project was updated to reflect the changes to the ActivityShowPage component.
+ * The backend-flask/services/show_activity.py file was updated to include the following changes:
+ * The reply_to_activity_uuid column is now a string.
+ * The show.sql query has been updated to reflect the change to the reply_to_activity_uuid column.
+ * The results variable now returns a JSON object that contains the updated data for the activity.
+
+ * Specific changes made to each file:
+
+ * reply_to_activity_uuid column in the activities table was changed from an integer to a string.
+ * show.sql query in the activities database was updated to reflect the change to the reply_to_activity_uuid column.
+ * data_show_activity route in the users.py file was updated to return the updated show.sql query.
+ * ActivityShowPage component in the frontend-react-js project was updated to handle the updated show.sql query.
+ * ActivityActionLike, ActivityActionReply, ActivityActionRepost, and ActivityActionShare components in the frontend-react-js project were updated to handle the updated show.sql query.
+ * ActivityContent.css file in the frontend-react-js project was updated to reflect the changes to the ActivityShowPage component.
+ * ActivityContent.js file in the frontend-react-js project was updated to reflect the changes to the ActivityShowPage component.
+ * backend-flask/services/show_activity.py file was updated to include the following changes:
+ * The reply_to_activity_uuid column is now a string.
+ * The show.sql query has been updated to reflect the change to the reply_to_activity_uuid column.
+ * The results variable now returns a JSON object that contains the updated data for the activity.
+ 
+The changes made to the Week-X Activity Show Page allow for more flexibility in the way that replies are handled. The updated show.sql query now returns a JSON object that contains the updated data for the      activity, which allows the ActivityShowPage component to be updated to reflect the changes
+  
+# CORS.
+* CORS stands for Cross-Origin Resource Sharing. It is a mechanism that allows web browsers to make requests to resources from other domains. By default, web browsers restrict these requests to prevent malicious   websites from accessing resources from other websites without the user's permission.
+* In the Week-X Activity Show Page, you were having an issue with CORS because the frontend and backend were hosted on different domains. This meant that the frontend was not able to make requests to the           backend.
+* To resolve this issue, I updated the aws/cfn/service/config.toml
+* These lines specify the frontend and backend URLs. By setting these values, you are telling the frontend that it is allowed to make requests to the backend. Once you made this change, the issue with CORS was     resolved and the frontend was able to make requests to the backend. [Link to toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml).
