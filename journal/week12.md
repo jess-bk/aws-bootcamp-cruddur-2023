@@ -368,6 +368,52 @@ This ensures that the migration script connects to the production database.
 ## To create a CRUD operation and check if it updates, follow these steps:
 1. Test the CRUD operations to ensure they function correctly.
 *  By following these steps, you can create a CRUD system and verify if the desired updates are successfully reflected in the associated data storage.
+  
+# CORS.
+* CORS stands for Cross-Origin Resource Sharing. It is a mechanism that allows web browsers to make requests to resources from other domains. By default, web browsers restrict these requests to prevent malicious   websites from accessing resources from other websites without the user's permission.
+* In the Week-X Activity Show Page, you were having an issue with CORS because the frontend and backend were hosted on different domains. This meant that the frontend was not able to make requests to the           backend.
+* To resolve this issue, I updated the aws/cfn/service/config.toml
+* These lines specify the frontend and backend URLs. By setting these values, you are telling the frontend that it is allowed to make requests to the backend. Once you made this change, the issue with CORS was     resolved and the frontend was able to make requests to the backend. [Link to toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml).
+  
+# CICD (Continuous Integration/Continuous Deployment).
+  
+Several updates and changes have been made to various files and components in the CICD (Continuous Integration/Continuous Deployment) pipeline. These updates aim to improve the functionality and user experience of the application.
+  
+Firstly, the docker-compose.yml file has been modified to prevent the application from starting in the production environment. This change ensures that the application is not accidentally launched in the production environment during the CI/CD process. [Link to DockerFile](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/docker-compose.yml).
+
+In the backend-flask directory, the app.py file has been updated to handle POST requests to the data_activities endpoint. The updated endpoint now extracts the access token from the request headers, verifies it, retrieves the user's cognito_user_id from the access token claims, and obtains the message and ttl values from the request's JSON payload. It then calls the CreateActivity.run() method with the necessary parameters to create a new activity. If any errors occur during this process, an appropriate error response is returned. Otherwise, the data is returned. [Link to app.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/app.py).
+
+The seed.sql file in the backend-flask/db directory has been updated to include sample data for the users table. This ensures that the database is initialized with some initial user data for testing and demonstration purposes. [Link to seed.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/seed.sql).
+
+In the backend-flask/services directory, the create_activity.py file has been updated with a CreateActivity class that now includes a run() method. This method takes in the message, cognito_user_id, and ttl as parameters. Inside the run() method, a model dictionary is initialized with errors and data keys. Various validations are performed on the parameters, and if the validations pass, the CreateActivity.create_activity() method is called to create a new activity in the database. The resulting activity object is fetched from the database and added to the model dictionary. Finally, the model dictionary is returned. [Link to create_activity.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/services/create_activity.py).
+
+The create.sql file in the backend-flask/db/sql/activities directory has been updated to include a query for inserting a new activity into the activities table. This SQL query is used when creating a new activity in the database.  [Link to create.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/create.sql).
+
+In the frontend-react-js/src/components directory, the ActivityForm.js file has been updated to include the necessary imports and code for submitting the form. The backend URL is obtained from the environment variables, and the access token is retrieved using the getAccessToken() function. The form data is then sent as a POST request to the backend API.
+[Link ActivityForm.js](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ActivityForm.js).
+
+The provided scripts, ./bin/db/setup and ./bin/db/connect, are used to set up and connect to the database, respectively. These scripts facilitate the database-related operations during the CI/CD process.
+* [Link ./bin/db/setup](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/setup).
+* [Link ./bin/db/connect](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/connect).
+  
+The changes made to the activity form are committed to the Git repository, allowing for version control and collaboration among team members.
+
+In the aws/cfn/cicd directory, the config.toml file has been updated with the correct repository and artifact bucket names. These values ensure that the CI/CD pipeline is linked to the appropriate resources.
+
+The old CodeBuild project in the AWS console is deleted to remove any outdated configurations or artifacts.
+
+The template.yaml file in the aws/cfn/cicd directory has been updated to include a CodeBuild project for baking container images. The template includes parameters for the log group path, log stream name, CodeBuild image, compute type, timeout, build spec, and artifact bucket name. The CodeBuild project is configured with the specified parameters, role, and policies.
+* [Link config toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/config.toml).
+* [Link  template yaml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/template.yaml).
+
+The nested/codebuild.yaml file in the aws/cfn/cicd directory has also been updated to include the ArtifactBucketName parameter. This parameter allows the CodeBuild project to access the necessary artifacts stored in the S3 bucket.
+
+The ./bin/cfn/cicd bash script is executed to deploy the updated CloudFormation stacks for the CICD pipeline. This script ensures that the changes are applied correctly and consistently.
+[Link to ./bin/cfn/cicd bash script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main//bin/cfn/cicd).
+
+A new pull request is created in GitHub to merge the changes from the main branch into the prod branch. This pull request triggers the CICD pipeline to build and deploy the changes, ensuring that the application is updated in the production environment.
+
+In the AWS Pipeline, the execution of the backend service is stopped and abandoned. The old cruddur-backend-fargate service is deleted from the pipeline, making way for the updated service to be deployed.
 
 # Refactor Flask Routes And App.py (Backend-Flask).
 #### we refactored the Backend-Flask project to improve its performance and scalability. It includes a summary of the modifications made to specific files and directories within the application codebase. We made the following changes:
@@ -463,46 +509,6 @@ This ensures that the migration script connects to the production database.
    * Executes HomeActivities.run and returns the resulting data.
   
 The code changes aim to refactor the existing JWT authentication implementation by introducing a decorator, jwt_required, to enforce authentication on specified routes. This approach simplifies the authentication logic by centralizing it within the decorator and allows for easy application to multiple routes. The decorator verifies the JWT access token using the CognitoJwtToken class, stores the user_id in the global g object, and handles authentication errors. The modified routes now use the jwt_required decorator, ensuring only authenticated users can access them.
-
-# CICD (Continuous Integration/Continuous Deployment).
-  
-Several updates and changes have been made to various files and components in the CICD (Continuous Integration/Continuous Deployment) pipeline. These updates aim to improve the functionality and user experience of the application.
-  
-Firstly, the docker-compose.yml file has been modified to prevent the application from starting in the production environment. This change ensures that the application is not accidentally launched in the production environment during the CI/CD process. [Link to DockerFile](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/docker-compose.yml).
-
-In the backend-flask directory, the app.py file has been updated to handle POST requests to the data_activities endpoint. The updated endpoint now extracts the access token from the request headers, verifies it, retrieves the user's cognito_user_id from the access token claims, and obtains the message and ttl values from the request's JSON payload. It then calls the CreateActivity.run() method with the necessary parameters to create a new activity. If any errors occur during this process, an appropriate error response is returned. Otherwise, the data is returned. [Link to app.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/app.py).
-
-The seed.sql file in the backend-flask/db directory has been updated to include sample data for the users table. This ensures that the database is initialized with some initial user data for testing and demonstration purposes. [Link to seed.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/seed.sql).
-
-In the backend-flask/services directory, the create_activity.py file has been updated with a CreateActivity class that now includes a run() method. This method takes in the message, cognito_user_id, and ttl as parameters. Inside the run() method, a model dictionary is initialized with errors and data keys. Various validations are performed on the parameters, and if the validations pass, the CreateActivity.create_activity() method is called to create a new activity in the database. The resulting activity object is fetched from the database and added to the model dictionary. Finally, the model dictionary is returned. [Link to create_activity.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/services/create_activity.py).
-
-The create.sql file in the backend-flask/db/sql/activities directory has been updated to include a query for inserting a new activity into the activities table. This SQL query is used when creating a new activity in the database.  [Link to create.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/create.sql).
-
-In the frontend-react-js/src/components directory, the ActivityForm.js file has been updated to include the necessary imports and code for submitting the form. The backend URL is obtained from the environment variables, and the access token is retrieved using the getAccessToken() function. The form data is then sent as a POST request to the backend API.
-[Link ActivityForm.js](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ActivityForm.js).
-
-The provided scripts, ./bin/db/setup and ./bin/db/connect, are used to set up and connect to the database, respectively. These scripts facilitate the database-related operations during the CI/CD process.
-* [Link ./bin/db/setup](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/setup).
-* [Link ./bin/db/connect](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/connect).
-  
-The changes made to the activity form are committed to the Git repository, allowing for version control and collaboration among team members.
-
-In the aws/cfn/cicd directory, the config.toml file has been updated with the correct repository and artifact bucket names. These values ensure that the CI/CD pipeline is linked to the appropriate resources.
-
-The old CodeBuild project in the AWS console is deleted to remove any outdated configurations or artifacts.
-
-The template.yaml file in the aws/cfn/cicd directory has been updated to include a CodeBuild project for baking container images. The template includes parameters for the log group path, log stream name, CodeBuild image, compute type, timeout, build spec, and artifact bucket name. The CodeBuild project is configured with the specified parameters, role, and policies.
-* [Link config toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/config.toml).
-* [Link  template yaml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/template.yaml).
-
-The nested/codebuild.yaml file in the aws/cfn/cicd directory has also been updated to include the ArtifactBucketName parameter. This parameter allows the CodeBuild project to access the necessary artifacts stored in the S3 bucket.
-
-The ./bin/cfn/cicd bash script is executed to deploy the updated CloudFormation stacks for the CICD pipeline. This script ensures that the changes are applied correctly and consistently.
-[Link to ./bin/cfn/cicd bash script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main//bin/cfn/cicd).
-
-A new pull request is created in GitHub to merge the changes from the main branch into the prod branch. This pull request triggers the CICD pipeline to build and deploy the changes, ensuring that the application is updated in the production environment.
-
-In the AWS Pipeline, the execution of the backend service is stopped and abandoned. The old cruddur-backend-fargate service is deleted from the pipeline, making way for the updated service to be deployed.
   
 # Replies.
 The following is the updates and changes made to various files and components related to the Week-X Replies feature. It provides a comprehensive overview of the modifications made to improve functionality and user experience. The updates include changes to frontend and backend files, database queries, migration scripts, and CSS styles.
@@ -682,8 +688,29 @@ Updated mades to handle errors and create a new component for making http reques
  
 The changes made to the Week-X Activity Show Page allow for more flexibility in the way that replies are handled. The updated show.sql query now returns a JSON object that contains the updated data for the      activity, which allows the ActivityShowPage component to be updated to reflect the changes
   
-# CORS.
-* CORS stands for Cross-Origin Resource Sharing. It is a mechanism that allows web browsers to make requests to resources from other domains. By default, web browsers restrict these requests to prevent malicious   websites from accessing resources from other websites without the user's permission.
-* In the Week-X Activity Show Page, you were having an issue with CORS because the frontend and backend were hosted on different domains. This meant that the frontend was not able to make requests to the           backend.
-* To resolve this issue, I updated the aws/cfn/service/config.toml
-* These lines specify the frontend and backend URLs. By setting these values, you are telling the frontend that it is allowed to make requests to the backend. Once you made this change, the issue with CORS was     resolved and the frontend was able to make requests to the backend. [Link to toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/service/config.toml).
+# Image Of Implementation
+  
+![image week-x aws](assets/week-x/weekx_complete_aws.png)
+  
+![image week-x aws](assets/week-x/weekx_complete.png)
+  
+![image week-x aws](assets/week-x/migrate_script.png)
+ 
+![image week-x aws](assets/week-x/second_attemp_migrate_bio.png)
+  
+![image week-x aws](assets/week-x/second_attemp_migrate_bio_profile.png)
+  
+![image week-x aws](assets/week-x/db-rds-prod-cli.png)
+  
+![image week-x aws](assets/week-x/x_week_replies.png)
+  
+![image week-x aws](assets/week-x/local_dev_cicd.png)
+  
+![image week-x aws](assets/week-x/healthcheck_cloudformation.png)
+
+![image week-x aws](assets/week-x/activity_show_page.png)
+  
+![image week-x aws](assets/week-x/refactor_jwt_dec.png)
+  
+![image week-x aws](assets/week-x/refactor_jwt_dec._cli.png)
+  
