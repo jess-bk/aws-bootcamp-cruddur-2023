@@ -434,16 +434,16 @@ This ensures that the migration script connects to the production database.
   
 # Refactor JWT  (Backend-Flask).  Refactor JWT 
 1. ### frontend-react-js/src/components/ReplyForm.js:
-   * Updated the close function to handle the click event on the popup form.
-   * If the clicked element has the class "reply_popup," it sets the "popped" state to false.
+  * Updated the close function to handle the click event on the popup form.
+  * If the clicked element has the class "reply_popup," it sets the "popped" state to false.
 2. ### backend-flask/lib/cognito_jwt_token.py:
-   * Defined a decorator function jwt_required that can be used to enforce JWT authentication on Flask routes.
-   * The decorator function wraps the original function and performs the following actions:
-    * Verifies the access token using CognitoJwtToken class.
-    * Stores the user_id in the global g object.
-    * Handles TokenVerifyError if the verification fails.
-    * Returns an error response if the request is unauthenticated.
-    * Executes the original function if the verification succeeds.
+ * Defined a decorator function jwt_required that can be used to enforce JWT authentication on Flask routes.
+ * The decorator function wraps the original function and performs the following actions:
+  * Verifies the access token using CognitoJwtToken class.
+  * Stores the user_id in the global g object.
+  * Handles TokenVerifyError if the verification fails.
+  * Returns an error response if the request is unauthenticated.
+  * Executes the original function if the verification succeeds.
 3. ### backend-flask/app.py:
   * Removed the unnecessary code related to cognito_jwt_token.
   * Added jwt_required decorator to secure the following routes:
@@ -459,6 +459,193 @@ This ensures that the migration script connects to the production database.
   * Each route executes the corresponding logic, returning the appropriate response or error.
 4. ### default_home_feed function:
    * Handles unauthenticated requests to the "/api/activities/home" route.
-   *Executes HomeActivities.run and returns the resulting data.
+   * Executes HomeActivities.run and returns the resulting data.
   
 The code changes aim to refactor the existing JWT authentication implementation by introducing a decorator, jwt_required, to enforce authentication on specified routes. This approach simplifies the authentication logic by centralizing it within the decorator and allows for easy application to multiple routes. The decorator verifies the JWT access token using the CognitoJwtToken class, stores the user_id in the global g object, and handles authentication errors. The modified routes now use the jwt_required decorator, ensuring only authenticated users can access them.
+
+# CICD (Continuous Integration/Continuous Deployment).
+  
+Several updates and changes have been made to various files and components in the CICD (Continuous Integration/Continuous Deployment) pipeline. These updates aim to improve the functionality and user experience of the application.
+  
+Firstly, the docker-compose.yml file has been modified to prevent the application from starting in the production environment. This change ensures that the application is not accidentally launched in the production environment during the CI/CD process. [Link to DockerFile](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/docker-compose.yml).
+
+In the backend-flask directory, the app.py file has been updated to handle POST requests to the data_activities endpoint. The updated endpoint now extracts the access token from the request headers, verifies it, retrieves the user's cognito_user_id from the access token claims, and obtains the message and ttl values from the request's JSON payload. It then calls the CreateActivity.run() method with the necessary parameters to create a new activity. If any errors occur during this process, an appropriate error response is returned. Otherwise, the data is returned. [Link to app.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/app.py).
+
+The seed.sql file in the backend-flask/db directory has been updated to include sample data for the users table. This ensures that the database is initialized with some initial user data for testing and demonstration purposes. [Link to seed.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/seed.sql).
+
+In the backend-flask/services directory, the create_activity.py file has been updated with a CreateActivity class that now includes a run() method. This method takes in the message, cognito_user_id, and ttl as parameters. Inside the run() method, a model dictionary is initialized with errors and data keys. Various validations are performed on the parameters, and if the validations pass, the CreateActivity.create_activity() method is called to create a new activity in the database. The resulting activity object is fetched from the database and added to the model dictionary. Finally, the model dictionary is returned. [Link to create_activity.py file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/services/create_activity.py).
+
+The create.sql file in the backend-flask/db/sql/activities directory has been updated to include a query for inserting a new activity into the activities table. This SQL query is used when creating a new activity in the database.  [Link to create.sql file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/create.sql).
+
+In the frontend-react-js/src/components directory, the ActivityForm.js file has been updated to include the necessary imports and code for submitting the form. The backend URL is obtained from the environment variables, and the access token is retrieved using the getAccessToken() function. The form data is then sent as a POST request to the backend API.
+[Link ActivityForm.js](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ActivityForm.js).
+
+The provided scripts, ./bin/db/setup and ./bin/db/connect, are used to set up and connect to the database, respectively. These scripts facilitate the database-related operations during the CI/CD process.
+* [Link ./bin/db/setup](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/setup).
+* [Link ./bin/db/connect](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/connect).
+  
+The changes made to the activity form are committed to the Git repository, allowing for version control and collaboration among team members.
+
+In the aws/cfn/cicd directory, the config.toml file has been updated with the correct repository and artifact bucket names. These values ensure that the CI/CD pipeline is linked to the appropriate resources.
+
+The old CodeBuild project in the AWS console is deleted to remove any outdated configurations or artifacts.
+
+The template.yaml file in the aws/cfn/cicd directory has been updated to include a CodeBuild project for baking container images. The template includes parameters for the log group path, log stream name, CodeBuild image, compute type, timeout, build spec, and artifact bucket name. The CodeBuild project is configured with the specified parameters, role, and policies.
+* [Link config toml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/config.toml).
+* [Link  template yaml file](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/aws/cfn/cicd/template.yaml).
+
+The nested/codebuild.yaml file in the aws/cfn/cicd directory has also been updated to include the ArtifactBucketName parameter. This parameter allows the CodeBuild project to access the necessary artifacts stored in the S3 bucket.
+
+The ./bin/cfn/cicd bash script is executed to deploy the updated CloudFormation stacks for the CICD pipeline. This script ensures that the changes are applied correctly and consistently.
+[Link to ./bin/cfn/cicd bash script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main//bin/cfn/cicd).
+
+A new pull request is created in GitHub to merge the changes from the main branch into the prod branch. This pull request triggers the CICD pipeline to build and deploy the changes, ensuring that the application is updated in the production environment.
+
+In the AWS Pipeline, the execution of the backend service is stopped and abandoned. The old cruddur-backend-fargate service is deleted from the pipeline, making way for the updated service to be deployed.
+  
+# Replies.
+The following is the updates and changes made to various files and components related to the Week-X Replies feature. It provides a comprehensive overview of the modifications made to improve functionality and user experience. The updates include changes to frontend and backend files, database queries, migration scripts, and CSS styles.
+  
+1. Update - frontend-react-js/src/components/ReplyForm.js: [Link to ReplyForm.js](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ReplyForm.js).
+* Description: This update handles the submission of reply forms in the frontend. It retrieves the access token, sends a POST request to the backend API, and updates the activity feed accordingly.
+  
+2. Update - backend-flask/routes/activities.py: [Link toa ctivities.py](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/routes/activities.py).
+* Description: This update adds a new route in the backend to handle replies to activities. It validates the message and user ID, calls the appropriate service to create a reply, and returns the model JSON.
+  
+3. Update - backend-flask/services/create_reply.py: [Link to create_reply.py](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/services/create_reply.py).
+* Description: This update includes a new service for creating replies. It performs validations on the message and user ID, creates a new reply in the database, and returns the resulting model JSON.
+
+4. Create - backend-flask/db/sql/activities/reply.sql: [Link to reply.sql](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/reply.sql).
+* Description: This newly created SQL file contains an INSERT query for adding replies to the activities table in the database.
+
+5. Update - backend-flask/db/sql/activities/object.sql: [Link to object.sql](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/object.sql).
+* Description: This update modifies the object SQL query for activities to exclude the reply_to_activity_uuid field.
+  
+6. Update - bin/db/migrate: [Link to bin/db/migrate](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/migrate).
+* Description: This update modifies the migration script to correctly compare the last successful run timestamp with the migration file timestamp during the migration process.
+  
+7. Update - bin/db/rollback: * [Link to bin/db/rollback](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/db/rollback).
+* Description: This update modifies the rollback script to set the last successful run timestamp after rolling back a migration file.
+  
+8. Update - bin/generate/migration: [Link to bin/generate/migration](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/generate/migration).
+* Description: This update modifies the migration generation script to remove the unnecessary instantiation of a migration class.
+  
+9. Update - backend-flask/db/sql/activities/home.sql: [Link home.sql](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/home.sql).
+* Description: This update modifies the SQL query for retrieving activities on the home page to include the replies count and other relevant information.
+  
+10. Update - backend-flask/db/sql/activities/object.sql: [Link to object.sql](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/backend-flask/db/sql/activities/object.sql).
+* Description: This update modifies the SQL query for retrieving activity objects to exclude the reply_to_activity_uuid field.
+  
+11. Run Migration - reply_to_activity_uuid_to_string: [Link to migrations script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/generate/migration).
+* Description: This migration updates the reply_to_activity_uuid column in the activities table to change its data type from UUID to string.
+  
+12. Update - frontend-react-js/src/components/ActivityItem.js: [Link to ActivityItem.js](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ActivityItem.js).
+* Description: This update modifies the rendering of activity items to include a section for displaying replies to each activity.
+  
+13. Update - frontend-react-js/src/components/ActivityItem.css:
+* Description: This update adds missing CSS styles for the activity item and replies sections to ensure proper layout and presentation. [Link to ActivityItem.css](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/frontend-react-js/src/components/ActivityItem.css).
+  
+14. Run Migration - ./bin/db/migrate:
+* Description: This command is used to execute the migration process, applying any pending database schema changes. [Link to migration script](https://github.com/jess-bk/aws-bootcamp-cruddur-2023/blob/main/bin/generate/migration).
+  
+  
+# Error Handling and Fetch Requests.
+Updated mades to handle errors and create a new component for making http requests.
+
+1. ./bin/db/setup:
+ * This command is used to run the database setup script.
+2. Update backend-flask/db/sql/activities/home.sql:
+ * This update modifies a SQL query in the file backend-flask/db/sql/activities/home.sql.
+ * The updated query selects various columns from the public.activities table and joins it with the public.users table.
+ * The result is ordered by the created_at column in descending order.
+3. Update backend-flask/db/sql/activities/show.sql:
+ * This update modifies a SQL query in the file backend-flask/db/sql/activities/show.sql.
+ * The updated query selects various columns from the public.activities table and joins it with the public.users table.
+ * Additionally, a subquery is used to fetch replies related to each activity.
+ * The result is ordered by the created_at column in descending order.
+4. Update backend-flask/services/create_activity.py:
+ * This update modifies the CreateActivity class in the backend-flask/services/create_activity.py file.
+ * The run method of the CreateActivity class is updated to handle error conditions and create an activity record in the database.
+ * The method takes input parameters such as message, cognito_user_id, and ttl (time-to-live) to create the activity.
+ * It performs validations on the input parameters and generates appropriate error messages if any validation fails.
+ * If there are no errors, it calculates the expiration time based on the ttl and creates the activity in the database.
+ * Finally, it returns a model object with the created activity data or error information.
+5. Update backend-flask/services/create_message.py:
+ * This update modifies the create_message.py file in the backend-flask/services directory.
+ * The update adds additional error handling for messages that exceed the maximum character limit.
+ * If the message length exceeds 1024 characters, it adds the error code 'message_exceed_max_chars_1024' to the model['errors'] list.
+6. Update backend-flask/services/create_reply.py:
+ * This update modifies the create_reply.py file in the backend-flask/services directory.
+ * Similar to the previous update, it adds additional error handling for replies that exceed the maximum character limit.
+ * If the message length exceeds 1024 characters, it adds the error code 'message_exceed_max_chars_1024' to the model['errors'] list.
+7. Create frontend-react-js/src/lib/Requests.js:
+ * This creates a new file Requests.js in the frontend-react-js/src/lib directory.
+ * The file defines several functions (request, post, put, get, destroy) to handle HTTP requests using the Fetch API.
+ * These functions accept parameters such as the HTTP method, URL, payload data, error handling function, and success function.
+ * They set the necessary headers for the request and handle different response scenarios (success, error with JSON data, network error).
+ * The response data is processed and passed to the success function if the request is successful.
+ * If there are errors, they are handled by setting error messages or logging them to the console.
+8. Update frontend-react-js/src/components/ActivityFeed.js:
+ * This update modifies the ActivityFeed.js file in the frontend-react-js/src/components directory.
+ * It updates the rendering logic of the ActivityFeed component.
+ * If there are no activities available, it displays a message within a div element with the class activity_feed_primer.
+ * If there are activities, it maps through the activities and renders an ActivityItem component for each activity.
+9. Update --> frontend-react-js/src/components/ActivityForm.js:
+ * Event Handlers: Several event handler functions are defined, including onsubmit, textarea_onchange, and ttl_onchange. These functions handle form submission, textarea value changes, and TTL (time-to-live)        value changes, respectively.
+ * Form Submission: When the form is submitted, an HTTP POST request is made to the backend API. The request includes the message and ttl values from the form. If the request is successful, the returned data is    used to update the activities list and reset the form fields.
+ * JSX Rendering: The JSX code defines the structure and elements of the form. It includes a textarea for entering the activity message, a character count display, a submit button, and a dropdown for selecting      the TTL value. Additionally, a FormErrors component is rendered to display any errors that occur during form submission.
+10. Create --> frontend-react-js/src/components/FormErrorItem.js:
+ * Render Error Function: The render_error function is defined to handle different error codes and return the corresponding error message.
+ * JSX Rendering: The JSX code renders a <div> element that displays the error message returned by the render_error function.
+11. Create --> frontend-react-js/src/components/FormErrors.js:
+ * FormErrors.js in the frontend-react-js/src/components directory is being created. This component is responsible for rendering a list of error messages.
+ * JSX Rendering: The JSX code checks if there are any errors in the props.errors array. If there are errors, it renders a <div> element with the errors class. Inside this element, it maps over the error codes      and renders a FormErrorItem component for each error code.
+12. Update --> frontend-react-js/src/components/MessageForm.js:
+ * Event Handlers: The onsubmit and textarea_onchange functions are defined to handle form submission and textarea value changes, respectively.
+ * Form Submission: When the form is submitted, an HTTP POST request is made to the backend API to send the direct message. The request includes the message value from the form. If the request is successful, the    returned data is used to update the messages list.
+ * JSX Rendering: The JSX code defines the structure and elements of the form. It includes a textarea for entering the message, a character count display, and a submit button. Additionally, a FormErrors            component is rendered to display any errors that occur during form submission.
+13. Update --> frontend-react-js/src/components/ProfileForm.js:
+ * This file is responsible for rendering a form component used to edit user profiles. Here's an overview of the changes:
+ * The JSX code defines the structure and elements of the form. It includes an input field for uploading an avatar image, input fields for entering the display name and bio, and a submit button. Additionally, a    FormErrors component is rendered to display any errors that occur during form submission.
+14. Update --> frontend-react-js/src/components/ReplyForm.js:
+ * Event Handlers: The onsubmit and textarea_onchange functions are defined to handle form submission and textarea value changes, respectively.
+ * Form Submission: When the form is submitted, an HTTP POST request is made to the backend API to submit the reply. The request includes the activity_uuid and message values. If the request is successful, the      returned data is used to update the activities list and reset the form fields.
+ * JSX Rendering: The JSX code defines the structure and elements of the form. It includes the activity content, a textarea for entering the reply message, a character count display, a submit button, and a          FormErrors component to display any errors that occur during form submission.
+15. Update --> frontend-react-js/src/pages/HomeFeedPage.js:
+ * State Variables: The activities, popped, poppedReply, replyActivity, and user state variables are declared using the React.useState hook. These variables store the activities list, the state of the activity      form popup, the state of the reply form popup, the activity for which a reply is being composed, and the user data, respectively.
+ * Data Fetching: The loadData function is defined to fetch the activities data from the backend API using an HTTP GET request.
+ * useEffect Hook: The useEffect hook is used to fetch the data and check the user authentication status when the component mounts.
+ * JSX Rendering: The JSX code defines the structure and elements of the home feed page. It includes the desktop navigation, activity form, reply form, activity feed, and desktop sidebar. The ActivityForm and      ReplyForm components are passed relevant props and functions to handle form submission and update the activities list.
+16. Update --> frontend-react-js/src/pages/MessageGroupNewPage.js:
+ * This file is responsible for rendering the message group page for a specific user. Here's an overview of the changes:
+ * State Variables: The otherUser, messageGroups, messages, popped, and user state variables are declared using the React.useState hook. These variables store the data related to the other user, message groups,    messages, the state of the message form popup, and the user data, respectively.
+ * Data Fetching: The loadUserShortData and loadMessageGroupsData functions are defined to fetch the user and message groups data from the backend API using HTTP GET requests.
+ * useEffect Hook: The useEffect hook is used to fetch the data and check the user authentication status when the component mounts.
+ *JSX Rendering: The JSX code defines the structure and elements of the message group page. It includes the desktop navigation, message group feed, messages feed, and message form. The MessageGroupFeed component   is passed relevant props to display the other user's data and the message groups.
+17. Update --> frontend-react-js/src/pages/MessageGroupPage.js:
+ * This file defines the MessageGroupsPage component, which represents the page for displaying message groups. It imports the required dependencies, including DesktopNavigation and MessageGroupFeed components,      as well as the checkAuth and getAccessToken functions from the CheckAuth module.
+ * The component's main function initializes state variables using the React.useState hook, including messageGroups, popped, user, and dataFetchedRef. The messageGroups variable stores an array of message          groups, popped keeps track of the state of the message form popup, user holds the user data, and dataFetchedRef is a reference object used to prevent duplicate data fetching.
+ * The loadData function is defined to fetch the message groups data from the backend API using an HTTP GET request.
+ * The useEffect hook is used to load the data and check the user authentication status when the component mounts. It prevents duplicate data fetching by checking the dataFetchedRef value.
+ * The JSX code renders the message groups page, including the desktop navigation, message group feed, and a content div.
+18. Updated --> frontend/src/pages/NotificationsFeedPage.js:
+ * The component's main function initializes state variables using the React.useState hook, including activities, popped, poppedReply, replyActivity, user, and dataFetchedRef. The activities variable stores an      array of activities, popped and poppedReply keep track of the state of popups, replyActivity stores the selected activity for replying, user holds the user data, and dataFetchedRef is a reference object used    to prevent duplicate data fetching.
+ * The loadData function is defined to fetch the activities data from the backend API using an HTTP GET request.
+ * The useEffect hook is used to load the data and check the user authentication status when the component mounts. It prevents duplicate data fetching by checking the dataFetchedRef value.
+ * The JSX code renders the notifications feed page, including the desktop navigation, content div with activity form and reply form, and the activity feed section.
+19. Updated --> frontend/src/pages/SignInPage.js:
+ * The component's main function initializes state variables using the React.useState hook, including email, password, and errors. The email and password variables store the user's input values, while errors  *    stores any form validation errors.
+ * The onsubmit function is defined to handle the form submission. It prevents the default form submission behavior, clears any previous errors, and attempts to sign in the user using the provided email and        password. If successful, the user's access token is stored in the local storage, and the user is redirected to the home page. If the user is not confirmed, they are redirected to the confirmation page. If an    error occurs during sign-in, the error message is stored in the errors state variable.
+ * The email_onchange, password_onchange, and other similar functions handle the changes in the respective input fields and update the state variables accordingly.
+20. Updated frontend/src/pages/SignupPage.js
+ * The SignupPage component represents the page for user sign-up. It allows users to create a Cruddur account by providing their name, email, username, and password. The component uses the AWS Amplify library      for authentication.
+21. Updated --> frontend/src/pages/SignupPage.js:
+ * The SignupPage.js component is responsible for rendering the signup page of the application. It provides a form for users to sign up by entering their name, email, username, and password. Upon submission, the    component sends a request to the backend API to create a new user account using the provided information. If successful, the user is redirected to the confirmation page. If there are any errors during the        signup process, they are displayed on the form
+ * errors: A string representing any errors that occur during the signup process.
+ * onsubmit: A function that handles the form submission event. It sends a request to the backend API using AWS Amplify's Auth.signUp method to create a new user account. Upon success, the user is redirected to    the confirmation page. If an error occurs, it is captured and displayed in the errors state.
+22. Updated --> frontend/src/pages/UserFeedPage.js:
+ * The UserFeedPage.js component represents the user feed page of the application. It displays the activity feed, profile information, and allows users to post new activities and update their profile. The          component fetches the user's activities and profile data from the backend API upon component mount.
+ * Import Added: get from 'lib/Requests': A function for making GET requests to the backend API.
+ * loadData: A function that fetches the user's activities and profile data from the backend API using an HTTP GET request.
+ * dataFetchedRef: A reference object used to prevent duplicate data fetching.
+ * The component uses the useEffect hook to load the data and check the user authentication status when the component mounts. It prevents duplicate data fetching by checking the dataFetchedRef value.
